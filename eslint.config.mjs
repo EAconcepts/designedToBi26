@@ -7,7 +7,7 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.mjs'],
-    ignores: ['lib/env.ts', 'next.config.ts', 'tests/**', 'scripts/**'],
+    ignores: ['lib/env.ts', 'next.config.ts', 'tests/**', 'scripts/**', 'prisma/**'],
     rules: {
       'no-restricted-syntax': [
         'error',

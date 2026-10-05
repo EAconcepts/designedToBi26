@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum SiteMode {
+  PRE
+  LIVE
+  POST
+}
+
+enum RsvpStatus {
+  PENDING
+  ATTENDING
+  DECLINED
+}
+
+enum RsvpSource {
+  WEB
+  PHONE
+  WHATSAPP
+}
+
+enum GiftStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  ABANDONED
+}
+
+enum GiftChannel {
+  PAYSTACK
+  BANK_TRANSFER_DECLARED
+}
+
+enum MediaStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MediaSource {
+  ADMIN
+  GUEST
+}
+
+enum Side {
+  PARTNER_A
+  PARTNER_B
+  BOTH
+}
+
+model Guest {
+  id           String       @id @default(cuid())
+  code         String       @unique // 8 chars, unambiguous alphabet
+  displayName  String // "The Adeyemi Family"
+  email        String?
+  phone        String?
+  side         Side         @default(BOTH) // A18: shown as an admin filter in Sprint 3, or dropped
+  maxPartySize Int          @default(1)
+  openedAt     DateTime?
+  createdAt    DateTime     @default(now())
+  invitations  Invitation[]
+  rsvp         Rsvp?
+  gifts        Gift[]
+}
+
+model Venue {
+  id      String   @id @default(cuid())
+  name    String
+  address String
+  city    String
+  lat     Float? // TODO: exact pin from the couple
+  lng     Float?
+  notes   String? // landmarks, parking, access
+  events  Event[]
+}
+
+model Event {
+  id          String          @id @default(cuid())
+  slug        String          @unique // "solemnization", "reception"
+  title       String
+  startsAt    DateTime // UTC
+  timeTbc     Boolean         @default(false) // show "Time to be announced"
+  endsAt      DateTime?
+  dressCode   String?
+  notes       String?
+  sortOrder   Int             @default(0)
+  venueId     String
+  venue       Venue           @relation(fields: [venueId], references: [id])
+  invitations Invitation[]
+  attendees   AttendeeEvent[]
+}
+
+model Invitation {
+  guestId String
+  eventId String
+  guest   Guest  @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  @@id([guestId, eventId])
+}
+
+model Rsvp {
+  id          String         @id @default(cuid())
+  guestId     String         @unique
+  status      RsvpStatus     @default(PENDING)
+  source      RsvpSource     @default(WEB)
+  songRequest String?
+  message     String? // private to the couple
+  respondedAt DateTime?
+  updatedAt   DateTime       @updatedAt
+  guest       Guest          @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  attendees   RsvpAttendee[]
+}
+
+model RsvpAttendee {
+  id      String          @id @default(cuid())
+  rsvpId  String
+  name    String
+  meal    String?
+  dietary String?
+  rsvp    Rsvp            @relation(fields: [rsvpId], references: [id], onDelete: Cascade)
+  events  AttendeeEvent[]
+
+  @@index([rsvpId])
+}
+
+model AttendeeEvent {
+  attendeeId String
+  eventId    String
+  attendee   RsvpAttendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+  event      Event        @relation(fields: [eventId], references: [id])
+
+  @@id([attendeeId, eventId])
+  @@index([eventId])
+}
+
+model Fund {
+  id           String  @id @default(cuid())
+  slug         String  @unique // "honeymoon", "first-home", "donation"
+  title        String
+  description  String?
+  goalMinor    Int?
+  showProgress Boolean @default(false)
+  isDonation   Boolean @default(false)
+  sortOrder    Int     @default(0)
+  isActive     Boolean @default(true)
+  gifts        Gift[]
+}
+
+model Gift {
+  id          String      @id @default(cuid())
+  reference   String      @unique // random 128-bit, our idempotency key
+  providerRef String?     @unique // Paystack transaction id
+  guestId     String?
+  fundId      String?
+  channel     GiftChannel
+  status      GiftStatus  @default(PENDING)
+  amountMinor Int // kobo
+  currency    String      @default("NGN")
+  giverName   String
+  giverEmail  String? // required in code for PAYSTACK
+  message     String?
+  isAnonymous Boolean     @default(false)
+  paidAt      DateTime?
+  rawEvent    Json? // REDACTED subset only (see §13.2)
+  createdAt   DateTime    @default(now())
+  guest       Guest?      @relation(fields: [guestId], references: [id])
+  fund        Fund?       @relation(fields: [fundId], references: [id])
+
+  @@index([status, createdAt])
+}
+
+model BankAccount {
+  id            String  @id @default(cuid())
+  label         String
+  bankName      String
+  accountName   String
+  accountNumber String
+  currency      String  @default("NGN")
+  sortOrder     Int     @default(0)
+  isActive      Boolean @default(true)
+}
+
+model Album {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "pre-wedding" | "wedding-day" | "guest-moments"
+  title       String
+  visibleFrom SiteMode @default(PRE) // album visible when mode >= visibleFrom
+  photos      Photo[]
+}
+
+model Photo {
+  id         String      @id @default(cuid())
+  albumId    String
+  publicId   String      @unique // Cloudinary public_id
+  width      Int
+  height     Int
+  caption    String?
+  altText    String?
+  sortOrder  Int         @default(0)
+  status     MediaStatus @default(APPROVED) // guest uploads default to PENDING
+  source     MediaSource @default(ADMIN)
+  uploadedBy String? // guest code for guest uploads
+  createdAt  DateTime    @default(now())
+  album      Album       @relation(fields: [albumId], references: [id])
+
+  @@index([albumId, status, sortOrder])
+  @@index([status])
+}
+
+model Milestone {
+  id            String  @id @default(cuid())
+  title         String
+  dateLabel     String
+  body          String
+  photoPublicId String?
+  sortOrder     Int
+}
+
+model Setting {
+  id             Int       @id @default(1)
+  mode           SiteMode  @default(PRE)
+  rsvpDeadline   DateTime?
+  uploadsOpen    Boolean   @default(false)
+  uploadsCloseAt DateTime?
+  uploadToken    String? // rotates; embedded in the QR
+  liveStreamUrl  String?
+}
+
+model AdminUser {
+  id    String  @id @default(cuid())
+  email String  @unique
+  name  String?
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  entity    String
+  entityId  String?
+  meta      Json?
+  createdAt DateTime @default(now())
+}

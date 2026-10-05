@@ -14,11 +14,19 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
     "test": "pnpm test:unit",
-    "verify": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test:unit",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "seed": "prisma db seed",
+    "verify": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test:unit && pnpm test:integration",
     "prepare": "husky"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
+    "@prisma/client": "6.19.3",
     "framer-motion": "^14.0.0",
     "next": "16.3.8",
     "react": "19.2.8",
@@ -37,6 +45,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.9",
+    "prisma": "6.19.3",
     "sharp": "^0.35.5",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
