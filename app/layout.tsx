@@ -27,6 +27,7 @@ const alexBrush = Alex_Brush({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('http://localhost:3000'),
   title: {
     template: "%s | Adetolani & Emmanuel's Wedding",
     default: 'Adetolani & Emmanuel — 19 December 2026',
