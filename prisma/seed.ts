@@ -10,7 +10,9 @@ export async function seed(client: PrismaClient = globalPrisma) {
   // 1. Setting singleton (id = 1)
   const setting = await client.setting.upsert({
     where: { id: 1 },
-    update: {},
+    update: {
+      rsvpDeadline: new Date(SITE.rsvp.deadline),
+    },
     create: {
       id: 1,
       mode: 'PRE',
