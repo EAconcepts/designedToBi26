@@ -1,26 +1,82 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Canvas & Cards */
+  --ivory: #fbf8f3;
+  --white: #ffffff;
+
+  /* Gold Palette */
+  --gold-500: #c9a24b;
+  --gold-grad: linear-gradient(135deg, #b8892f, #e8cb7a 50%, #b8892f);
+
+  /* Magenta Palette */
+  --magenta-600: #a3125f;
+  --magenta-800: #7a0c47;
+
+  /* Ink / Text Palette */
+  --ink-900: #2a0a1f;
+  --ink-600: #5b4553;
+
+  /* Night Mode / Dark Background */
+  --night: #1d0615;
+
+  /* System defaults mapping to tokens */
+  --background: var(--ivory);
+  --foreground: var(--ink-900);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --color-ivory: var(--ivory);
+  --color-white: var(--white);
+  --color-gold-500: var(--gold-500);
+  --color-magenta-600: var(--magenta-600);
+  --color-magenta-800: var(--magenta-800);
+  --color-ink-900: var(--ink-900);
+  --color-ink-600: var(--ink-600);
+  --color-night: var(--night);
+
+  --font-display: var(--font-display), 'Cormorant Garamond', Georgia, serif;
+  --font-body: var(--font-body), 'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-signature: var(--font-signature), 'Alex Brush', cursive;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Inversion block for dark / night sections */
+[data-theme='night'] {
+  --background: var(--night);
+  --foreground: var(--ivory);
+  background-color: var(--night);
+  color: var(--ivory);
 }
 
+[data-theme='night'] .text-ink-600 {
+  color: var(--gold-500);
+}
+
+/* Base typography and body */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+}
+
+/* Global reduced-motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
