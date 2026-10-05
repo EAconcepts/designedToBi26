@@ -1,6 +1,6 @@
 # Build Status
 
-_Updated: 2026-10-05 · Current phase: 0 Foundation · Current subphase: 0.2 Env + local DB_
+_Updated: 2026-10-05 · Current phase: 0 Foundation · Current subphase: 0.3 Tokens, fonts, shell_
 
 > This file is the handoff surface between sessions/agents. Update it at the **end of every
 > working session** and whenever a gate is passed, a blocker appears, or a decision is taken.
@@ -11,7 +11,7 @@ _Updated: 2026-10-05 · Current phase: 0 Foundation · Current subphase: 0.2 Env
 | Phase           | Subphase                           | State       | Evidence (PR, URL, command output)                    |
 | --------------- | ---------------------------------- | ----------- | ----------------------------------------------------- |
 | 0 Foundation    | 0.1 Repo, git, tooling             | done        | commit 03e52dd; lint/format/typecheck/commitlint pass |
-| 0 Foundation    | 0.2 Env + local DB                 | not-started |                                                       |
+| 0 Foundation    | 0.2 Env + local DB                 | done        | docker-compose (dev+test DBs), lib/env.ts, vitest 5/5 |
 | 0 Foundation    | 0.3 Tokens, fonts, shell           | not-started |                                                       |
 | 0 Foundation    | 0.4 Brand contract + config        | not-started |                                                       |
 | 0 Foundation    | 0.5 Prisma + seed                  | not-started |                                                       |
@@ -80,10 +80,12 @@ Format: `<item> — blocking <phase.subphase> — owner <who> — raised <date> 
 
 - 2026-10-05 — Plan created with amendments A1–A20 (see `README.md` §3).
 - 2026-10-05 — Subphase 0.1 scaffold completed: Next.js 16.3.8 (App Router), React 19.2.8, Tailwind CSS v4.3.3 (@theme in app/globals.css), ESLint 9.39.5, TypeScript 5.9.3, Node pinned to 24 in .nvmrc and package.json#engines, pnpm 12.9.1. Prettier, Husky, lint-staged, and commitlint configured.
+- 2026-10-05 — Subphase 0.2 env and database setup completed: PostgreSQL 16 via docker-compose.yml running wedding_dev & wedding_test; .env.example documented with all 19 keys; lib/env.ts Zod schema with server/public separation and frozen exports; ESLint no-restricted-syntax rule blocking direct process.env usage outside lib/env.ts.
 
 ## Evidence log
 
 - 2026-10-05 — Subphase 0.1 — commit 03e52dd — `pnpm lint` (0 errors), `pnpm format:check` (0 errors), `pnpm typecheck` (0 errors), commitlint rejects bad messages, initial commit created.
+- 2026-10-05 — Subphase 0.2 — docker-compose up -d (wedding_dev, wedding_test verified via psql '\l'), tests/unit/env-example.test.ts (1 test passed), tests/unit/env.test.ts (4 tests passed), pnpm verify green.
 
 ## Open questions answered (from architecture §20.2)
 
