@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { PrismaClient } from '@prisma/client';
-import { GET, checkHealth } from '@/app/api/health/route';
+import { GET } from '@/app/api/health/route';
+import { checkHealth } from '@/lib/health';
 
 describe('Health Check Route Integration (/api/health)', () => {
   it('returns 200 with db: up when database is healthy', async () => {
