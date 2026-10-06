@@ -235,9 +235,19 @@ model Setting {
 }
 
 model AdminUser {
-  id    String  @id @default(cuid())
-  email String  @unique
-  name  String?
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
 }
 
 model AuditLog {
