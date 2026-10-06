@@ -7,7 +7,15 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.mjs'],
-    ignores: ['lib/env.ts', 'next.config.ts', 'tests/**', 'scripts/**', 'prisma/**'],
+    ignores: [
+      'lib/env.ts',
+      'next.config.ts',
+      'playwright.config.ts',
+      'vitest.config.*',
+      'tests/**',
+      'scripts/**',
+      'prisma/**',
+    ],
     rules: {
       'no-restricted-syntax': [
         'error',
@@ -26,6 +34,9 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    'coverage/**',
+    'playwright-report/**',
+    'test-results/**',
   ]),
 ]);
 
