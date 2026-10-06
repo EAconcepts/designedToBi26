@@ -1,6 +1,6 @@
 # Build Status
 
-_Updated: 2026-10-06 · Current phase: 0 Foundation · Current subphase: 0.12 Phase exit gate — Foundation_
+_Updated: 2026-10-06 · Current phase: 1 Public · Current subphase: 1.2 Guest link + session complete_
 
 > This file is the handoff surface between sessions/agents. Update it at the **end of every
 > working session** and whenever a gate is passed, a blocker appears, or a decision is taken.
@@ -22,8 +22,8 @@ _Updated: 2026-10-06 · Current phase: 0 Foundation · Current subphase: 0.12 Ph
 | 0 Foundation    | 0.10 CI/CD, Vercel, Neon           | done        | .github/workflows/ci.yml (5 jobs), lighthouserc.json, PR template (9a83b1c); Vercel build fix (9c90b99); dev pushed to remote                               |
 | 0 Foundation    | 0.11 Docs + amendments             | done        | architecture.md A1–A20 verified inline; comprehensive README.md quickstart & dependency tracker; RUNBOOK.md skeleton (§19.2–19.4)                           |
 | 0 Foundation    | **Phase exit gate**                | done        | All 10 automated exit gate commands verified green (frozen-lockfile, docker, migrate, seedx2, lint/format/typecheck, unit, integration, build, e2e, health) |
-| 1 Public        | 1.1 Home composition               | not-started |                                                                                                                                                             |
-| 1 Public        | 1.2 Guest link + session           | not-started |                                                                                                                                                             |
+| 1 Public        | 1.1 Home composition               | done        | `pnpm verify` green; `pnpm test:e2e` 4/4 green; `pnpm build` confirms static `/` and all placeholder routes.                                                |
+| 1 Public        | 1.2 Guest link + session           | done        | `pnpm verify` green; guest-link contract checks and E2E personalised/unknown-link flows pass; `/api/session/guest` is dynamic.                              |
 | 1 Public        | 1.3 Hero + opening sequence        | not-started |                                                                                                                                                             |
 | 1 Public        | 1.4 Countdown + invitation text    | not-started |                                                                                                                                                             |
 | 1 Public        | 1.5 Story timeline                 | not-started |                                                                                                                                                             |
@@ -78,6 +78,8 @@ Format: `<item> — blocking <phase.subphase> — owner <who> — raised <date> 
 
 ## Decisions taken
 
+- 2026-10-06 — Began Sprint 1 subphases 1.1 and 1.2. Home remains a static public route; guest personalisation is isolated to client-side fetches from `GET /api/session/guest`, so no public server component reads cookies.
+- 2026-10-06 — Completed Sprint 1 subphases 1.1 and 1.2. Playwright’s dev server loads `.env.test` for deterministic E2E credentials; production builds continue to require the normal deployment environment.
 - 2026-10-05 — Plan created with amendments A1–A20 (see `README.md` §3).
 - 2026-10-05 — Subphase 0.1 scaffold completed: Next.js 16.3.8 (App Router), React 19.2.8, Tailwind CSS v4.3.3 (@theme in app/globals.css), ESLint 9.39.5, TypeScript 5.9.3, Node pinned to 24 in .nvmrc and package.json#engines, pnpm 12.9.1. Prettier, Husky, lint-staged, and commitlint configured.
 - 2026-10-05 — Subphase 0.2 env and database setup completed: PostgreSQL 16 via docker-compose.yml running wedding_dev & wedding_test; .env.example documented with all 19 keys; lib/env.ts Zod schema with server/public separation and frozen exports; ESLint no-restricted-syntax rule blocking direct process.env usage outside lib/env.ts.
@@ -92,6 +94,7 @@ Format: `<item> — blocking <phase.subphase> — owner <who> — raised <date> 
 
 ## Evidence log
 
+- 2026-10-06 — Subphases 1.1–1.2 — `pnpm verify` passed after `pnpm prisma generate`; `pnpm test:e2e` passed 4/4 on Mobile Chrome 390px (home structure, skip-link smoke, valid personalised link, unknown link); `pnpm build` passed with 19 static/dynamic routes and `/` reported static.
 - 2026-10-05 — Subphase 0.1 — commit 03e52dd — `pnpm lint` (0 errors), `pnpm format:check` (0 errors), `pnpm typecheck` (0 errors), commitlint rejects bad messages, initial commit created.
 - 2026-10-05 — Subphase 0.2 — docker-compose up -d (wedding_dev, wedding_test verified via psql '\l'), tests/unit/env-example.test.ts (1 test passed), tests/unit/env.test.ts (4 tests passed), pnpm verify green.
 - 2026-10-05 — Subphase 0.3 — next build (5/5 static routes compiled successfully), hex check verified (only globals.css contains hex literals), pnpm verify green.

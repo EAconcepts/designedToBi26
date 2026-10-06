@@ -82,6 +82,39 @@ export interface SiteConfig {
     readonly headline: string;
     readonly body: string;
   };
+  readonly home: {
+    readonly heroEyebrow: string;
+    readonly dateLabel: string;
+    readonly invitation: { readonly eyebrow: string; readonly title: string };
+    readonly story: {
+      readonly eyebrow: string;
+      readonly title: string;
+      readonly description: string;
+    };
+    readonly events: { readonly eyebrow: string; readonly title: string };
+    readonly venue: {
+      readonly eyebrow: string;
+      readonly title: string;
+      readonly cityLabel: string;
+    };
+    readonly colour: { readonly eyebrow: string; readonly title: string };
+    readonly gallery: {
+      readonly eyebrow: string;
+      readonly title: string;
+      readonly description: string;
+    };
+    readonly gift: {
+      readonly eyebrow: string;
+      readonly title: string;
+      readonly description: string;
+    };
+    readonly faq: { readonly eyebrow: string; readonly title: string };
+    readonly rsvp: {
+      readonly eyebrow: string;
+      readonly title: string;
+      readonly description: string;
+    };
+  };
   readonly brand: {
     readonly logo: BrandLogoConfig;
   };

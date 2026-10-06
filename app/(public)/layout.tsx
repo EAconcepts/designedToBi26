@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/brand/Logo';
 import { Container } from '@/components/ui';
+import { SiteFooter } from '@/components/sections';
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
@@ -50,31 +51,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      {/* Branded footer */}
-      <footer
-        data-theme="night"
-        className="bg-night text-ivory py-12 sm:py-16 border-t border-gold-500/30"
-      >
-        <Container size="lg" className="text-center flex flex-col items-center">
-          <Logo size={56} variant="light" className="mb-4" />
-          <p className="font-signature text-3xl sm:text-4xl text-gold-500 mb-2">
-            Adetolani &amp; Emmanuel
-          </p>
-          <p className="text-xs uppercase tracking-[0.2em] text-ivory/70 mb-4">
-            #designedToBi&apos;26 · 19 December 2026
-          </p>
-          <div className="w-16 h-[1px] bg-gold-500/40 my-4" aria-hidden="true" />
-          <p className="text-xs text-ivory/60 max-w-md mx-auto mb-6">
-            For questions or assistance with your invitation, please reach out to the contacts on
-            your card.
-          </p>
-          <div className="flex items-center gap-6 text-xs text-gold-500/80">
-            <Link href="/privacy" className="hover:text-gold-500 underline underline-offset-4">
-              Privacy Notice (NDPA)
-            </Link>
-          </div>
-        </Container>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

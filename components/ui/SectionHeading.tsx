@@ -1,6 +1,7 @@
 import { GoldRule } from './GoldRule';
 
 interface SectionHeadingProps {
+  id?: string;
   eyebrow?: string;
   title: string;
   description?: string;
@@ -9,6 +10,7 @@ interface SectionHeadingProps {
 }
 
 export function SectionHeading({
+  id,
   eyebrow,
   title,
   description,
@@ -24,7 +26,10 @@ export function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-medium text-ink-900 leading-tight [data-theme=night]_&:text-ivory">
+      <h2
+        id={id}
+        className="text-3xl sm:text-4xl md:text-5xl font-display font-medium text-ink-900 leading-tight [data-theme=night]_&:text-ivory"
+      >
         {title}
       </h2>
       <GoldRule withDiamond className="max-w-xs mx-auto" />
