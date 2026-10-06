@@ -9,14 +9,12 @@ const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-display',
-  weight: ['400', '500', '600', '700'],
 });
 
 const jost = Jost({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-body',
-  weight: ['300', '400', '500', '600'],
 });
 
 const alexBrush = Alex_Brush({
