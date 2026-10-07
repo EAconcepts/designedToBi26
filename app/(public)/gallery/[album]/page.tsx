@@ -1,87 +1,53 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getSettings } from '@/lib/settings';
+import { getPhotos } from '@/lib/albums';
+import { GalleryGrid } from '@/components/ui/GalleryGrid';
 
-const galleryPhotos = [
-  '/img-7.jpg',
-  '/img-6.jpg',
-  '/img-5.jpg',
-  '/img-4.jpg',
-  '/img-3.jpg',
-  '/img-2.jpg',
-  '/img-1.jpg',
-];
+export const revalidate = 60; // ISR per §3.2
 
-export default function AlbumDetailPage() {
-  const [selected, setSelected] = useState<number | null>(null);
+interface AlbumPageProps {
+  params: Promise<{ album: string }>;
+}
+
+export default async function AlbumDetailPage({ params }: AlbumPageProps) {
+  const { album: albumSlug } = await params;
+  const setting = await getSettings();
+
+  const data = await getPhotos(albumSlug, setting.mode);
+
+  if (!data) {
+    notFound();
+  }
 
   return (
-    <div className="route-page album-detail">
-      <header className="album-detail__header">
-        <Link href="/gallery" className="back-link">
-          ← All albums
+    <div className="py-12 px-4 sm:px-6 max-w-6xl mx-auto space-y-8">
+      {/* Navigation & Header */}
+      <div>
+        <Link
+          href="/gallery"
+          className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-gold-700 hover:text-gold-900 font-semibold mb-4 transition-colors"
+        >
+          <span>←</span>
+          <span>Back to All Collections</span>
         </Link>
-        <p className="section-kicker">Album 01 · {galleryPhotos.length} photographs</p>
-        <h1>
-          Before
-          <br />
-          <em>forever</em>
-        </h1>
-        <p>Pre-wedding · Ilorin, 2026</p>
-      </header>
 
-      <section className="masonry-grid">
-        {galleryPhotos.map((photo, index) => (
-          <button
-            key={`${photo}-${index}`}
-            onClick={() => setSelected(index)}
-            type="button"
-            style={{
-              cursor: 'pointer',
-              border: 'none',
-              background: 'none',
-              padding: 0,
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={photo}
-              alt={`Adetolani and Abiodun, portrait ${index + 1}`}
-              width={600}
-              height={800}
-              loading="lazy"
-            />
-          </button>
-        ))}
-      </section>
-
-      {selected !== null && (
-        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Photograph preview">
-          <button className="lightbox__close" onClick={() => setSelected(null)} type="button">
-            Close ×
-          </button>
-          <button
-            onClick={() =>
-              setSelected((selected + galleryPhotos.length - 1) % galleryPhotos.length)
-            }
-            type="button"
-          >
-            ←
-          </button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={galleryPhotos[selected % galleryPhotos.length]}
-            alt={`Portrait ${selected + 1}`}
-            width={1200}
-            height={1600}
-          />
-          <button onClick={() => setSelected((selected + 1) % galleryPhotos.length)} type="button">
-            →
-          </button>
-          <span>{String(selected + 1).padStart(2, '0')} / 09</span>
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-ink-100 pb-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-magenta-950">
+              {data.album.title}
+            </h1>
+            <p className="text-xs sm:text-sm text-ink-600 mt-1">
+              {data.total} {data.total === 1 ? 'photograph' : 'photographs'} curated with care.
+            </p>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Photo Grid with Interactive Lightbox */}
+      <section aria-label={`${data.album.title} photographs`}>
+        <GalleryGrid photos={data.photos} albumTitle={data.album.title} />
+      </section>
     </div>
   );
 }

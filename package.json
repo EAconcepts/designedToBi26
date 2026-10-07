@@ -23,8 +23,9 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "seed": "prisma db seed",
     "gifts:reconcile": "tsx scripts/reconcile-gifts.ts",
+    "sync:album": "tsx scripts/sync-album.ts",
+    "zip:album": "tsx scripts/zip-album.ts",
     "verify": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test:unit && pnpm test:integration",
     "prepare": "husky"
   },
