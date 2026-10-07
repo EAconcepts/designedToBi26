@@ -122,3 +122,86 @@ export async function sendRsvpNotificationEmail(
     return false;
   }
 }
+
+export interface SendGiftReceiptParams {
+  giverEmail: string;
+  giverName: string;
+  amountFormatted: string;
+  fundTitle: string;
+  reference: string;
+  message?: string | null;
+}
+
+export async function sendGiftReceiptEmail(params: SendGiftReceiptParams): Promise<boolean> {
+  try {
+    const { GiftReceiptEmail } = await import('./templates/gift-receipt');
+
+    const subject = `Thank you for your gift to ${SITE.couple.a} & ${SITE.couple.b}!`;
+
+    const emailElement = React.createElement(GiftReceiptEmail, {
+      giverName: params.giverName,
+      amountFormatted: params.amountFormatted,
+      fundTitle: params.fundTitle,
+      reference: params.reference,
+      message: params.message,
+    });
+
+    const result = await sendEmail({
+      to: params.giverEmail,
+      subject,
+      react: emailElement,
+    });
+
+    return result.ok;
+  } catch (err) {
+    console.error('[GIFT RECEIPT SEND EXCEPTION]:', err);
+    return false;
+  }
+}
+
+export interface SendGiftNotificationParams {
+  giverName: string;
+  giverEmail?: string | null;
+  amountFormatted: string;
+  fundTitle: string;
+  reference: string;
+  channel: string;
+  message?: string | null;
+}
+
+export async function sendGiftNotificationEmail(
+  params: SendGiftNotificationParams,
+): Promise<boolean> {
+  try {
+    const notifyEmail = env.server.NOTIFY_EMAIL;
+    if (!notifyEmail) return false;
+
+    const { GiftNotificationEmail } = await import('./templates/gift-notification');
+
+    const siteUrl = env.public.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+    const ledgerUrl = `${siteUrl}/admin/gifts`;
+    const subject = `[Gift Alert] ${params.amountFormatted} from ${params.giverName}`;
+
+    const emailElement = React.createElement(GiftNotificationEmail, {
+      giverName: params.giverName,
+      giverEmail: params.giverEmail,
+      amountFormatted: params.amountFormatted,
+      fundTitle: params.fundTitle,
+      reference: params.reference,
+      channel: params.channel,
+      message: params.message,
+      ledgerUrl,
+    });
+
+    const result = await sendEmail({
+      to: notifyEmail,
+      subject,
+      react: emailElement,
+    });
+
+    return result.ok;
+  } catch (err) {
+    console.error('[GIFT NOTIFICATION SEND EXCEPTION]:', err);
+    return false;
+  }
+}

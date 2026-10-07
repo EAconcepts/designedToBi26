@@ -1,93 +1,43 @@
-'use client';
+import { getSettings } from '@/lib/settings';
+import { getVisibleAlbums } from '@/lib/albums';
+import { AlbumGrid } from '@/components/sections/AlbumGrid';
+import { SITE } from '@/content/site.config';
 
-import { useState } from 'react';
-import Link from 'next/link';
+export const revalidate = 60; // ISR 60s per §3.2
 
-const galleryPhotos = [
-  '/img-7.jpg',
-  '/img-6.jpg',
-  '/img-5.jpg',
-  '/img-4.jpg',
-  '/img-3.jpg',
-  '/img-2.jpg',
-];
+export const metadata = {
+  title: 'Photo Gallery | Adetolani & Emmanuel',
+  description:
+    'Moments between moments: pre-wedding memories, celebration highlights, and guest captures.',
+};
 
-export default function GalleryPage() {
-  const [album, setAlbum] = useState<'pre' | 'guest' | 'wedding'>('pre');
+export default async function GalleryPage() {
+  const setting = await getSettings();
+  const albums = await getVisibleAlbums(setting.mode);
 
   return (
-    <div className="route-page">
-      <header className="inner-hero">
-        <div className="inner-hero__ornament">AE</div>
-        <p className="section-kicker section-kicker--gold">The moments between moments</p>
-        <h1>
-          Our <em>gallery</em>
-        </h1>
-        <p className="inner-hero__body">
-          A collection of memories, held close and shared with you.
+    <div className="py-12 px-4 sm:px-6 max-w-6xl mx-auto space-y-12">
+      {/* Editorial Header */}
+      <header className="text-center space-y-3 max-w-2xl mx-auto">
+        <div className="w-12 h-12 mx-auto rounded-full bg-magenta-900 text-light-gold flex items-center justify-center font-serif font-bold text-lg shadow-sm">
+          {SITE.couple.initials}
+        </div>
+        <p className="text-xs uppercase tracking-widest text-ink-600 font-semibold font-sans">
+          The Moments Between Moments
         </p>
-        <span className="inner-hero__line" />
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-magenta-950 tracking-tight">
+          Wedding <em className="italic font-normal text-magenta-800">Gallery</em>
+        </h1>
+        <p className="text-sm sm:text-base text-ink-600 leading-relaxed pt-1">
+          A timeless collection of our journey, cherished memories, and celebration captures shared
+          with love.
+        </p>
       </header>
 
-      <section className="album-selector paper-section">
-        <button
-          className={album === 'pre' ? 'active' : ''}
-          onClick={() => setAlbum('pre')}
-          type="button"
-        >
-          <span>01</span>Pre-wedding<small>Available now</small>
-        </button>
-        <button
-          className={album === 'guest' ? 'active' : ''}
-          onClick={() => setAlbum('guest')}
-          type="button"
-        >
-          <span>02</span>Guest moments<small>Opens on the day</small>
-        </button>
-        <button
-          className={album === 'wedding' ? 'active' : ''}
-          onClick={() => setAlbum('wedding')}
-          type="button"
-        >
-          <span>03</span>Wedding day<small>Coming soon</small>
-        </button>
+      {/* Album Collections Grid */}
+      <section aria-label="Wedding photo albums">
+        <AlbumGrid albums={albums} />
       </section>
-
-      {album === 'pre' ? (
-        <section className="album-grid paper-section">
-          {galleryPhotos.map((photo, index) => (
-            <Link href="/gallery/pre-wedding" key={photo}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photo}
-                alt={`Pre-wedding portrait ${index + 1}`}
-                width={600}
-                height={800}
-                loading="lazy"
-              />
-              <span>View</span>
-            </Link>
-          ))}
-        </section>
-      ) : (
-        <section className="locked-album paper-section">
-          <div className="locked-seal">AE</div>
-          <p className="section-kicker">A little more patience</p>
-          <h2>
-            {album === 'guest' ? 'Your view of our day.' : 'The chapter we’re about to write.'}
-          </h2>
-          <p>
-            {album === 'guest'
-              ? 'Guest uploads will open on 19 December. Scan the table card to share your moments.'
-              : 'Our wedding photographs will be available after the celebration.'}
-          </p>
-          {album === 'guest' && (
-            <Link className="button button--magenta" href="/upload/wedding-day">
-              Preview guest upload
-            </Link>
-          )}
-        </section>
-      )}
     </div>
   );
 }

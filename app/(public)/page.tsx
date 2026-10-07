@@ -1,3 +1,4 @@
+import { getSettings } from '@/lib/settings';
 import { EnvelopeIntro } from '@/components/brand';
 import {
   ColourOfDay,
@@ -6,17 +7,21 @@ import {
   GalleryTeaser,
   GiftTeaser,
   Hero,
+  LiveBanner,
   InvitationText,
   RsvpContacts,
   StoryTimeline,
   VenueSection,
 } from '@/components/sections';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const settings = await getSettings();
+
   return (
     <>
+      <LiveBanner mode={settings.mode} liveStreamUrl={settings.liveStreamUrl} />
       <EnvelopeIntro />
-      <Hero />
+      <Hero mode={settings.mode} liveStreamUrl={settings.liveStreamUrl} />
       <InvitationText />
       <StoryTimeline />
       <EventsSection />

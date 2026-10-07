@@ -1,28 +1,24 @@
-import Link from 'next/link';
+import { Suspense } from 'react';
+import type { Metadata } from 'next';
+import { GiftComplete } from '@/components/sections/GiftComplete';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Gift Received | Adetolani & Emmanuel',
+  description: 'Thank you for your generous wedding gift to Adetolani & Emmanuel.',
+};
 
 export default function GiftCompletePage() {
   return (
-    <div className="route-page status-page">
-      <div className="status-card">
-        <div className="status-rings">
-          <span>✓</span>
-        </div>
-        <p className="section-kicker section-kicker--gold">Gift received</p>
-        <h1>
-          Thank you,
-          <br />
-          <em>truly.</em>
-        </h1>
-        <p>Your generosity means more than we can say. A receipt is on its way to your email.</p>
-        <div className="receipt">
-          <span>Contribution</span>
-          <strong>₦10,000</strong>
-          <span>Honeymoon fund</span>
-        </div>
-        <Link className="button button--outline-gold" href="/">
-          Return to our invitation
-        </Link>
-      </div>
-    </div>
+    <main className="min-h-[70vh] flex items-center justify-center py-12">
+      <Suspense
+        fallback={
+          <div className="text-center py-12 text-sm text-ink-500">Loading gift confirmation...</div>
+        }
+      >
+        <GiftComplete />
+      </Suspense>
+    </main>
   );
 }

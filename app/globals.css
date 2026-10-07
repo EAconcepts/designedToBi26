@@ -16,6 +16,8 @@
   --gold-grad: linear-gradient(110deg, #a87925 0%, #e8cb7a 48%, #a87925 100%);
   --magenta-600: #a3125f;
   --magenta-800: #7a0c47;
+  --magenta-900: #540630;
+  --magenta-950: #35031d;
   --ink-900: #2a0a1f;
   --ink-600: #5b4553;
   --night: #1d0615;
@@ -34,6 +36,8 @@
   --color-magenta: var(--magenta);
   --color-magenta-600: var(--magenta-600);
   --color-magenta-800: var(--magenta-800);
+  --color-magenta-900: var(--magenta-900);
+  --color-magenta-950: var(--magenta-950);
   --color-ink: var(--ink);
   --color-ink-900: var(--ink-900);
   --color-ink-600: var(--ink-600);

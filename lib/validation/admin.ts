@@ -55,3 +55,60 @@ export const AdminGiftQueryInput = z.object({
 });
 
 export type AdminGiftQueryInput = z.infer<typeof AdminGiftQueryInput>;
+
+export const AdminMediaQueryInput = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional().default('PENDING'),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(24),
+});
+export type AdminMediaQueryInput = z.infer<typeof AdminMediaQueryInput>;
+
+export const AdminUpdatePhotoInput = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
+  caption: z.string().trim().max(300).optional().nullable(),
+  altText: z.string().trim().max(300).optional().nullable(),
+});
+export type AdminUpdatePhotoInput = z.infer<typeof AdminUpdatePhotoInput>;
+
+export const AdminBulkMediaInput = z.object({
+  ids: z.array(z.string().min(1)).min(1, 'At least one photo ID is required'),
+  action: z.enum(['approve', 'reject', 'restore']),
+});
+export type AdminBulkMediaInput = z.infer<typeof AdminBulkMediaInput>;
+
+export const AdminSettingsUpdateInput = z.object({
+  mode: z.enum(['PRE', 'LIVE', 'POST']).optional(),
+  rsvpDeadline: z.string().optional().nullable(),
+  uploadsOpen: z.boolean().optional(),
+  uploadsCloseAt: z.string().optional().nullable(),
+  liveStreamUrl: z
+    .string()
+    .url('Must be a valid URL')
+    .startsWith('https://', 'Live stream URL must use HTTPS')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+});
+export type AdminSettingsUpdateInput = z.infer<typeof AdminSettingsUpdateInput>;
+
+export interface RsvpListRow {
+  guestId: string;
+  guestName: string;
+  side: 'PARTNER_A' | 'PARTNER_B' | 'BOTH';
+  email: string | null;
+  phone: string | null;
+  status: 'PENDING' | 'ATTENDING' | 'DECLINED';
+  source: 'WEB' | 'PHONE' | 'WHATSAPP' | null;
+  maxPartySize: number;
+  headcount: number;
+  headcountByEvent: Record<string, number>;
+  respondedAt: string | null;
+  attendees: Array<{
+    name: string;
+    events: string[];
+    meal: string | null;
+    dietary: string | null;
+  }>;
+  songRequest: string | null;
+  message: string | null;
+}

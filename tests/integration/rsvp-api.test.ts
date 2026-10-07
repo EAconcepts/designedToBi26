@@ -30,6 +30,11 @@ function makeRsvpRequest(options: {
 describe('RSVP API route integration (POST /api/rsvp)', () => {
   beforeEach(async () => {
     await cleanupTestRows();
+    vi.restoreAllMocks();
+    vi.spyOn(resend.emails, 'send').mockResolvedValue({
+      data: null,
+      error: { name: 'mock_error', message: 'Mocked in integration test' },
+    } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
     // Ensure default settings are in open state
     await prisma.setting.upsert({
       where: { id: 1 },
@@ -40,6 +45,7 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
 
   afterEach(async () => {
     await cleanupTestRows();
+    vi.restoreAllMocks();
     await prisma.setting.update({
       where: { id: 1 },
       data: { mode: 'PRE', rsvpDeadline: new Date('2026-12-05T23:59:59Z') },
