@@ -1,8 +1,9 @@
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST as rsvpRoute } from '@/app/api/rsvp/route';
 import { GUEST_COOKIE_NAME, signGuestCode } from '@/lib/guest-cookie';
 import { prisma } from '@/lib/db';
+import { resend } from '@/lib/email/client';
 import { makeGuest, makeEvent, makeInvitation, cleanupTestRows } from '@/tests/factories';
 
 function makeRsvpRequest(options: {
@@ -328,5 +329,56 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
 
     expect(rsvpInDb?.attendees[0]?.meal).toBeNull();
     expect(rsvpInDb?.attendees[0]?.dietary).toBeNull();
+  });
+
+  it('sets emailSent: true when Resend confirmation succeeds', async () => {
+    const sendSpy = vi.spyOn(resend.emails, 'send').mockResolvedValueOnce({
+      data: { id: 'email_ok_123' },
+      error: null,
+    } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
+
+    const guest = await makeGuest({ email: 'happyguest@example.com' });
+    const event = await makeEvent();
+    await makeInvitation(guest.id, event.id);
+
+    const payload = {
+      declined: false,
+      attendees: [{ name: 'Happy Guest', events: [event.slug] }],
+    };
+
+    const res = await rsvpRoute(makeRsvpRequest({ cookieCode: guest.code, body: payload }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.data.emailSent).toBe(true);
+    expect(sendSpy).toHaveBeenCalled();
+  });
+
+  it('sets emailSent: false and leaves RSVP committed when Resend rejects', async () => {
+    vi.spyOn(resend.emails, 'send').mockRejectedValueOnce(
+      new Error('Resend network connection timeout'),
+    );
+
+    const guest = await makeGuest({ email: 'failingemail@example.com' });
+    const event = await makeEvent();
+    await makeInvitation(guest.id, event.id);
+
+    const payload = {
+      declined: false,
+      attendees: [{ name: 'Failing Email Guest', events: [event.slug] }],
+    };
+
+    const res = await rsvpRoute(makeRsvpRequest({ cookieCode: guest.code, body: payload }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.data.emailSent).toBe(false);
+
+    // Assert RSVP row still successfully exists in DB
+    const rsvpInDb = await prisma.rsvp.findUnique({
+      where: { guestId: guest.id },
+    });
+    expect(rsvpInDb).not.toBeNull();
+    expect(rsvpInDb?.status).toBe('ATTENDING');
   });
 });

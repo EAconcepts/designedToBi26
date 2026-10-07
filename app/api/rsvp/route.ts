@@ -6,6 +6,7 @@ import { getSettingsUncached } from '@/lib/settings';
 import { RsvpInput } from '@/lib/validation/rsvp';
 import { evaluateRsvpRules, submitRsvpTransaction } from '@/lib/rsvp';
 import { SITE } from '@/content/site.config';
+import { sendRsvpConfirmationEmail, sendRsvpNotificationEmail } from '@/lib/email/send';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       prisma.guest.findUnique({
         where: { code: guestCode },
         include: {
+          rsvp: { select: { id: true, respondedAt: true } },
           invitations: {
             include: {
               event: true,
@@ -79,6 +81,9 @@ export async function POST(request: NextRequest): Promise<Response> {
       eventSlugToId.set(inv.event.slug, inv.event.id);
     }
 
+    // Check if this is the first response before mutating DB
+    const wasFirstResponse = !guest.rsvp || !guest.rsvp.respondedAt;
+
     // 6. Execute database transaction
     const result = await prisma.$transaction(async (tx) => {
       return submitRsvpTransaction(tx, {
@@ -92,11 +97,44 @@ export async function POST(request: NextRequest): Promise<Response> {
       });
     });
 
+    // 7. Post-commit: send confirmation email to guest if guest.email exists
+    let emailSent = false;
+    if (guest.email) {
+      emailSent = await sendRsvpConfirmationEmail({
+        guestEmail: guest.email,
+        guestName: guest.displayName,
+        guestCode: guest.code,
+        status: evalResult.status,
+        attendees: evalResult.sanitizedAttendees,
+        invitedEvents: guest.invitations.map((i) => ({
+          slug: i.event.slug,
+          title: i.event.title,
+          startsAt: i.event.startsAt,
+          timeTbc: i.event.timeTbc,
+        })),
+        songRequest: input.songRequest,
+        message: input.message,
+      });
+    }
+
+    // 8. Post-commit (A14): Notify couple/coordinator only on first WEB response
+    if (wasFirstResponse) {
+      sendRsvpNotificationEmail({
+        guestName: guest.displayName,
+        status: evalResult.status,
+        attendees: evalResult.sanitizedAttendees,
+        songRequest: input.songRequest,
+        message: input.message,
+      }).catch((err) => {
+        console.error('[RSVP NOTIFICATION ASYNC ERROR]:', err);
+      });
+    }
+
     const response = ok({
       status: evalResult.status,
       attendees: result.attendees,
       respondedAt: result.respondedAt,
-      emailSent: false,
+      emailSent,
     });
     response.headers.set('Cache-Control', 'no-store');
     return response;

@@ -36,7 +36,7 @@ export function RsvpContactsPanel({
             <div className="rsvp-contact-card__actions">
               <a
                 href={`tel:${contact.tel}`}
-                className="button button--glass"
+                className="button button--call"
                 aria-label={`Call ${contact.name} at ${contact.tel}`}
               >
                 Call
