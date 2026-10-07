@@ -17,7 +17,9 @@ export function PublicNav({ dark = false }: PublicNavProps) {
       <nav className="top-nav" aria-label="Primary">
         <Link href="/" className="nav-mark" aria-label="Adetolani and Emmanuel Home">
           A <span>&amp;</span> E
-          <p className="-mt-2 text-[10px] lowercase ">#designedToBi&apos;26</p>
+          <p style={{ textTransform: 'none' }} className="-mt-2 text-[10px] ">
+            #designedToBi&apos;26
+          </p>
         </Link>
         <div className="nav-links">
           <Link href="#story">Our story</Link>
