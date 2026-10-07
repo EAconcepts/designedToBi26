@@ -61,7 +61,9 @@ describe('guest invitation links', () => {
 
   it('treats a tampered cookie as an anonymous session', async () => {
     const guest = await makeGuest();
-    const token = `${signGuestCode(guest.code).slice(0, -1)}0`;
+    const original = signGuestCode(guest.code);
+    const lastChar = original.slice(-1);
+    const token = `${original.slice(0, -1)}${lastChar === '0' ? '1' : '0'}`;
     const response = await guestSession(
       new NextRequest('http://localhost:3000/api/session/guest', {
         headers: { cookie: `${GUEST_COOKIE_NAME}=${token}` },

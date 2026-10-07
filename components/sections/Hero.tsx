@@ -24,11 +24,11 @@ export function Hero() {
         <div className="hero-slide hero-slide--1" />
         <div className="hero-slide hero-slide--2" />
         <div className="hero-slide hero-slide--3" />
-        <div className="hero-dots" aria-hidden="true">
+        {/* <div className="hero-dots" aria-hidden="true">
           <span className="hero-dot hero-dot--1" />
           <span className="hero-dot hero-dot--2" />
           <span className="hero-dot hero-dot--3" />
-        </div>
+        </div> */}
       </div>
       <div className="hero-shade" />
       <div className="corner corner--tl" />
@@ -59,7 +59,9 @@ export function Hero() {
       <div className="scroll-cue">
         <span />
         <p>Discover our story</p>
-        <p className="text-[10px] lowercase!">#designedToBi&apos;26</p>
+        <p style={{ textTransform: 'none' }} className="text-[10px]">
+          #designedToBi&apos;26
+        </p>
       </div>
     </section>
   );
