@@ -30,6 +30,7 @@ export type RsvpInput = z.infer<typeof RsvpInput>;
 export const AdminRsvpInput = RsvpInput.extend({
   guestId: z.string().min(1, 'Guest ID is required'),
   source: z.enum(['PHONE', 'WHATSAPP']).default('PHONE'),
+  allowDeadlineOverride: z.boolean().default(true),
 });
 
 export type AdminRsvpInput = z.infer<typeof AdminRsvpInput>;

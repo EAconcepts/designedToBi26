@@ -19,11 +19,15 @@ export function cached<T, Args extends unknown[]>(
 }
 
 export async function revalidateSite(paths: string[] = ['/']): Promise<void> {
-  revalidateTag(SITE_CACHE_TAG, 'max');
+  try {
+    revalidateTag(SITE_CACHE_TAG, 'max');
 
-  for (const p of paths) {
-    if (p) {
-      revalidatePath(p);
+    for (const p of paths) {
+      if (p) {
+        revalidatePath(p);
+      }
     }
+  } catch {
+    // Gracefully handle invocation outside of Next.js static generation request context (e.g. tests)
   }
 }

@@ -55,3 +55,25 @@ export const AdminGiftQueryInput = z.object({
 });
 
 export type AdminGiftQueryInput = z.infer<typeof AdminGiftQueryInput>;
+
+export interface RsvpListRow {
+  guestId: string;
+  guestName: string;
+  side: 'PARTNER_A' | 'PARTNER_B' | 'BOTH';
+  email: string | null;
+  phone: string | null;
+  status: 'PENDING' | 'ATTENDING' | 'DECLINED';
+  source: 'WEB' | 'PHONE' | 'WHATSAPP' | null;
+  maxPartySize: number;
+  headcount: number;
+  headcountByEvent: Record<string, number>;
+  respondedAt: string | null;
+  attendees: Array<{
+    name: string;
+    events: string[];
+    meal: string | null;
+    dietary: string | null;
+  }>;
+  songRequest: string | null;
+  message: string | null;
+}
