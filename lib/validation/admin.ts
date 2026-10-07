@@ -56,6 +56,26 @@ export const AdminGiftQueryInput = z.object({
 
 export type AdminGiftQueryInput = z.infer<typeof AdminGiftQueryInput>;
 
+export const AdminMediaQueryInput = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional().default('PENDING'),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(24),
+});
+export type AdminMediaQueryInput = z.infer<typeof AdminMediaQueryInput>;
+
+export const AdminUpdatePhotoInput = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
+  caption: z.string().trim().max(300).optional().nullable(),
+  altText: z.string().trim().max(300).optional().nullable(),
+});
+export type AdminUpdatePhotoInput = z.infer<typeof AdminUpdatePhotoInput>;
+
+export const AdminBulkMediaInput = z.object({
+  ids: z.array(z.string().min(1)).min(1, 'At least one photo ID is required'),
+  action: z.enum(['approve', 'reject', 'restore']),
+});
+export type AdminBulkMediaInput = z.infer<typeof AdminBulkMediaInput>;
+
 export interface RsvpListRow {
   guestId: string;
   guestName: string;
