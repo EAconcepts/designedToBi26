@@ -4,6 +4,8 @@ import { SITE } from '@/content/site.config';
 import { Greeting } from './Greeting';
 
 export { Hero } from './Hero';
+export { Countdown } from './Countdown';
+export { LiveBanner } from './LiveBanner';
 export { GalleryTeaser } from './GalleryTeaser';
 
 function ArrowIcon() {

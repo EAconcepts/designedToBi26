@@ -9,6 +9,19 @@ export type UploadAccessResult =
   | { ok: true; setting: Setting }
   | { ok: false; error: 'INVALID_TOKEN' | 'UPLOADS_CLOSED'; message: string; status: number };
 
+export function isUploadActive(setting: Setting, now: Date = new Date()): boolean {
+  if (setting.uploadsCloseAt && now.getTime() > new Date(setting.uploadsCloseAt).getTime()) {
+    return false;
+  }
+  if (setting.mode === 'LIVE') {
+    return true;
+  }
+  if (setting.mode === 'POST') {
+    return true;
+  }
+  return Boolean(setting.uploadsOpen);
+}
+
 /**
  * Validates upload authorization token and active upload window.
  * Uses constant-time comparison against Setting.uploadToken.
@@ -39,21 +52,16 @@ export async function validateUploadAccess(
     };
   }
 
-  // Active window check
-  if (!setting.uploadsOpen) {
+  // Active window check per §3.8 mode matrix
+  if (!isUploadActive(setting)) {
+    const isPastDeadline =
+      setting.uploadsCloseAt && new Date().getTime() > new Date(setting.uploadsCloseAt).getTime();
     return {
       ok: false,
       error: 'UPLOADS_CLOSED',
-      message: 'Guest uploads are currently closed.',
-      status: 403,
-    };
-  }
-
-  if (setting.uploadsCloseAt && new Date() > new Date(setting.uploadsCloseAt)) {
-    return {
-      ok: false,
-      error: 'UPLOADS_CLOSED',
-      message: 'The guest upload window has closed.',
+      message: isPastDeadline
+        ? 'The guest upload window has closed.'
+        : 'Guest uploads are currently closed.',
       status: 403,
     };
   }
