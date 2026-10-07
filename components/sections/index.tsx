@@ -6,6 +6,8 @@ import { SITE } from '@/content/site.config';
 import { formatTimeWAT } from '@/lib/datetime';
 import { Greeting } from './Greeting';
 
+export { Hero } from './Hero';
+
 const partnerBNames = SITE.couple.b.split(' ');
 const names = `${SITE.couple.a.split(' ')[0]} & ${partnerBNames[partnerBNames.length - 1] ?? SITE.couple.b}`;
 const weddingDate = SITE.home.dateLabel;
@@ -30,38 +32,6 @@ function SectionLink({
     >
       {children}
     </Link>
-  );
-}
-
-export function Hero() {
-  return (
-    <section aria-labelledby="home-title" className="bg-ivory py-16 text-center sm:py-24 md:py-28">
-      <Container size="md" className="flex flex-col items-center">
-        <Logo size={104} className="mb-6" />
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-gold-500">
-          {SITE.home.heroEyebrow}
-        </p>
-        <h1
-          id="home-title"
-          className="font-display text-5xl font-semibold leading-none tracking-tight text-ink-900 sm:text-7xl"
-        >
-          {names}
-        </h1>
-        <GoldRule withDiamond className="max-w-xs" />
-        <p className="mb-8 text-base font-medium text-ink-600 sm:text-lg">
-          {weddingDate} · 11:00 WAT
-          <br />
-          {SITE.venue.name}, {SITE.venue.city}, {SITE.venue.state}
-        </p>
-        <div className="flex flex-wrap justify-center gap-3">
-          <SectionLink href="/rsvp">RSVP</SectionLink>
-          <SectionLink href="#venue" secondary>
-            Directions
-          </SectionLink>
-        </div>
-        <p className="mt-8 font-signature text-3xl text-gold-500">{SITE.hashtag}</p>
-      </Container>
-    </section>
   );
 }
 
