@@ -76,6 +76,21 @@ export const AdminBulkMediaInput = z.object({
 });
 export type AdminBulkMediaInput = z.infer<typeof AdminBulkMediaInput>;
 
+export const AdminSettingsUpdateInput = z.object({
+  mode: z.enum(['PRE', 'LIVE', 'POST']).optional(),
+  rsvpDeadline: z.string().optional().nullable(),
+  uploadsOpen: z.boolean().optional(),
+  uploadsCloseAt: z.string().optional().nullable(),
+  liveStreamUrl: z
+    .string()
+    .url('Must be a valid URL')
+    .startsWith('https://', 'Live stream URL must use HTTPS')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+});
+export type AdminSettingsUpdateInput = z.infer<typeof AdminSettingsUpdateInput>;
+
 export interface RsvpListRow {
   guestId: string;
   guestName: string;
