@@ -1,5 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 
+try {
+  process.loadEnvFile('.env.test');
+} catch {
+  // Local E2E runs can use the caller's environment instead.
+}
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -38,6 +44,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
+      ...process.env,
       DATABASE_URL:
         process.env.DATABASE_URL ||
         'postgresql://postgres:postgres@localhost:5432/wedding_test?schema=public',

@@ -107,6 +107,42 @@ export const SITE: SiteConfig = {
     body: 'TODO(content): Your love, presence, and prayers made our day truly unforgettable.',
   },
 
+  home: {
+    heroEyebrow: 'The wedding celebration of',
+    dateLabel: 'Saturday, 19 December 2026',
+    invitation: { eyebrow: 'With joyful hearts', title: 'An invitation to celebrate love' },
+    story: {
+      eyebrow: 'Our story',
+      title: 'A journey towards forever',
+      description: 'A few moments from the story that brought us here.',
+    },
+    events: { eyebrow: 'The celebration', title: 'Join us for our special day' },
+    venue: {
+      eyebrow: 'Venue & directions',
+      title: 'Where we will say “I do”',
+      cityLabel: 'Kwara State',
+    },
+    colour: { eyebrow: 'Colour of the day', title: 'White, Gold & Magenta' },
+    gallery: {
+      eyebrow: 'Memories',
+      title: 'Our moments, held close',
+      description: 'A collection of the memories we are excited to share with you.',
+    },
+    gift: {
+      eyebrow: 'With love',
+      title: 'A gift for our new beginning',
+      description:
+        'Your presence is our greatest gift. If you would like to bless our home, we would be deeply grateful.',
+    },
+    faq: { eyebrow: 'Helpful details', title: 'A few questions answered' },
+    rsvp: {
+      eyebrow: 'RSVP',
+      title: 'We look forward to celebrating with you',
+      description:
+        'Please use your invitation link to respond online, or contact one of our RSVP coordinators.',
+    },
+  },
+
   brand: {
     logo: {
       src: '/brand/logo-placeholder.svg',

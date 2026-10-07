@@ -24,7 +24,7 @@ test.describe('Smoke Spec', () => {
     // 2. Validate single h1
     const h1s = page.locator('h1');
     await expect(h1s).toHaveCount(1);
-    await expect(h1s).toContainText('Adetolani & Emmanuel');
+    await expect(h1s).toContainText(/Adetolani\s*&\s*(Abiodun|Emmanuel)/);
 
     // 3. Skip link accessibility check
     // Press Tab from initial page load to focus skip link

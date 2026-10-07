@@ -1,60 +1,45 @@
-import { Container, SectionHeading } from '@/components/ui';
-import { SITE } from '@/content/site.config';
-
 export default function PrivacyPage() {
-  const coupleNames = `${SITE.couple.a} & ${SITE.couple.b}`;
-  const rsvpContacts = SITE.rsvpContacts.map((c) => `${c.name} (${c.tel})`).join(', ');
+  const sections = [
+    [
+      'What we collect',
+      'Your name, RSVP details, optional contact information, dietary notes, gift receipt details and any photographs you choose to share.',
+    ],
+    [
+      'How we use it',
+      'Only to manage our guest list, arrange the celebration, send confirmations, process gifts and moderate the private gallery.',
+    ],
+    [
+      'How long we keep it',
+      'Sensitive planning data such as dietary notes will be removed after the celebration. Payment records may be retained where required.',
+    ],
+    [
+      'Your choices',
+      'You may ask us to correct or delete your information by contacting Shola Mass or Adeola using the details on your invitation.',
+    ],
+  ];
 
   return (
-    <div className="py-16 sm:py-24 bg-ivory">
-      <Container size="md">
-        <SectionHeading
-          eyebrow="Privacy &amp; Data Protection"
-          title="Privacy Notice (NDPA 2023)"
-        />
-        <div className="text-ink-700 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed space-y-6">
-          <section className="space-y-2">
-            <h2 className="font-semibold text-ink-900 text-lg">Purpose of Processing</h2>
-            <p>
-              This website is provided solely to celebrate the wedding of {coupleNames}, coordinate
-              guest attendance, convey event details, manage optional registry contributions, and
-              facilitate celebratory guest photos.
-            </p>
-          </section>
+    <div className="route-page legal-page paper-section">
+      <article>
+        <p className="section-kicker">A thoughtful promise</p>
+        <h1>
+          Your privacy,
+          <br />
+          <em>held with care.</em>
+        </h1>
+        <p className="legal-intro">
+          We collect only what we need to host you well and plan our celebration.
+        </p>
 
-          <section className="space-y-2">
-            <h2 className="font-semibold text-ink-900 text-lg">Data Collected</h2>
-            <p>
-              In accordance with the Nigeria Data Protection Act (NDPA 2023), we only collect the
-              minimum necessary information:
-            </p>
-            <ul className="list-disc pl-5 space-y-1 text-ink-600">
-              <li>Guest name, invitation code, email, and phone number (if provided)</li>
-              <li>RSVP responses, attendance count, and dietary/meal requirements</li>
-              <li>Gift contribution declarations and messages to the couple</li>
-              <li>Photos shared through the guest moments upload gallery</li>
-            </ul>
+        {sections.map(([title, body]) => (
+          <section key={title}>
+            <h2>{title}</h2>
+            <p>{body}</p>
           </section>
+        ))}
 
-          <section className="space-y-2">
-            <h2 className="font-semibold text-ink-900 text-lg">Retention &amp; Sharing</h2>
-            <p>
-              We do not sell, rent, or share personal data with commercial third parties. Data is
-              retained only for the duration needed to plan, execute, and deliver post-wedding
-              memories to the couple.
-            </p>
-          </section>
-
-          <section className="space-y-2">
-            <h2 className="font-semibold text-ink-900 text-lg">Your Rights &amp; Contact</h2>
-            <p>
-              You have the right to request access to, correction of, or deletion of your personal
-              information. To make a request, please contact our RSVP coordination team at:{' '}
-              <span className="font-medium text-ink-900">{rsvpContacts}</span>.
-            </p>
-          </section>
-        </div>
-      </Container>
+        <p className="legal-date">Last updated · October 2026</p>
+      </article>
     </div>
   );
 }
