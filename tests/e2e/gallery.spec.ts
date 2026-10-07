@@ -23,15 +23,31 @@ test.describe('Gallery & Albums E2E', () => {
     await expect(page.getByText(/unlocked following the wedding celebration/i)).toBeVisible();
   });
 
-  test('navigates to unlocked album detail and supports back navigation', async ({ page }) => {
+  test('navigates to unlocked album detail, displays photos and supports lightbox', async ({
+    page,
+  }) => {
     await page.goto('/gallery');
 
     // Click on pre-wedding album
     await page.getByRole('link', { name: /pre-wedding/i }).click();
     await expect(page).toHaveURL(/.*\/gallery\/pre-wedding/);
 
-    // Verify detail header
+    // Verify detail header and photo count
     await expect(page.getByRole('heading', { name: /pre-wedding/i })).toBeVisible();
+    await expect(page.getByText(/7 photographs curated with care/i)).toBeVisible();
+
+    // Verify photo grid rendered
+    const photoButtons = page.getByRole('button', { name: /view photo/i });
+    await expect(photoButtons.first()).toBeVisible();
+
+    // Click first photo to open Lightbox
+    await photoButtons.first().click();
+    await expect(page.getByRole('dialog', { name: /image viewer/i })).toBeVisible();
+    await expect(page.getByText(/1 \/ 7/)).toBeVisible();
+
+    // Close lightbox
+    await page.getByRole('button', { name: /close image viewer/i }).click();
+    await expect(page.getByRole('dialog', { name: /image viewer/i })).not.toBeVisible();
 
     // Click back link
     await page.getByRole('link', { name: /back to all collections/i }).click();

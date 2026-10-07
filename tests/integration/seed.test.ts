@@ -16,10 +16,12 @@ describe('Seed Idempotency Integration', () => {
     const venueCount = await prisma.venue.count();
     const eventCount = await prisma.event.count();
     const albumCount = await prisma.album.count();
+    const photoCount = await prisma.photo.count();
 
     expect(settingCount).toBe(1);
     expect(venueCount).toBe(1);
     expect(eventCount).toBe(2);
     expect(albumCount).toBe(3);
+    expect(photoCount).toBe(7);
   });
 });

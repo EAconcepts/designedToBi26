@@ -181,6 +181,100 @@ export async function seed(client: PrismaClient = globalPrisma) {
   }
   console.log(`✓ Albums seeded: ${defaultAlbums.length} albums`);
 
+  // 6b. Photos (seed img-1.jpg through img-7.jpg for pre-wedding album)
+  const preWeddingAlbum = await client.album.findUnique({
+    where: { slug: 'pre-wedding' },
+  });
+
+  if (preWeddingAlbum) {
+    const defaultPhotos = [
+      {
+        publicId: '/img-1.jpg',
+        width: 715,
+        height: 953,
+        caption: 'Adetolani & Emmanuel — The beginning of forever',
+        altText: 'Adetolani and Emmanuel in elegant attire, pre-wedding portrait 1',
+        sortOrder: 0,
+      },
+      {
+        publicId: '/img-2.jpg',
+        width: 715,
+        height: 953,
+        caption: 'Quiet moments together',
+        altText: 'Adetolani and Emmanuel smiling warmly, pre-wedding portrait 2',
+        sortOrder: 1,
+      },
+      {
+        publicId: '/img-3.jpg',
+        width: 715,
+        height: 953,
+        caption: 'Laughter and shared dreams',
+        altText: 'Close up portrait of the couple, pre-wedding portrait 3',
+        sortOrder: 2,
+      },
+      {
+        publicId: '/img-4.jpg',
+        width: 715,
+        height: 953,
+        caption: 'Hand in hand towards 19 December',
+        altText: 'Adetolani and Emmanuel hand in hand, pre-wedding portrait 4',
+        sortOrder: 3,
+      },
+      {
+        publicId: '/img-5.jpg',
+        width: 715,
+        height: 953,
+        caption: 'Walking in grace and purpose',
+        altText: 'Adetolani and Emmanuel outdoor pose, pre-wedding portrait 5',
+        sortOrder: 4,
+      },
+      {
+        publicId: '/img-6.jpg',
+        width: 715,
+        height: 953,
+        caption: 'Joy that overflows',
+        altText: 'Joyful celebration portrait, pre-wedding portrait 6',
+        sortOrder: 5,
+      },
+      {
+        publicId: '/img-7.jpg',
+        width: 566,
+        height: 988,
+        caption: 'Designed together in love',
+        altText: 'Adetolani and Emmanuel standing together, pre-wedding portrait 7',
+        sortOrder: 6,
+      },
+    ];
+
+    for (const photo of defaultPhotos) {
+      await client.photo.upsert({
+        where: { publicId: photo.publicId },
+        update: {
+          albumId: preWeddingAlbum.id,
+          width: photo.width,
+          height: photo.height,
+          caption: photo.caption,
+          altText: photo.altText,
+          sortOrder: photo.sortOrder,
+          status: 'APPROVED',
+          source: 'ADMIN',
+        },
+        create: {
+          albumId: preWeddingAlbum.id,
+          publicId: photo.publicId,
+          width: photo.width,
+          height: photo.height,
+          caption: photo.caption,
+          altText: photo.altText,
+          sortOrder: photo.sortOrder,
+          status: 'APPROVED',
+          source: 'ADMIN',
+        },
+      });
+    }
+    console.log(`✓ Photos seeded: ${defaultPhotos.length} pre-wedding photos`);
+  }
+
   // 7. Milestones (from SITE.story)
   for (let i = 0; i < SITE.story.length; i++) {
     const item = SITE.story[i]!;
