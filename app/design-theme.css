@@ -345,6 +345,11 @@ svg {
   z-index: 2;
   text-align: center;
   padding-top: 70px;
+  width: 100%;
+  max-width: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
 }
 
 .eyebrow,
@@ -413,26 +418,35 @@ svg {
   align-items: center;
   justify-content: center;
   gap: 17px;
-  margin-top: 30px;
+  margin-top: 24px;
 }
 
-.ornament span {
+.ornament > span {
   width: 76px;
   height: 1px;
   background: var(--gold-gradient);
+  flex-shrink: 0;
 }
 
-.ornament b {
+.ornament > b {
   font-size: 12px;
   letter-spacing: 0.25em;
   font-weight: 400;
+}
+
+.hero-countdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 14px 0 6px;
+  width: 100%;
 }
 
 .hero-place {
   text-transform: uppercase;
   letter-spacing: 0.32em;
   font-size: 10px;
-  margin: 12px 0 30px;
+  margin: 10px 0 26px;
 }
 
 .hero-actions {
@@ -1425,6 +1439,10 @@ footer span {
 
   .hero-actions .button {
     width: 210px;
+  }
+
+  .ornament > span {
+    width: 48px;
   }
 
   .corner {

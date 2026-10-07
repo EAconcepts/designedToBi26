@@ -52,10 +52,14 @@ export function Hero({ mode = 'PRE', liveStreamUrl }: HeroProps) {
           {firstNameA} <em>&amp;</em> {firstNameB}
         </h1>
 
-        <div className="ornament my-2">
+        <div className="ornament">
           <span />
+          <b>19 · 12 · 2026</b>
+          <span />
+        </div>
+
+        <div className="hero-countdown">
           <Countdown mode={mode} />
-          <span />
         </div>
 
         <p className="hero-place">

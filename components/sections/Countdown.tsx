@@ -60,9 +60,9 @@ export function Countdown({ mode = 'PRE' }: CountdownProps) {
     return (
       <div
         data-testid="countdown-live"
-        className="countdown-live inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-magenta-900/40 border border-gold-500/40 text-gold-300 text-sm tracking-widest uppercase font-serif"
+        className="countdown-live inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-magenta-900/60 border border-gold/40 text-light-gold text-xs sm:text-sm tracking-widest uppercase font-serif"
       >
-        <span className="w-2 h-2 rounded-full bg-gold-400 animate-ping" />
+        <span className="w-2 h-2 rounded-full bg-light-gold animate-ping" />
         Today!
       </div>
     );
@@ -72,7 +72,7 @@ export function Countdown({ mode = 'PRE' }: CountdownProps) {
     return (
       <div
         data-testid="countdown-post"
-        className="countdown-post inline-block text-gold-300 text-sm sm:text-base font-serif italic tracking-wide"
+        className="countdown-post inline-block text-light-gold text-sm sm:text-base font-serif italic tracking-wide"
       >
         We&apos;re married — 19 Dec 2026
       </div>
@@ -83,41 +83,41 @@ export function Countdown({ mode = 'PRE' }: CountdownProps) {
   return (
     <div
       data-testid="countdown-pre"
-      className="countdown-timer flex items-center justify-center gap-3 sm:gap-6 text-white"
+      className="countdown-timer flex items-center justify-center gap-3 sm:gap-6 text-white max-w-full"
       aria-live="off"
     >
       <div className="flex flex-col items-center">
-        <span className="font-serif text-2xl sm:text-3xl font-bold text-gold-200">
+        <span className="font-serif text-2xl sm:text-3xl font-bold text-light-gold leading-none">
           {isClient ? remaining.days : '72'}
         </span>
-        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ink-200 opacity-80">
+        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ivory/70 mt-1">
           Days
         </span>
       </div>
-      <span className="text-gold-400 font-serif text-xl opacity-60">·</span>
+      <span className="text-light-gold font-serif text-lg sm:text-xl opacity-60">·</span>
       <div className="flex flex-col items-center">
-        <span className="font-serif text-2xl sm:text-3xl font-bold text-gold-200">
+        <span className="font-serif text-2xl sm:text-3xl font-bold text-light-gold leading-none">
           {isClient ? remaining.hours : '18'}
         </span>
-        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ink-200 opacity-80">
+        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ivory/70 mt-1">
           Hours
         </span>
       </div>
-      <span className="text-gold-400 font-serif text-xl opacity-60">·</span>
+      <span className="text-light-gold font-serif text-lg sm:text-xl opacity-60">·</span>
       <div className="flex flex-col items-center">
-        <span className="font-serif text-2xl sm:text-3xl font-bold text-gold-200">
+        <span className="font-serif text-2xl sm:text-3xl font-bold text-light-gold leading-none">
           {isClient ? remaining.minutes : '45'}
         </span>
-        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ink-200 opacity-80">
+        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ivory/70 mt-1">
           Mins
         </span>
       </div>
-      <span className="text-gold-400 font-serif text-xl opacity-60">·</span>
+      <span className="text-light-gold font-serif text-lg sm:text-xl opacity-60">·</span>
       <div className="flex flex-col items-center">
-        <span className="font-serif text-2xl sm:text-3xl font-bold text-gold-200">
+        <span className="font-serif text-2xl sm:text-3xl font-bold text-light-gold leading-none">
           {isClient ? remaining.seconds : '00'}
         </span>
-        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ink-200 opacity-80">
+        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-ivory/70 mt-1">
           Secs
         </span>
       </div>
