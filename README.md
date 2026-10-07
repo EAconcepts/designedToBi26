@@ -95,6 +95,7 @@ Follow these steps to go from a fresh clone to a running local instance.
 | `pnpm typecheck`        | Executes TypeScript strict typechecking (`tsc --noEmit`)                                         |
 | `pnpm seed`             | Executes idempotent database seeder (`prisma/seed.ts`)                                           |
 | `pnpm lighthouse`       | Executes Lighthouse CI audit against local server                                                |
+| `pnpm check:bundle`     | Asserts root first-load JS budget ≤ 180 KB gzipped (`scripts/check-bundle.mjs`)                  |
 
 ---
 

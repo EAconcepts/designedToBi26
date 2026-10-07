@@ -1,13 +1,28 @@
-import { Container, SectionHeading } from '@/components/ui';
+import Link from 'next/link';
 
 export default function GiftCompletePage() {
   return (
-    <Container size="md" className="py-16 sm:py-24">
-      <SectionHeading eyebrow="Thank you" title="We are grateful for your kindness" />
-      <p className="mx-auto max-w-xl text-center leading-7 text-ink-600">
-        Thank you for celebrating this new chapter with us. Your gift means so much.
-      </p>
-      {/* coming in the next sprint */}
-    </Container>
+    <div className="route-page status-page">
+      <div className="status-card">
+        <div className="status-rings">
+          <span>✓</span>
+        </div>
+        <p className="section-kicker section-kicker--gold">Gift received</p>
+        <h1>
+          Thank you,
+          <br />
+          <em>truly.</em>
+        </h1>
+        <p>Your generosity means more than we can say. A receipt is on its way to your email.</p>
+        <div className="receipt">
+          <span>Contribution</span>
+          <strong>₦10,000</strong>
+          <span>Honeymoon fund</span>
+        </div>
+        <Link className="button button--outline-gold" href="/">
+          Return to our invitation
+        </Link>
+      </div>
+    </div>
   );
 }

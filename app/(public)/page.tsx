@@ -1,3 +1,4 @@
+import { EnvelopeIntro } from '@/components/brand';
 import {
   ColourOfDay,
   EventsSection,
@@ -14,6 +15,7 @@ import {
 export default function HomePage() {
   return (
     <>
+      <EnvelopeIntro />
       <Hero />
       <InvitationText />
       <StoryTimeline />

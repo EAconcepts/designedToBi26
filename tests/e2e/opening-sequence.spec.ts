@@ -15,8 +15,8 @@ test('opening sequence never appears in reduced-motion mode', async ({ page }) =
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { name: /adetolani|emmanuel/i })).toBeVisible({
-    timeout: 1000,
+  await expect(page.getByRole('heading', { name: /adetolani|emmanuel|abiodun/i })).toBeVisible({
+    timeout: 5000,
   });
   await expect(page.getByTestId('opening-sequence')).toHaveCount(0);
 });

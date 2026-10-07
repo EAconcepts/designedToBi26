@@ -221,6 +221,43 @@ export async function seed(client: PrismaClient = globalPrisma) {
   }
   console.log(`✓ Admin users seeded: ${emails.length} users`);
 
+  // 9. E2E Deterministic guest (for local testing and playwright)
+  const solemnization = await client.event.findUnique({ where: { slug: 'solemnization' } });
+  const reception = await client.event.findUnique({ where: { slug: 'reception' } });
+
+  const e2eGuest = await client.guest.upsert({
+    where: { code: 'e2e9test' },
+    update: {
+      displayName: 'E2E Deterministic Guest',
+      maxPartySize: 2,
+      side: 'BOTH',
+    },
+    create: {
+      code: 'e2e9test',
+      displayName: 'E2E Deterministic Guest',
+      maxPartySize: 2,
+      side: 'BOTH',
+      email: 'e2e-guest@example.com',
+      phone: '+2348000000001',
+    },
+  });
+
+  if (solemnization) {
+    await client.invitation.upsert({
+      where: { guestId_eventId: { guestId: e2eGuest.id, eventId: solemnization.id } },
+      update: {},
+      create: { guestId: e2eGuest.id, eventId: solemnization.id },
+    });
+  }
+  if (reception) {
+    await client.invitation.upsert({
+      where: { guestId_eventId: { guestId: e2eGuest.id, eventId: reception.id } },
+      update: {},
+      create: { guestId: e2eGuest.id, eventId: reception.id },
+    });
+  }
+  console.log(`✓ E2E guest seeded: ${e2eGuest.code}`);
+
   console.log('🎉 Database seed completed successfully.');
 }
 

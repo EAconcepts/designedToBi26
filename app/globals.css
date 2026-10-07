@@ -1,36 +1,40 @@
 @import 'tailwindcss';
+@import './design-theme.css';
 
 :root {
-  /* Canvas & Cards */
+  /* Core Theme Tokens */
   --ivory: #fbf8f3;
+  --ink: #2a0a1f;
+  --magenta: #a3125f;
+  --gold: #b8892f;
+  --light-gold: #e8cb7a;
+  --gold-gradient: linear-gradient(110deg, #a87925 0%, #e8cb7a 48%, #a87925 100%);
   --white: #ffffff;
 
-  /* Gold Palette */
-  --gold-500: #c9a24b;
-  --gold-grad: linear-gradient(135deg, #b8892f, #e8cb7a 50%, #b8892f);
-
-  /* Magenta Palette */
+  /* Palette aliases */
+  --gold-500: #b8892f;
+  --gold-grad: linear-gradient(110deg, #a87925 0%, #e8cb7a 48%, #a87925 100%);
   --magenta-600: #a3125f;
   --magenta-800: #7a0c47;
-
-  /* Ink / Text Palette */
   --ink-900: #2a0a1f;
   --ink-600: #5b4553;
-
-  /* Night Mode / Dark Background */
   --night: #1d0615;
 
   /* System defaults mapping to tokens */
   --background: var(--ivory);
-  --foreground: var(--ink-900);
+  --foreground: var(--ink);
 }
 
 @theme {
   --color-ivory: var(--ivory);
   --color-white: var(--white);
+  --color-gold: var(--gold);
   --color-gold-500: var(--gold-500);
+  --color-light-gold: var(--light-gold);
+  --color-magenta: var(--magenta);
   --color-magenta-600: var(--magenta-600);
   --color-magenta-800: var(--magenta-800);
+  --color-ink: var(--ink);
   --color-ink-900: var(--ink-900);
   --color-ink-600: var(--ink-600);
   --color-night: var(--night);

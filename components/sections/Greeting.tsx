@@ -2,36 +2,41 @@
 
 import { useEffect, useState } from 'react';
 import type { GuestSession } from '@/lib/validation/session';
-import { GuestSessionResponseSchema } from '@/lib/validation/session';
-
-export function Greeting() {
-  const [greeting, setGreeting] = useState<string | null>(null);
+export function Greeting({
+  defaultGreeting = 'Dear family & friends',
+}: {
+  defaultGreeting?: string;
+}) {
+  const [greeting, setGreeting] = useState<string>(defaultGreeting);
 
   useEffect(() => {
     let active = true;
 
     void fetch('/api/session/guest', { cache: 'no-store' })
-      .then(async (response) => GuestSessionResponseSchema.safeParse(await response.json()))
-      .then((result) => {
-        if (active && result.success) setGreeting(result.data.data.guest?.greeting ?? null);
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return response.json();
+      })
+      .then((json: unknown) => {
+        const payload = json as { data?: { guest?: { greeting?: string } } } | null;
+        if (
+          active &&
+          payload?.data?.guest?.greeting &&
+          typeof payload.data.guest.greeting === 'string'
+        ) {
+          setGreeting(payload.data.guest.greeting);
+        }
       })
       .catch(() => {
-        // Personalisation is optional; the invitation remains fully useful without it.
+        // Personalisation is optional; default remains active
       });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [defaultGreeting]);
 
-  return (
-    <p
-      aria-live="polite"
-      className="min-h-6 text-center font-display text-xl text-magenta-600 sm:text-2xl"
-    >
-      {greeting}
-    </p>
-  );
+  return <span aria-live="polite">{greeting}</span>;
 }
 
 export type { GuestSession };
