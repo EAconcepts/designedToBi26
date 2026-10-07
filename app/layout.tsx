@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Cormorant_Garamond, Jost, Alex_Brush } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
-import { ToastProvider } from '@/components/ui';
+import { ToastProvider } from '@/components/ui/Toast';
 import type { ReactNode } from 'react';
 
 const cormorant = Cormorant_Garamond({

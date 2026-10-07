@@ -94,6 +94,10 @@ Follow these steps to go from a fresh clone to a running local instance.
 | `pnpm format:check`     | Verifies code formatting in CI without writing files                                             |
 | `pnpm typecheck`        | Executes TypeScript strict typechecking (`tsc --noEmit`)                                         |
 | `pnpm seed`             | Executes idempotent database seeder (`prisma/seed.ts`)                                           |
+| `pnpm seed:guests`      | Bulk imports guests from CSV (`scripts/seed-guests.ts`) with idempotent upserts                  |
+| `pnpm sync:album`       | Syncs Cloudinary folders to database albums (`scripts/sync-album.ts`) with natural sort          |
+| `pnpm zip:album`        | Generates signed Cloudinary ZIP archives for entire albums (`scripts/zip-album.ts`)              |
+| `pnpm gifts:reconcile`  | Reconciles stale pending Paystack gifts against remote API (`scripts/reconcile-gifts.ts`)        |
 | `pnpm lighthouse`       | Executes Lighthouse CI audit against local server                                                |
 | `pnpm check:bundle`     | Asserts root first-load JS budget ≤ 180 KB gzipped (`scripts/check-bundle.mjs`)                  |
 
@@ -131,17 +135,17 @@ Environment variables are defined in `.env.example` and strictly validated at bo
 
 Tracks external services, vendor requirements, and couple deliverables:
 
-| Item / Dependency               | Owner             | Critical Path    | Status      | Notes                                                                    |
-| :------------------------------ | :---------------- | :--------------- | :---------- | :----------------------------------------------------------------------- |
-| **Neon PostgreSQL**             | Engineering       | Yes (Launch)     | In Progress | Local Docker setup active; Neon preview branch integration configured    |
-| **Vercel Platform**             | Engineering       | Yes (Sprint 0)   | Done        | Turbopack build and deployment pipeline operational                      |
-| **Paystack Merchant KYC**       | Couple / Lead     | Yes (Sprint 2/4) | Pending     | Test keys active in dev; live KYC submission required before Sprint 4    |
-| **Cloudinary Account**          | Engineering       | Yes (Sprint 3)   | Ready       | Folders and signed upload policies defined                               |
-| **Resend Domain Verification**  | Engineering       | Yes (Sprint 2)   | Pending     | Local fallback active; domain DNS records to be applied                  |
-| **Real Monogram Logo**          | Couple / Designer | No (Sprint 4)    | Pending     | SVG placeholder in place via `Logo.tsx` contract                         |
-| **Official Invitation Copy**    | Couple            | Yes (Sprint 1)   | In Review   | Initial draft in `content/site.config.ts`; awaiting final printed card   |
-| **Venue Exact Pin & Travel**    | Couple            | Yes (Sprint 1)   | Pending     | Methodist Church, Olorunsogo-GeriAlimi; awaiting precise GPS coordinates |
-| **Photographer Album Delivery** | Couple / Photo    | No (Sprint 5)    | Pending     | Delivery expected post-wedding for `wedding-day` album                   |
+| Item / Dependency               | Owner             | Critical Path           | Status      | Notes                                                                                              |
+| :------------------------------ | :---------------- | :---------------------- | :---------- | :------------------------------------------------------------------------------------------------- |
+| **Neon PostgreSQL**             | Engineering       | Yes (Launch)            | In Progress | Local Docker setup active; Neon preview branch integration configured                              |
+| **Vercel Platform**             | Engineering       | Yes (Sprint 0)          | Done        | Turbopack build and deployment pipeline operational                                                |
+| **Paystack Merchant KYC**       | Couple / Lead     | Yes (Sprint 4 Critical) | Pending     | Test keys active in dev; live merchant KYC approval is critical path for Sprint 4 launch readiness |
+| **Cloudinary Account**          | Engineering       | Yes (Sprint 3)          | Ready       | Folders and signed upload policies defined                                                         |
+| **Resend Domain Verification**  | Engineering       | Yes (Sprint 2)          | Pending     | Local fallback active; domain DNS records to be applied                                            |
+| **Real Monogram Logo**          | Couple / Designer | No (Sprint 4)           | Pending     | SVG placeholder in place via `Logo.tsx` contract                                                   |
+| **Official Invitation Copy**    | Couple            | Yes (Sprint 1)          | In Review   | Initial draft in `content/site.config.ts`; awaiting final printed card                             |
+| **Venue Exact Pin & Travel**    | Couple            | Yes (Sprint 1)          | Pending     | Methodist Church, Olorunsogo-GeriAlimi; awaiting precise GPS coordinates                           |
+| **Photographer Album Delivery** | Couple / Photo    | No (Sprint 5)           | Pending     | Delivery expected post-wedding for `wedding-day` album                                             |
 
 ---
 

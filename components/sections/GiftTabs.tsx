@@ -4,8 +4,6 @@ import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { SITE } from '@/content/site.config';
 import { formatNGN, toMinor } from '@/lib/money';
-import { FundCard } from '@/components/ui/FundCard';
-import { CopyField } from '@/components/ui/CopyField';
 
 export interface BankAccountItem {
   id: string;
@@ -55,6 +53,8 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
   // Online Gift Form State
   const defaultFund = funds[0]?.slug || 'honeymoon';
   const [selectedFundSlug, setSelectedFundSlug] = useState(defaultFund);
+  const selectedFund = funds.find((f) => f.slug === selectedFundSlug) || funds[0];
+
   const [selectedPresetMinor, setSelectedPresetMinor] = useState<number | null>(
     SITE.gift.presetAmountsMinor[1] ?? 1000000,
   );
@@ -71,7 +71,8 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [onlineError, setOnlineError] = useState<string | null>(null);
 
-  // Bank Transfer Declaration State
+  // Bank Transfer State
+  const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   const [showDeclareForm, setShowDeclareForm] = useState(false);
   const [declareName, setDeclareName] = useState('');
   const [declareEmail, setDeclareEmail] = useState('');
@@ -110,6 +111,27 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
   const handlePresetClick = (presetMinor: number) => {
     setSelectedPresetMinor(presetMinor);
     setCustomAmountText((presetMinor / 100).toLocaleString('en-NG'));
+  };
+
+  const handleCopy = async (accNum: string) => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(accNum);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = accNum;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopiedAccount(accNum);
+      setTimeout(() => setCopiedAccount(null), 2500);
+    } catch {
+      // ignore
+    }
   };
 
   const handleOnlineSubmit = async (e: React.FormEvent) => {
@@ -211,490 +233,424 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
 
   if (funds.length === 0 && bankAccounts.length === 0) {
     return (
-      <div className="py-16 text-center text-ink-600">
-        <p className="font-serif text-lg">Giving details will appear here</p>
-      </div>
+      <section className="gift-page paper-section">
+        <div className="gift-funds" style={{ textAlign: 'center', gridColumn: '1 / -1' }}>
+          <p className="section-kicker">With Love</p>
+          <h2>Giving details will appear here</h2>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Tab Navigation */}
-      <div
-        role="tablist"
-        aria-label="Gift payment method"
-        className="flex rounded-xl bg-ivory-200/80 p-1.5 border border-gold-500/20 max-w-md mx-auto"
-      >
-        <button
-          type="button"
-          role="tab"
-          id="tab-online"
-          aria-selected={currentTab === 'online'}
-          aria-controls="panel-online"
-          onClick={() => setTab('online')}
-          className={`flex-1 py-3 px-4 rounded-lg font-serif font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer min-h-[44px] flex items-center justify-center gap-2 ${
-            currentTab === 'online'
-              ? 'bg-white text-magenta-900 shadow-sm'
-              : 'text-ink-600 hover:text-magenta-900'
-          }`}
-        >
-          <span>💳</span>
-          <span>Give Online</span>
-        </button>
-
-        <button
-          type="button"
-          role="tab"
-          id="tab-bank"
-          aria-selected={currentTab === 'bank'}
-          aria-controls="panel-bank"
-          onClick={() => setTab('bank')}
-          className={`flex-1 py-3 px-4 rounded-lg font-serif font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer min-h-[44px] flex items-center justify-center gap-2 ${
-            currentTab === 'bank'
-              ? 'bg-white text-magenta-900 shadow-sm'
-              : 'text-ink-600 hover:text-magenta-900'
-          }`}
-        >
-          <span>🏦</span>
-          <span>Bank Transfer</span>
-        </button>
+    <section className="gift-page paper-section">
+      {/* Left Column: Fund Wish Selection */}
+      <div className="gift-funds">
+        <p className="section-kicker">Choose a wish</p>
+        <h2>Where would you like your kindness to go?</h2>
+        {funds.map((f, index) => (
+          <button
+            key={f.id}
+            type="button"
+            className={selectedFundSlug === f.slug ? 'active' : ''}
+            onClick={() => setSelectedFundSlug(f.slug)}
+            aria-pressed={selectedFundSlug === f.slug}
+          >
+            <span>0{index + 1}</span>
+            <div>
+              <b>{f.title}</b>
+              {f.description ? <small>{f.description}</small> : null}
+            </div>
+            <i>→</i>
+          </button>
+        ))}
       </div>
 
-      {/* Online Tab Panel */}
-      <div
-        role="tabpanel"
-        id="panel-online"
-        aria-labelledby="tab-online"
-        hidden={currentTab !== 'online'}
-        className={currentTab === 'online' ? 'space-y-8' : 'hidden'}
-      >
-        <form onSubmit={handleOnlineSubmit} className="space-y-8">
-          {/* Fund Selection */}
-          <div className="space-y-4">
-            <div className="text-center sm:text-left">
-              <span className="text-xs font-semibold tracking-wider uppercase text-gold-600 font-sans">
-                Step 1
-              </span>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-magenta-950 mt-0.5">
-                Choose a Wish to Bless
-              </h2>
-              <p className="text-xs sm:text-sm text-ink-600 mt-1">
-                Select where you would like your gift to be dedicated.
+      {/* Right Column: Checkout Card */}
+      <div className="gift-checkout">
+        <div className="gift-tabs" role="tablist" aria-label="Gift payment method">
+          <button
+            type="button"
+            role="tab"
+            id="tab-online"
+            aria-selected={currentTab === 'online'}
+            aria-controls="panel-online"
+            aria-label="Pay securely (Give online)"
+            className={currentTab === 'online' ? 'active' : ''}
+            onClick={() => setTab('online')}
+          >
+            Pay securely
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-bank"
+            aria-selected={currentTab === 'bank'}
+            aria-controls="panel-bank"
+            aria-label="Bank transfer"
+            className={currentTab === 'bank' ? 'active' : ''}
+            onClick={() => setTab('bank')}
+          >
+            Bank transfer
+          </button>
+        </div>
+
+        {currentTab === 'online' ? (
+          <div role="tabpanel" id="panel-online" aria-labelledby="tab-online">
+            <form onSubmit={handleOnlineSubmit}>
+              <p className="selected-fund">
+                Your gift to <strong>{selectedFund?.title || 'Selected Fund'}</strong>
               </p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {funds.map((f) => (
-                <FundCard
-                  key={f.id}
-                  slug={f.slug}
-                  title={f.title}
-                  description={f.description}
-                  goalMinor={f.goalMinor}
-                  isSelected={selectedFundSlug === f.slug}
-                  onSelect={() => setSelectedFundSlug(f.slug)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Amount Selection */}
-          <div className="space-y-4">
-            <div className="text-center sm:text-left">
-              <span className="text-xs font-semibold tracking-wider uppercase text-gold-600 font-sans">
-                Step 2
-              </span>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-magenta-950 mt-0.5">
-                Gift Amount
-              </h2>
-            </div>
-
-            {/* Presets */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {SITE.gift.presetAmountsMinor.map((minor) => (
-                <button
-                  key={minor}
-                  type="button"
-                  onClick={() => handlePresetClick(minor)}
-                  className={`py-3 px-3 rounded-lg border font-mono font-bold text-sm sm:text-base transition-all duration-200 cursor-pointer min-h-[44px] ${
-                    selectedPresetMinor === minor
-                      ? 'bg-magenta-900 text-white border-magenta-900 shadow-sm'
-                      : 'bg-white hover:bg-gold-50/50 text-ink-800 border-ink-200 hover:border-gold-400'
-                  }`}
-                >
-                  {formatNGN(minor)}
-                </button>
-              ))}
-            </div>
-
-            {/* Custom Amount Field */}
-            <div className="max-w-md">
-              <label
-                htmlFor="custom-amount-input"
-                className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1.5"
-              >
-                Or Enter Custom Amount (₦)
-              </label>
-              <div className="relative rounded-lg shadow-xs">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                  <span className="text-ink-500 font-serif font-bold text-lg">₦</span>
-                </div>
-                <input
-                  id="custom-amount-input"
-                  type="text"
-                  inputMode="numeric"
-                  value={customAmountText}
-                  onChange={(e) => handleCustomAmountChange(e.target.value)}
-                  placeholder="10,000"
-                  className="block w-full rounded-lg border border-ink-300 bg-white pl-8 pr-4 py-2.5 text-base font-semibold text-ink-900 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
-                />
+              <div className="amount-grid" role="group" aria-label="Gift amount presets">
+                {SITE.gift.presetAmountsMinor.map((minor) => {
+                  const naira = minor / 100;
+                  const label = naira.toLocaleString('en-NG');
+                  return (
+                    <button
+                      key={minor}
+                      type="button"
+                      className={selectedPresetMinor === minor ? 'active' : ''}
+                      onClick={() => handlePresetClick(minor)}
+                    >
+                      ₦{label}
+                    </button>
+                  );
+                })}
               </div>
-              <p className="text-[11px] text-ink-500 mt-1">
-                Minimum: {formatNGN(SITE.gift.minAmountMinor)} • Maximum:{' '}
-                {formatNGN(SITE.gift.maxAmountMinor)}
-              </p>
-            </div>
-          </div>
 
-          {/* Donor Details */}
-          <div className="space-y-4">
-            <div className="text-center sm:text-left">
-              <span className="text-xs font-semibold tracking-wider uppercase text-gold-600 font-sans">
-                Step 3
-              </span>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-magenta-950 mt-0.5">
-                Your Details & Note
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="giver-name-input"
-                  className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
+              <label className="gift-label" htmlFor="custom-amount-input">
+                Or enter an amount
+                <div className="currency-input">
+                  <span>₦</span>
+                  <input
+                    id="custom-amount-input"
+                    value={customAmountText}
+                    onChange={(e) => handleCustomAmountChange(e.target.value)}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="10,000"
+                  />
+                </div>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: '9px',
+                    textTransform: 'none',
+                    letterSpacing: 0,
+                    color: '#5c4a55',
+                    marginTop: '6px',
+                  }}
                 >
-                  Your Full Name <span className="text-red-500">*</span>
-                </label>
+                  Min: {formatNGN(SITE.gift.minAmountMinor)} · Max:{' '}
+                  {formatNGN(SITE.gift.maxAmountMinor)}
+                </span>
+              </label>
+
+              <label className="gift-label" htmlFor="giver-name-input">
+                Your name
                 <input
                   id="giver-name-input"
+                  placeholder="Full name"
                   type="text"
                   required
                   value={giverName}
                   onChange={(e) => setGiverName(e.target.value)}
-                  placeholder="e.g. Adeyemi Adeleke"
-                  className="w-full rounded-lg border border-ink-300 bg-white px-3.5 py-2.5 text-sm text-ink-900 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
                 />
-              </div>
+              </label>
 
-              <div>
-                <label
-                  htmlFor="giver-email-input"
-                  className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
-                >
-                  Email for Receipt <span className="text-red-500">*</span>
-                </label>
+              <label className="gift-label" htmlFor="giver-email-input">
+                Email for your receipt
                 <input
                   id="giver-email-input"
+                  placeholder="you@example.com"
                   type="email"
                   required
                   value={giverEmail}
                   onChange={(e) => setGiverEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full rounded-lg border border-ink-300 bg-white px-3.5 py-2.5 text-sm text-ink-900 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
                 />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="giver-message-input"
-                className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
-              >
-                Personal Message to Couple (Optional)
               </label>
-              <textarea
-                id="giver-message-input"
-                rows={3}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Write your prayers, blessings, or wedding wishes..."
-                className="w-full rounded-lg border border-ink-300 bg-white px-3.5 py-2 text-sm text-ink-900 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
-              />
-            </div>
 
-            <label className="flex items-start gap-3 p-3.5 rounded-lg border border-ink-200 bg-ivory-100/60 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={isAnonymous}
-                onChange={(e) => setIsAnonymous(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded text-magenta-800 focus:ring-gold-500"
-              />
-              <div className="text-xs text-ink-700">
-                <span className="font-semibold text-ink-900">Keep my name anonymous</span>
-                <p className="text-[11px] text-ink-500 mt-0.5">
-                  Your gift will be acknowledged as &ldquo;Anonymous&rdquo; in reports. (The couple
-                  will still see your name privately in their gift records).
-                </p>
-              </div>
-            </label>
-          </div>
-
-          {onlineError && (
-            <div
-              role="alert"
-              className="p-4 rounded-lg bg-red-50 border border-red-200 text-sm text-red-800"
-            >
-              ⚠️ {onlineError}
-            </div>
-          )}
-
-          {/* Submit */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full sm:w-auto min-w-[280px] rounded-lg bg-magenta-900 hover:bg-magenta-950 text-white font-serif font-bold text-base py-3.5 px-8 shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? (
-                <span>Connecting to Paystack...</span>
-              ) : (
-                <>
-                  <span>Proceed to Pay {formatNGN(parseAmountMinor(customAmountText))}</span>
-                  <span>→</span>
-                </>
-              )}
-            </button>
-            <p className="text-[11px] text-ink-500 mt-2 flex items-center gap-1.5">
-              <span>🔒</span>
-              <span>
-                Secured by Paystack with 256-bit encryption. We never handle your card details.
-              </span>
-            </p>
-          </div>
-        </form>
-      </div>
-
-      {/* Bank Transfer Panel */}
-      <div
-        role="tabpanel"
-        id="panel-bank"
-        aria-labelledby="tab-bank"
-        hidden={currentTab !== 'bank'}
-        className={currentTab === 'bank' ? 'space-y-8' : 'hidden'}
-      >
-        <div className="space-y-4">
-          <div className="text-center sm:text-left">
-            <h2 className="font-serif text-xl sm:text-2xl font-bold text-magenta-950">
-              Direct Bank Transfer Details
-            </h2>
-            <p className="text-sm text-ink-600 mt-1">
-              Transfers are confirmed manually by the couple. Please copy the account details below.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {bankAccounts.map((acc) => (
-              <div
-                key={acc.id}
-                className="p-5 rounded-xl border border-gold-500/30 bg-white shadow-xs space-y-4"
-              >
-                <div className="flex items-center justify-between border-b pb-3 border-ink-100">
-                  <span className="text-xs uppercase font-bold tracking-wider text-magenta-900">
-                    {acc.label || `${acc.currency} Account`}
-                  </span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-gold-50 text-gold-800 font-semibold border border-gold-200">
-                    {acc.currency}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <div>
-                    <span className="text-xs text-ink-500 uppercase tracking-wider">Bank</span>
-                    <p className="font-serif font-bold text-base text-ink-900">{acc.bankName}</p>
-                  </div>
-
-                  <div>
-                    <span className="text-xs text-ink-500 uppercase tracking-wider">
-                      Account Name
-                    </span>
-                    <p className="font-medium text-sm text-ink-900">{acc.accountName}</p>
-                  </div>
-
-                  <div className="pt-1">
-                    <CopyField
-                      label="Account Number"
-                      value={acc.accountNumber}
-                      className="p-2.5 rounded-lg bg-ivory-100 border border-gold-200"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Declaration Card */}
-        <div className="rounded-xl border border-gold-500/30 bg-white p-6 shadow-xs space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-              <h3 className="font-serif font-bold text-lg text-magenta-950">
-                Have you sent a transfer?
-              </h3>
-              <p className="text-xs sm:text-sm text-ink-600">
-                Kindly notify us so we may record your gift and properly acknowledge your kindness.
-              </p>
-            </div>
-
-            {!declareSuccessRef && (
-              <button
-                type="button"
-                onClick={() => setShowDeclareForm(!showDeclareForm)}
-                className="rounded-lg border border-magenta-300 hover:border-magenta-700 text-magenta-900 px-4 py-2 text-xs sm:text-sm font-semibold transition-colors cursor-pointer min-h-[40px]"
-              >
-                {showDeclareForm ? 'Hide Form' : 'Notify Us of Transfer →'}
-              </button>
-            )}
-          </div>
-
-          {declareSuccessRef ? (
-            <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-green-900 space-y-2">
-              <p className="font-bold text-sm">✓ Thank you for letting us know!</p>
-              <p className="text-xs text-green-800">
-                Your transfer declaration has been recorded with reference:{' '}
-                <strong className="font-mono">{declareSuccessRef}</strong>. We will confirm it once
-                received.
-              </p>
-            </div>
-          ) : showDeclareForm ? (
-            <form onSubmit={handleDeclareSubmit} className="pt-4 border-t border-ink-100 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="declare-name-input"
-                    className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
-                  >
-                    Your Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="declare-name-input"
-                    type="text"
-                    required
-                    value={declareName}
-                    onChange={(e) => setDeclareName(e.target.value)}
-                    placeholder="Full name"
-                    className="w-full rounded-md border border-ink-300 px-3 py-2 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="declare-email-input"
-                    className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
-                  >
-                    Your Email (Optional)
-                  </label>
-                  <input
-                    id="declare-email-input"
-                    type="email"
-                    value={declareEmail}
-                    onChange={(e) => setDeclareEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full rounded-md border border-ink-300 px-3 py-2 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="declare-amount-input"
-                    className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
-                  >
-                    Approximate Amount Sent (₦)
-                  </label>
-                  <input
-                    id="declare-amount-input"
-                    type="text"
-                    inputMode="numeric"
-                    value={declareAmountText}
-                    onChange={(e) => {
-                      const num = parseInt(e.target.value.replace(/[^0-9]/g, '') || '0', 10);
-                      setDeclareAmountText(num ? num.toLocaleString('en-NG') : '');
-                    }}
-                    placeholder="e.g. 50,000"
-                    className="w-full rounded-md border border-ink-300 px-3 py-2 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="declare-fund-select"
-                    className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
-                  >
-                    Dedicated Wish / Fund
-                  </label>
-                  <select
-                    id="declare-fund-select"
-                    value={declareFundSlug}
-                    onChange={(e) => setDeclareFundSlug(e.target.value)}
-                    className="w-full rounded-md border border-ink-300 px-3 py-2 text-sm bg-white"
-                  >
-                    {funds.map((f) => (
-                      <option key={f.slug} value={f.slug}>
-                        {f.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="declare-message-input"
-                  className="block text-xs font-medium text-ink-700 uppercase tracking-wider mb-1"
-                >
-                  Message to Couple (Optional)
-                </label>
+              <label className="gift-label" htmlFor="giver-message-input">
+                A message, if you wish
                 <textarea
-                  id="declare-message-input"
-                  rows={2}
-                  value={declareMessage}
-                  onChange={(e) => setDeclareMessage(e.target.value)}
-                  placeholder="Optional note..."
-                  className="w-full rounded-md border border-ink-300 px-3 py-2 text-sm"
+                  id="giver-message-input"
+                  rows={3}
+                  placeholder="Write a note to the couple..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
-              </div>
+              </label>
 
-              <label className="flex items-center gap-2 text-xs text-ink-700 select-none cursor-pointer">
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '-10px',
+                  marginBottom: '24px',
+                  fontSize: '11px',
+                  color: '#735e6b',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+              >
                 <input
                   type="checkbox"
-                  checked={declareAnonymous}
-                  onChange={(e) => setDeclareAnonymous(e.target.checked)}
-                  className="rounded text-magenta-800"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  style={{ accentColor: 'var(--magenta)', cursor: 'pointer' }}
                 />
-                <span>Record gift as Anonymous</span>
+                <span>Keep my name anonymous in public records</span>
               </label>
 
-              {declareError && (
+              {onlineError && (
                 <div
                   role="alert"
-                  className="p-3 rounded bg-red-50 text-xs text-red-700 border border-red-200"
+                  style={{
+                    padding: '12px 14px',
+                    marginBottom: '20px',
+                    background: '#fdf2f2',
+                    border: '1px solid #f8b4b4',
+                    color: '#9b1c1c',
+                    fontSize: '12px',
+                    borderRadius: '4px',
+                  }}
                 >
-                  ⚠️ {declareError}
+                  ⚠️ {onlineError}
                 </div>
               )}
 
               <button
+                className="button button--magenta gift-pay"
                 type="submit"
-                disabled={isDeclaring}
-                className="rounded-md bg-magenta-900 hover:bg-magenta-950 text-white px-5 py-2.5 text-sm font-semibold transition-colors cursor-pointer disabled:opacity-60"
+                disabled={isSubmitting}
               >
-                {isDeclaring ? 'Submitting...' : 'Submit Declaration'}
+                {isSubmitting ? (
+                  <span>Connecting to Paystack...</span>
+                ) : (
+                  <>
+                    <span>Continue to secure payment</span> <span>→</span>
+                  </>
+                )}
               </button>
+
+              <p className="secure-note">
+                Payments are securely processed by Paystack. We never see or store your card
+                details.
+              </p>
             </form>
-          ) : null}
-        </div>
+          </div>
+        ) : (
+          <div role="tabpanel" id="panel-bank" aria-labelledby="tab-bank">
+            {bankAccounts.map((account) => (
+              <div key={account.id} className="bank-card">
+                <p className="section-kicker">{account.currency} account</p>
+                <h3>Our wedding gift account</h3>
+                <dl>
+                  <div>
+                    <dt>Bank</dt>
+                    <dd>{account.bankName}</dd>
+                  </div>
+                  <div>
+                    <dt>Account name</dt>
+                    <dd>{account.accountName}</dd>
+                  </div>
+                  <div>
+                    <dt>Account number</dt>
+                    <dd>{account.accountNumber}</dd>
+                  </div>
+                </dl>
+
+                <button
+                  className="button button--magenta"
+                  onClick={() => handleCopy(account.accountNumber)}
+                  type="button"
+                  style={{ width: '100%', marginBottom: '14px' }}
+                >
+                  {copiedAccount === account.accountNumber
+                    ? 'Copied to clipboard'
+                    : 'Copy account number'}
+                </button>
+
+                <small style={{ display: 'block', textAlign: 'center', marginBottom: '20px' }}>
+                  Kindly notify us after your transfer so we may properly acknowledge your gift.
+                </small>
+              </div>
+            ))}
+
+            {/* Transfer Declaration Disclosure */}
+            <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e0d4c8' }}>
+              {!declareSuccessRef && (
+                <button
+                  type="button"
+                  onClick={() => setShowDeclareForm(!showDeclareForm)}
+                  style={{
+                    width: '100%',
+                    background: 'none',
+                    border: '1px dashed #c4b5a5',
+                    padding: '12px',
+                    color: 'var(--magenta)',
+                    fontSize: '11px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.12em',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {showDeclareForm ? 'Hide notification form' : 'Notify Us of Transfer →'}
+                </button>
+              )}
+
+              {declareSuccessRef ? (
+                <div
+                  style={{
+                    padding: '16px',
+                    background: '#f0fdf4',
+                    border: '1px solid #bbf7d0',
+                    color: '#166534',
+                    fontSize: '13px',
+                    marginTop: '16px',
+                  }}
+                >
+                  <p style={{ fontWeight: 600 }}>✓ Thank you for letting us know!</p>
+                  <p style={{ marginTop: '4px', fontSize: '12px' }}>
+                    Your transfer declaration has been recorded with reference:{' '}
+                    <strong style={{ fontFamily: 'monospace' }}>{declareSuccessRef}</strong>. We
+                    will confirm it once received.
+                  </p>
+                </div>
+              ) : showDeclareForm ? (
+                <form onSubmit={handleDeclareSubmit} style={{ marginTop: '20px' }}>
+                  <label className="gift-label" htmlFor="declare-name-input">
+                    Your name
+                    <input
+                      id="declare-name-input"
+                      placeholder="Full name"
+                      type="text"
+                      required
+                      value={declareName}
+                      onChange={(e) => setDeclareName(e.target.value)}
+                    />
+                  </label>
+
+                  <label className="gift-label" htmlFor="declare-email-input">
+                    Your email (optional)
+                    <input
+                      id="declare-email-input"
+                      placeholder="you@example.com"
+                      type="email"
+                      value={declareEmail}
+                      onChange={(e) => setDeclareEmail(e.target.value)}
+                    />
+                  </label>
+
+                  <label className="gift-label" htmlFor="declare-amount-input">
+                    Approximate amount sent (₦)
+                    <div className="currency-input">
+                      <span>₦</span>
+                      <input
+                        id="declare-amount-input"
+                        type="text"
+                        inputMode="numeric"
+                        value={declareAmountText}
+                        onChange={(e) => {
+                          const num = parseInt(e.target.value.replace(/[^0-9]/g, '') || '0', 10);
+                          setDeclareAmountText(num ? num.toLocaleString('en-NG') : '');
+                        }}
+                        placeholder="e.g. 25,000"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="gift-label" htmlFor="declare-fund-select">
+                    Dedicated wish / fund
+                    <select
+                      id="declare-fund-select"
+                      value={declareFundSlug}
+                      onChange={(e) => setDeclareFundSlug(e.target.value)}
+                      style={{
+                        width: '100%',
+                        marginTop: '8px',
+                        padding: '10px 0',
+                        border: 0,
+                        borderBottom: '1px solid #cab9a7',
+                        background: 'transparent',
+                        fontFamily: 'Cormorant Garamond, serif',
+                        fontSize: '18px',
+                        color: 'var(--ink)',
+                        outline: 'none',
+                      }}
+                    >
+                      {funds.map((f) => (
+                        <option key={f.slug} value={f.slug}>
+                          {f.title}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="gift-label" htmlFor="declare-message-input">
+                    Message to couple (optional)
+                    <textarea
+                      id="declare-message-input"
+                      rows={2}
+                      placeholder="Write a note..."
+                      value={declareMessage}
+                      onChange={(e) => setDeclareMessage(e.target.value)}
+                    />
+                  </label>
+
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      margin: '-10px 0 20px',
+                      fontSize: '11px',
+                      color: '#735e6b',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={declareAnonymous}
+                      onChange={(e) => setDeclareAnonymous(e.target.checked)}
+                      style={{ accentColor: 'var(--magenta)' }}
+                    />
+                    <span>Record gift as Anonymous</span>
+                  </label>
+
+                  {declareError && (
+                    <div
+                      role="alert"
+                      style={{
+                        padding: '10px',
+                        marginBottom: '16px',
+                        background: '#fdf2f2',
+                        border: '1px solid #f8b4b4',
+                        color: '#9b1c1c',
+                        fontSize: '12px',
+                      }}
+                    >
+                      ⚠️ {declareError}
+                    </div>
+                  )}
+
+                  <button
+                    className="button button--magenta"
+                    type="submit"
+                    disabled={isDeclaring}
+                    style={{ width: '100%' }}
+                  >
+                    {isDeclaring ? 'Submitting...' : 'Submit Declaration'}
+                  </button>
+                </form>
+              ) : null}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 }

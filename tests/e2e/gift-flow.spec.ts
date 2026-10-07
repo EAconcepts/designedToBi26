@@ -82,25 +82,27 @@ test.describe('Gifting Experience E2E', () => {
   test('switches tabs between Give Online and Bank Transfer with URL updates', async ({ page }) => {
     await page.goto('/gift');
 
-    // Default tab is Give Online
-    const onlineTab = page.getByRole('tab', { name: /give online/i });
+    // Default tab is Pay Securely / Give Online
+    const onlineTab = page.getByRole('tab', { name: /pay securely|give online/i });
     const bankTab = page.getByRole('tab', { name: /bank transfer/i });
 
     await expect(onlineTab).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByRole('heading', { name: /choose a wish to bless/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /where would you like your kindness to go/i }),
+    ).toBeVisible();
 
     // Click Bank Transfer tab
     await bankTab.click();
     await expect(bankTab).toHaveAttribute('aria-selected', 'true');
     await expect(page).toHaveURL(/.*tab=bank/);
-    await expect(
-      page.getByRole('heading', { name: /direct bank transfer details/i }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /our wedding gift account/i })).toBeVisible();
 
     // Click back to Give Online
     await onlineTab.click();
     await expect(onlineTab).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByRole('heading', { name: /choose a wish to bless/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /where would you like your kindness to go/i }),
+    ).toBeVisible();
   });
 
   test('bank transfer copy button works and declaration form submits', async ({

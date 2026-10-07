@@ -39,28 +39,26 @@ export default async function GiftPage() {
   ]);
 
   return (
-    <div className="py-12 px-4 sm:px-6 max-w-5xl mx-auto space-y-10">
+    <div className="route-page">
       {/* Editorial Header */}
-      <header className="text-center space-y-3 max-w-2xl mx-auto">
-        <div className="w-12 h-12 mx-auto rounded-full bg-magenta-900 text-light-gold flex items-center justify-center font-serif font-bold text-lg shadow-sm">
-          {SITE.couple.initials}
-        </div>
-        <p className="text-xs uppercase tracking-widest text-ink-600 font-semibold font-sans">
-          Your Presence is Our Greatest Gift
-        </p>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-magenta-950 tracking-tight">
-          A Gift, <em className="italic font-normal text-magenta-800">With Love</em>
+      <header className="inner-hero">
+        <div className="inner-hero__ornament">{SITE.couple.initials}</div>
+        <p className="section-kicker section-kicker--gold">Your presence is our greatest gift</p>
+        <h1>
+          A gift, <em>with love</em>
         </h1>
-        <p className="text-sm sm:text-base text-ink-600 leading-relaxed pt-1">
-          For those who have graciously asked, we have created a few meaningful ways to contribute
-          to our new beginning.
+        <p className="inner-hero__body">
+          For those who have asked, we’ve created a few ways to contribute to our next chapter.
         </p>
+        <span className="inner-hero__line" />
       </header>
 
       {/* Main Gifting Interface */}
       <Suspense
         fallback={
-          <div className="py-12 text-center text-sm text-ink-500">Loading gifting options...</div>
+          <div className="paper-section" style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <p className="section-kicker">Loading gifting options...</p>
+          </div>
         }
       >
         <GiftTabs funds={funds} bankAccounts={bankAccounts} />
