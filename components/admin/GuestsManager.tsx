@@ -17,6 +17,17 @@ interface GuestRow {
   rsvpStatus: string;
 }
 
+function formatOpenedAt(dateString: string): string {
+  const diffMs = Date.now() - new Date(dateString).getTime();
+  const diffMinutes = Math.floor(diffMs / 60000);
+  if (diffMinutes < 1) return 'just now';
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
+}
+
 export function GuestsManager() {
   const [rows, setRows] = useState<GuestRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -202,6 +213,15 @@ export function GuestsManager() {
                       <div className="text-xs text-ink-500">
                         {row.phone || row.email || 'No contact provided'}
                       </div>
+                      <div className="text-[11px] mt-0.5">
+                        {row.openedAt ? (
+                          <span className="text-emerald-700 font-medium">
+                            ✓ Opened {formatOpenedAt(row.openedAt)}
+                          </span>
+                        ) : (
+                          <span className="text-ink-400">Not opened yet</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs text-gold-800">{row.code}</td>
                     <td className="px-4 py-3.5 text-xs text-ink-600">{row.side}</td>
@@ -289,6 +309,16 @@ export function GuestsManager() {
                 <div className="flex justify-between text-xs text-ink-600 border-t pt-2">
                   <div>Max Party: {row.maxPartySize}</div>
                   <div>Side: {row.side}</div>
+                </div>
+
+                <div className="text-[11px] text-ink-500">
+                  {row.openedAt ? (
+                    <span className="text-emerald-700 font-medium">
+                      ✓ Opened {formatOpenedAt(row.openedAt)}
+                    </span>
+                  ) : (
+                    <span className="text-ink-400">Invitation not opened yet</span>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t">

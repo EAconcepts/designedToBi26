@@ -1,0 +1,21 @@
+displayName,email,phone,side,maxPartySize,invitedTo
+"Chief Olufemi Adeyemi",femi.adeyemi@example.com,+2348031234567,PARTNER_A,2,solemnization,reception
+"Madam Folashade Adeyemi",folashade.adeyemi@example.com,+2348037654321,PARTNER_A,2,solemnization,reception
+"Dr. Kayode Olatunji",kayode.olatunji@example.com,+2348021112233,PARTNER_B,2,solemnization,reception
+"Mrs. Funmilayo Olatunji",funmi.olatunji@example.com,+2348024445566,PARTNER_B,2,solemnization,reception
+"Adewale Adeleke",wale.adeleke@example.com,+2348059998877,BOTH,1,solemnization,reception
+"Oluwaseun Balogun",seun.balogun@example.com,,BOTH,1,reception
+"Babatunde Bakare",tunde.bakare@example.com,+2348123456789,PARTNER_A,2,solemnization,reception
+"Amina Bello",amina.bello@example.com,,PARTNER_B,1,solemnization,reception
+"Chinedu Okonkwo",chinedu.okonkwo@example.com,+2348030001122,BOTH,2,reception
+"Ngozi Okonkwo",ngozi.okonkwo@example.com,,BOTH,2,reception
+"Ibrahim Danjuma",ibrahim.d@example.com,+2348076543210,BOTH,1,solemnization,reception
+"Zainab Danjuma",zainab.d@example.com,,BOTH,1,solemnization,reception
+"Kehinde Alabi",kehinde.alabi@example.com,+2348098765432,PARTNER_A,2,solemnization,reception
+"Taiwo Alabi",taiwo.alabi@example.com,+2348098765433,PARTNER_A,2,solemnization,reception
+"Emeka Eze",emeka.eze@example.com,+2348101234567,PARTNER_B,1,reception
+"Grace Eze",grace.eze@example.com,,PARTNER_B,1,reception
+"Ayomide Adeleke",ayomide.a@example.com,+2348161112223,BOTH,1,solemnization,reception
+"Temitope Johnson",temi.johnson@example.com,,BOTH,2,solemnization,reception
+"Damilola Ajayi",dami.ajayi@example.com,+2348172223334,PARTNER_A,1,reception
+"Oluwatobi Williams",tobi.williams@example.com,+2348183334445,PARTNER_B,2,solemnization,reception
