@@ -24,6 +24,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "seed": "prisma db seed",
+    "gifts:reconcile": "tsx scripts/reconcile-gifts.ts",
     "verify": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test:unit && pnpm test:integration",
     "prepare": "husky"
   },

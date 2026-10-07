@@ -38,9 +38,9 @@ _Updated: 2026-10-07 · Current phase: 2 RSVP/gifts · Current subphase: 2.3 RSV
 | 2 RSVP/gifts | 2.4 RSVP email                   | done  | Resend client & templates (`rsvp-confirmation.tsx`, `rsvp-notification.tsx`, `send.ts`); non-blocking post-commit; 8 unit + 12 integration tests green.                    |
 | 2 RSVP/gifts | 2.5 Admin RSVP/guests            | done  | Admin RSVP list, filters, manual phone/WhatsApp entry modal, guest directory, personalized invite link/WhatsApp generator, UTF-8 BOM CSV export, and E2E coverage.         |
 
-| 2 RSVP/gifts | 2.6 Gift UI | not-started | |
-| 2 RSVP/gifts | 2.7 Paystack core | not-started | |
-| 2 RSVP/gifts | 2.8 Gift complete + receipt | not-started | |
+| 2 RSVP/gifts | 2.6 Gift UI | done | `/gift` page with active funds & bank accounts, `GiftTabs` (?tab=online/bank), amount preset chips with live ₦ format, `CopyField` with fallback, `FundCard` selection, and bank transfer declaration flow. |
+| 2 RSVP/gifts | 2.7 Paystack core | done | `lib/paystack.ts` (init/verify/HMAC length-guarded timing-safe), `lib/payments.ts` (128-bit ref, PII redaction), `POST /api/gifts/initialize`, `POST /api/webhooks/paystack` (idempotent + remote verify), `GET /api/gifts/verify`, `POST /api/gifts/declare`, `scripts/reconcile-gifts.ts`. |
+| 2 RSVP/gifts | 2.8 Gift complete + receipt | done | `/gift/complete` state machine with exponential backoff polling, React Email templates (`gift-receipt.tsx`, `gift-notification.tsx`), donor + couple emails, full unit/integration/E2E test suite passing. |
 | 2 RSVP/gifts | 2.9 Admin ledger | not-started | |
 | 2 RSVP/gifts | **Phase exit gate** | not-started | |
 | 3 Gallery/admin | 3.1 Cloudinary helpers | not-started | |

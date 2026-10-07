@@ -122,7 +122,7 @@ export async function seed(client: PrismaClient = globalPrisma) {
   }
   console.log(`✓ Funds seeded: ${defaultFunds.length} funds`);
 
-  // 5. Bank Account placeholders (marked isActive: false until couple provides verified details)
+  // 5. Bank Accounts
   const defaultAccounts = [
     {
       label: 'Default Wedding Account',
@@ -131,7 +131,7 @@ export async function seed(client: PrismaClient = globalPrisma) {
       accountNumber: '0000000000',
       currency: 'NGN',
       sortOrder: 0,
-      isActive: false,
+      isActive: true,
     },
   ];
 
@@ -141,6 +141,11 @@ export async function seed(client: PrismaClient = globalPrisma) {
     });
     if (!existing) {
       await client.bankAccount.create({ data: acct });
+    } else {
+      await client.bankAccount.update({
+        where: { id: existing.id },
+        data: { isActive: true },
+      });
     }
   }
   console.log(`✓ Bank accounts seeded: ${defaultAccounts.length} accounts`);
