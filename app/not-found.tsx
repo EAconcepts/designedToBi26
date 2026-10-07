@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Button, Container } from '@/components/ui';
+import { Button } from '@/components/ui/Button';
+import { Container } from '@/components/ui/Container';
 import { SITE } from '@/content/site.config';
 
 export default function NotFound() {

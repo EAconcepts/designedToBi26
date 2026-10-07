@@ -23,6 +23,7 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
+    "seed": "prisma db seed",
     "gifts:reconcile": "tsx scripts/reconcile-gifts.ts",
     "seed:guests": "tsx scripts/seed-guests.ts",
     "sync:album": "tsx scripts/sync-album.ts",

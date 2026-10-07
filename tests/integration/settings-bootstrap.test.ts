@@ -24,4 +24,31 @@ describe('Settings Bootstrap Integration', () => {
     const count = await prisma.setting.count();
     expect(count).toBe(1);
   });
+
+  it('handles multiple concurrent bootstrap calls without unique constraint collisions', async () => {
+    await prisma.setting.deleteMany({ where: { id: 1 } });
+
+    // Simulate 10 simultaneous Next.js build workers querying settings on empty DB
+    const results = await Promise.all([
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+      getSettingsUncached(),
+    ]);
+
+    expect(results).toHaveLength(10);
+    results.forEach((res) => {
+      expect(res.id).toBe(1);
+      expect(res.mode).toBe('PRE');
+    });
+
+    const count = await prisma.setting.count();
+    expect(count).toBe(1);
+  });
 });
