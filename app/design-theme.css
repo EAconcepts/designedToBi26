@@ -3455,3 +3455,285 @@ footer span {
     min-width: 100%;
   }
 }
+
+/* ==========================================================================
+   RSVP Stepper & Form Flow
+   ========================================================================== */
+
+.rsvp-stepper {
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(184, 137, 47, 0.2);
+}
+
+.rsvp-stepper__list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 12px;
+}
+
+.rsvp-stepper__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.rsvp-stepper__item.is-current {
+  opacity: 1;
+  font-weight: 600;
+  color: var(--magenta);
+}
+
+.rsvp-stepper__item.is-completed {
+  opacity: 0.85;
+  color: #2a5a3b;
+}
+
+.rsvp-stepper__indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 11px;
+  border: 1px solid currentColor;
+}
+
+.rsvp-stepper__item.is-current .rsvp-stepper__indicator {
+  background: var(--magenta);
+  color: #fff;
+  border-color: var(--magenta);
+}
+
+.rsvp-stepper__item.is-completed .rsvp-stepper__indicator {
+  background: #2a5a3b;
+  color: #fff;
+  border-color: #2a5a3b;
+}
+
+@media (max-width: 640px) {
+  .rsvp-stepper__label {
+    display: none;
+  }
+}
+
+/* Contacts Panel */
+.rsvp-contacts-panel {
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.rsvp-contacts-panel__header {
+  margin-bottom: 32px;
+}
+
+.rsvp-contacts-panel__title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 5vw, 44px);
+  margin: 12px 0;
+  line-height: 1.1;
+}
+
+.rsvp-contacts-panel__subtitle {
+  color: #674b5d;
+  font-size: 16px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.rsvp-contacts-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.rsvp-contact-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid rgba(184, 137, 47, 0.25);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.rsvp-contact-card__info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.rsvp-contact-card__name {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.rsvp-contact-card__role {
+  font-size: 12px;
+  color: #8c7382;
+}
+
+.rsvp-contact-card__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.rsvp-contacts-panel__footer {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(184, 137, 47, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: #7a6372;
+}
+
+/* Attendee Rows */
+.attendee-row {
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(184, 137, 47, 0.2);
+  border-radius: 4px;
+}
+
+.attendee-row__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.attendee-row__index {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--magenta);
+}
+
+.attendee-row__remove-btn {
+  background: none;
+  border: none;
+  color: #8c2438;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.field-error {
+  color: #c92a2a;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.field-hint {
+  display: block;
+  font-size: 12px;
+  color: #8a7682;
+  text-transform: none;
+  letter-spacing: normal;
+  margin-top: 4px;
+}
+
+.form-field {
+  margin-bottom: 24px;
+}
+
+.form-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.alert--error {
+  padding: 14px 18px;
+  background: #fff5f5;
+  border: 1px solid #ffc9c9;
+  color: #c92a2a;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.info-box {
+  padding: 16px 20px;
+  background: rgba(184, 137, 47, 0.08);
+  border-left: 3px solid var(--light-gold);
+  font-size: 15px;
+  color: #5c4352;
+}
+
+/* Review Summary */
+.review-summary {
+  padding: 24px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-summary__item {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(184, 137, 47, 0.15);
+  font-size: 15px;
+}
+
+.review-label {
+  color: #7a6372;
+}
+
+.review-value {
+  text-align: right;
+  max-width: 65%;
+}
+
+.review-attendees {
+  text-align: right;
+}
+
+.review-attendee-line {
+  margin-bottom: 4px;
+}
+
+/* Success View */
+.form-success__events {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 28px 0;
+}
+
+.success-event-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid rgba(184, 137, 47, 0.25);
+  border-radius: 4px;
+  text-align: left;
+}
+
+.form-success__actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
