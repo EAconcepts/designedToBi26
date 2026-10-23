@@ -56,7 +56,7 @@ sections below; the full rationale lives in [`plan/README.md §3`](plan/README.m
 | A10 | Scaffold at the repository root alongside `docs/`, not in a nested folder                                                                                     | §6, §18     |
 | A11 | `/privacy` route and `app/robots.ts` (noindex) added                                                                                                          | §8.1, §10.5 |
 | A12 | Local Postgres via `docker-compose.yml` (`wedding_dev`, `wedding_test`); CI service container                                                                 | §14.1       |
-| A13 | Vercel build runs `prisma migrate deploy && next build`; local uses `migrate dev`                                                                             | §14.3       |
+| A13 | Vercel build runs `prisma migrate deploy && prisma generate && prisma db seed && next build`; local uses `migrate dev`                                        | §14.3       |
 | A14 | `NOTIFY_EMAIL` added for gift receipts and webhook alerts                                                                                                     | §14.2       |
 | A15 | `lib/env.ts` Zod schema + `.env.example` parity test in CI                                                                                                    | §14.2       |
 | A16 | `admin-guard-coverage.test.ts` fails CI if any `app/api/admin/**/route.ts` lacks `requireAdmin()`                                                             | §13.1       |
@@ -1013,8 +1013,11 @@ flowchart LR
 ```
 
 - Migrations are forward-only and backwards compatible for one release.
-- **A13 — build command:** Vercel runs `prisma migrate deploy && next build` (install
-  `pnpm install`, `postinstall: prisma generate`); local development uses
+- **A13 — build command:** Vercel runs `prisma migrate deploy && prisma generate &&
+prisma db seed && next build` (install `pnpm install`, root `postinstall: prisma
+generate`). The explicit `generate` in the build command is required: when Vercel restores
+  a cached `node_modules` (unchanged lockfile), a schema change would otherwise run against
+  a stale generated client (P2022 on dropped/renamed columns). Local development uses
   `prisma migrate dev --name <slug>` and never edits a generated migration.
 - Rollback: Vercel instant rollback; Neon point-in-time restore for data.
 
