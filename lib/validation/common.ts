@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { CODE_ALPHABET } from '@/lib/codes';
 
 export function trimmedString(min: number = 1, max: number = 255) {
   return z
@@ -26,21 +25,6 @@ export const positiveIntMinor = z
   .number()
   .int('Amount in kobo must be an integer')
   .positive('Amount in kobo must be positive');
-
-export const guestCodeSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .length(8, 'Guest code must be exactly 8 characters')
-  .refine(
-    (code) => {
-      for (const ch of code) {
-        if (!CODE_ALPHABET.includes(ch)) return false;
-      }
-      return true;
-    },
-    { message: 'Guest code contains invalid characters' },
-  );
 
 export const emailSchema = z.string().trim().toLowerCase().email('Invalid email address');
 

@@ -1,8 +1,10 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET as getGuestsRoute, POST as postGuestRoute } from '@/app/api/admin/guests/route';
-import { PATCH as patchGuestRoute } from '@/app/api/admin/guests/[id]/route';
-import { GET as getInviteRoute } from '@/app/api/admin/guests/[id]/invite/route';
+import {
+  PATCH as patchGuestRoute,
+  DELETE as deleteGuestRoute,
+} from '@/app/api/admin/guests/[id]/route';
 import { prisma } from '@/lib/db';
 import * as adminAuth from '@/lib/admin';
 import { makeGuest, makeEvent, cleanupTestRows } from '@/tests/factories';
@@ -26,7 +28,7 @@ describe('Admin Guests API Integration', () => {
     expect(res.status).toBe(401);
   });
 
-  it('creates a new guest with 8-character code, invitations, and AuditLog', async () => {
+  it('creates a new guest with invitations and an AuditLog entry', async () => {
     vi.spyOn(adminAuth, 'requireAdmin').mockResolvedValue({ email: 'admin@example.com' });
 
     const event1 = await makeEvent();
@@ -57,7 +59,6 @@ describe('Admin Guests API Integration', () => {
     });
 
     expect(guestInDb).not.toBeNull();
-    expect(guestInDb?.code).toHaveLength(8);
     expect(guestInDb?.displayName).toBe('Professor & Mrs. Oladipo');
     expect(guestInDb?.maxPartySize).toBe(3);
     expect(guestInDb?.invitations).toHaveLength(2);
@@ -98,19 +99,21 @@ describe('Admin Guests API Integration', () => {
     expect(updatedInDb?.invitations).toHaveLength(1);
   });
 
-  it('returns invite link and WhatsApp message with proper name substitution', async () => {
+  it('records a GUEST_DELETE audit entry without code metadata', async () => {
     vi.spyOn(adminAuth, 'requireAdmin').mockResolvedValue({ email: 'admin@example.com' });
 
-    const guest = await makeGuest({ displayName: 'Auntie Ronke' });
+    const guest = await makeGuest({ displayName: 'Guest To Delete' });
 
-    const req = new NextRequest(`http://localhost:3000/api/admin/guests/${guest.id}/invite`);
-    const res = await getInviteRoute(req, { params: Promise.resolve({ id: guest.id }) });
-
+    const req = new NextRequest(`http://localhost:3000/api/admin/guests/${guest.id}`, {
+      method: 'DELETE',
+    });
+    const res = await deleteGuestRoute(req, { params: Promise.resolve({ id: guest.id }) });
     expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.ok).toBe(true);
-    expect(body.data.link).toContain(`/i/${guest.code}`);
-    expect(body.data.whatsappMessage).toContain('Dear Auntie Ronke');
-    expect(body.data.whatsappMessage).toContain(`/i/${guest.code}`);
+
+    const audit = await prisma.auditLog.findFirst({
+      where: { entityId: guest.id, action: 'GUEST_DELETE' },
+    });
+    expect(audit).not.toBeNull();
+    expect(audit?.meta).not.toHaveProperty('code');
   });
 });

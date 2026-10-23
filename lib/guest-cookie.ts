@@ -1,18 +1,21 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { NextRequest, NextResponse } from 'next/server';
 import { env } from '@/lib/env';
-import { isValidGuestCode, normalizeGuestCode } from './codes';
 
 export const GUEST_COOKIE_NAME = 'guest_session';
 export const GUEST_COOKIE_MAX_AGE = 90 * 24 * 60 * 60; // 90 days in seconds
 
-export function signGuestCode(
-  code: string,
-  secret: string = env.server.GUEST_COOKIE_SECRET,
-): string {
-  const normalized = normalizeGuestCode(code);
-  const hmac = createHmac('sha256', secret).update(normalized).digest('hex');
-  return `${normalized}.${hmac}`;
+// Guest ids are cuids; the HMAC signature is the real guarantee — this only
+// rejects obviously malformed values before hitting the database.
+const GUEST_ID_PATTERN = /^[a-z0-9]{10,64}$/;
+
+function isValidGuestId(id: string): boolean {
+  return GUEST_ID_PATTERN.test(id);
+}
+
+export function signGuestId(id: string, secret: string = env.server.GUEST_COOKIE_SECRET): string {
+  const hmac = createHmac('sha256', secret).update(id).digest('hex');
+  return `${id}.${hmac}`;
 }
 
 export function verifyGuestToken(
@@ -23,10 +26,10 @@ export function verifyGuestToken(
   const parts = token.split('.');
   if (parts.length !== 2) return null;
 
-  const [code, providedSignature] = parts;
-  if (!code || !providedSignature || !isValidGuestCode(code)) return null;
+  const [id, providedSignature] = parts;
+  if (!id || !providedSignature || !isValidGuestId(id)) return null;
 
-  const expectedSignature = createHmac('sha256', secret).update(code).digest('hex');
+  const expectedSignature = createHmac('sha256', secret).update(id).digest('hex');
 
   try {
     const a = Buffer.from(providedSignature, 'hex');
@@ -38,15 +41,15 @@ export function verifyGuestToken(
     return null;
   }
 
-  return code;
+  return id;
 }
 
 export function setGuestCookie(
   response: NextResponse,
-  code: string,
+  id: string,
   secret: string = env.server.GUEST_COOKIE_SECRET,
 ): void {
-  const token = signGuestCode(code, secret);
+  const token = signGuestId(id, secret);
   response.cookies.set({
     name: GUEST_COOKIE_NAME,
     value: token,
@@ -70,7 +73,7 @@ export function clearGuestCookie(response: NextResponse): void {
   });
 }
 
-export function getGuestCode(
+export function getGuestId(
   req: NextRequest | { cookies: { get: (name: string) => { value?: string } | undefined } },
   secret: string = env.server.GUEST_COOKIE_SECRET,
 ): string | null {

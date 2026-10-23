@@ -62,6 +62,7 @@ export const SITE: SiteConfig = {
     collectMeal: false,
     mealOptions: [],
     deadline: '2026-12-05', // seeds Setting.rsvpDeadline (A8)
+    maxPartySize: 4, // generous default cap for every online RSVP
   },
 
   gift: {
@@ -69,8 +70,6 @@ export const SITE: SiteConfig = {
     maxAmountMinor: 50_000_000, // ₦500,000 in kobo
     presetAmountsMinor: [500_000, 1_000_000, 2_000_000, 5_000_000],
   },
-
-  inviteMessage: "Dear {{name}}, we'd love to celebrate with you! 🤍\n{{link}}",
 
   hero: {
     poster: null,
@@ -98,7 +97,7 @@ export const SITE: SiteConfig = {
     },
     {
       q: 'Can I bring a plus one?',
-      a: 'Due to venue capacity, your personalised invitation specifies the maximum party size for your household.',
+      a: 'Due to venue capacity, please include everyone joining you when you respond — the RSVP form lets you add companions up to your party size.',
     },
   ],
 
@@ -138,8 +137,7 @@ export const SITE: SiteConfig = {
     rsvp: {
       eyebrow: 'RSVP',
       title: 'We look forward to celebrating with you',
-      description:
-        'Please use your invitation link to respond online, or contact one of our RSVP coordinators.',
+      description: 'Respond online below, or contact one of our RSVP coordinators.',
     },
   },
 

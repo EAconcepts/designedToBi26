@@ -60,10 +60,11 @@ sections below; the full rationale lives in [`plan/README.md §3`](plan/README.m
 | A14 | `NOTIFY_EMAIL` added for gift receipts and webhook alerts                                                                                                     | §14.2       |
 | A15 | `lib/env.ts` Zod schema + `.env.example` parity test in CI                                                                                                    | §14.2       |
 | A16 | `admin-guard-coverage.test.ts` fails CI if any `app/api/admin/**/route.ts` lacks `requireAdmin()`                                                             | §13.1       |
-| A17 | `inviteMessage` template added to `SITE` for the admin copy action                                                                                            | §21.1, §12  |
+| A17 | `inviteMessage` template added to `SITE` for the admin copy action — **removed** with invite codes (see A21)                                                  | §21.1, §12  |
 | A18 | `Guest.side` surfaced as an admin filter in Sprint 3, or removed                                                                                              | §7.2        |
 | A19 | `POST /api/gifts/declare`, admin collection endpoints and `/gallery/[slug]` added to the API surface                                                          | §8.1, §8.2  |
 | A20 | `seed:guests` supports `--export` for the final headcount export                                                                                              | §12         |
+| A21 | Invite codes removed: `/rsvp` is open to everyone; signed guest session cookie (guest id) enables revisit/edit; per-IP throttle + honeypot for anti-abuse     | §4.2, §9.1  |
 
 ### Decisions
 
@@ -115,22 +116,22 @@ A **gold-foil stationery suite brought to life**. The site should feel like rece
 
 ### 2.1 Functional
 
-| ID  | Feature                        | Summary                                                                                                           |
-| --- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| F1  | Invitation hero                | Names, date, countdown, monogram reveal, opening "envelope" sequence                                              |
-| F2  | Personalised guest links       | `/i/{code}` greets the guest, pre-fills RSVP, enforces party size                                                 |
-| F3  | Our Story timeline             | Scroll-driven milestones with photos and captions                                                                 |
-| F4  | Events                         | Solemnization and Reception with date, time (or TBC), dress code, add-to-calendar                                 |
-| F5  | Venue and directions           | Map, deep links (Google Maps, Waze, Uber, Bolt), landmarks, travel and accommodation notes for out-of-town guests |
-| F6  | Gallery                        | Albums: Pre-wedding, Wedding Day, Guest Moments. Lightbox, download, locked states                                |
-| F7  | Guest uploads                  | QR → upload page → moderated into "Guest Moments"                                                                 |
-| F8  | RSVP                           | Per person, per event; meal and dietary per person; song request; private message to couple                       |
-| F9  | Phone/WhatsApp RSVP path       | RSVP contacts with `wa.me` buttons; admin manual entry                                                            |
-| F10 | Gifting and donations          | Bank details with copy, Paystack payments, funds, receipts                                                        |
-| F11 | Dress code / colour of the day | White, Gold, Magenta swatches and guidance                                                                        |
-| F12 | FAQ and details                | Accommodation, contacts, live stream, hashtag                                                                     |
-| F13 | Admin (MVP)                    | RSVPs, guests, gifts, moderation, mode toggle (see §12)                                                           |
-| F14 | Site modes                     | `PRE` (invite), `LIVE` (event day), `POST` (thank-you and full gallery)                                           |
+| ID  | Feature                        | Summary                                                                                                                          |
+| --- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| F1  | Invitation hero                | Names, date, countdown, monogram reveal, opening "envelope" sequence                                                             |
+| F2  | Open RSVP                      | `/rsvp` is open to everyone; a signed session cookie lets guests revisit and edit; party size capped by `SITE.rsvp.maxPartySize` |
+| F3  | Our Story timeline             | Scroll-driven milestones with photos and captions                                                                                |
+| F4  | Events                         | Solemnization and Reception with date, time (or TBC), dress code, add-to-calendar                                                |
+| F5  | Venue and directions           | Map, deep links (Google Maps, Waze, Uber, Bolt), landmarks, travel and accommodation notes for out-of-town guests                |
+| F6  | Gallery                        | Albums: Pre-wedding, Wedding Day, Guest Moments. Lightbox, download, locked states                                               |
+| F7  | Guest uploads                  | QR → upload page → moderated into "Guest Moments"                                                                                |
+| F8  | RSVP                           | Per person, per event; meal and dietary per person; song request; private message to couple                                      |
+| F9  | Phone/WhatsApp RSVP path       | RSVP contacts with `wa.me` buttons; admin manual entry                                                                           |
+| F10 | Gifting and donations          | Bank details with copy, Paystack payments, funds, receipts                                                                       |
+| F11 | Dress code / colour of the day | White, Gold, Magenta swatches and guidance                                                                                       |
+| F12 | FAQ and details                | Accommodation, contacts, live stream, hashtag                                                                                    |
+| F13 | Admin (MVP)                    | RSVPs, guests, gifts, moderation, mode toggle (see §12)                                                                          |
+| F14 | Site modes                     | `PRE` (invite), `LIVE` (event day), `POST` (thank-you and full gallery)                                                          |
 
 ### 2.2 Non-functional
 
@@ -258,51 +259,50 @@ flowchart LR
 
 ### 4.2 Architectural decisions
 
-| #      | Decision                                                                   | Rationale                                                                                                                                                             |
-| ------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ADR-1  | Single Next.js app, no separate API service                                | Small domain; route handlers suffice; one deploy                                                                                                                      |
-| ADR-2  | PostgreSQL + Prisma                                                        | Relational integrity for guests, RSVPs, payments                                                                                                                      |
-| ADR-3  | Cloudinary for media; `Photo` table kept for moderation state and ordering | Guest uploads need PENDING/APPROVED state, so the DB stays the source of truth for what is visible                                                                    |
-| ADR-4  | Paystack with redirect checkout; webhook is the source of truth            | No card data on our servers; WhatsApp in-app browsers handle redirects better than popups                                                                             |
-| ADR-5  | Site mode in DB, cached with tag revalidation                              | One toggle flips PRE → LIVE → POST without redeploy. **A7:** reads are tagged `site` via `lib/cache.ts` and mutations call `revalidateSite(paths)` (tag **and** path) |
-| ADR-6  | Personalisation via `/i/[code]` capability links, not login                | Zero friction; codes are unguessable                                                                                                                                  |
-| ADR-7  | Money as integer minor units (kobo)                                        | No float errors                                                                                                                                                       |
-| ADR-8  | Static/ISR for public content; dynamic only where needed                   | Speed and resilience                                                                                                                                                  |
-| ADR-9  | Logo behind a single config and component                                  | Real logo can land mid-development without rework                                                                                                                     |
-| ADR-10 | Framer Motion only                                                         | One animation model, smaller bundle                                                                                                                                   |
+| #      | Decision                                                                       | Rationale                                                                                                                                                             |
+| ------ | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ADR-1  | Single Next.js app, no separate API service                                    | Small domain; route handlers suffice; one deploy                                                                                                                      |
+| ADR-2  | PostgreSQL + Prisma                                                            | Relational integrity for guests, RSVPs, payments                                                                                                                      |
+| ADR-3  | Cloudinary for media; `Photo` table kept for moderation state and ordering     | Guest uploads need PENDING/APPROVED state, so the DB stays the source of truth for what is visible                                                                    |
+| ADR-4  | Paystack with redirect checkout; webhook is the source of truth                | No card data on our servers; WhatsApp in-app browsers handle redirects better than popups                                                                             |
+| ADR-5  | Site mode in DB, cached with tag revalidation                                  | One toggle flips PRE → LIVE → POST without redeploy. **A7:** reads are tagged `site` via `lib/cache.ts` and mutations call `revalidateSite(paths)` (tag **and** path) |
+| ADR-6  | Open RSVP at `/rsvp` with a signed guest session cookie, no invite codes (A21) | Zero friction; anti-abuse via honeypot + per-IP throttle; session cookie carries the guest id                                                                         |
+| ADR-7  | Money as integer minor units (kobo)                                            | No float errors                                                                                                                                                       |
+| ADR-8  | Static/ISR for public content; dynamic only where needed                       | Speed and resilience                                                                                                                                                  |
+| ADR-9  | Logo behind a single config and component                                      | Real logo can land mid-development without rework                                                                                                                     |
+| ADR-10 | Framer Motion only                                                             | One animation model, smaller bundle                                                                                                                                   |
 
 ### 4.3 Rendering strategy
 
-| Route             | Strategy                                               |
-| ----------------- | ------------------------------------------------------ |
-| `/`               | Static + ISR, revalidated by tag on admin changes      |
-| `/i/[code]`       | Dynamic: validates code, sets cookie, redirects to `/` |
-| `/gallery`        | ISR + client pagination                                |
-| `/rsvp`, `/gift`  | Static shell + client forms                            |
-| `/gift/complete`  | Dynamic (reads gift status)                            |
-| `/upload/[token]` | Dynamic (validates window and token)                   |
-| `/admin/**`       | Dynamic, auth-protected                                |
+| Route             | Strategy                                          |
+| ----------------- | ------------------------------------------------- |
+| `/`               | Static + ISR, revalidated by tag on admin changes |
+| `/gallery`        | ISR + client pagination                           |
+| `/rsvp`, `/gift`  | Static shell + client forms                       |
+| `/gift/complete`  | Dynamic (reads gift status)                       |
+| `/upload/[token]` | Dynamic (validates window and token)              |
+| `/admin/**`       | Dynamic, auth-protected                           |
 
 ---
 
 ## 5. Tech Stack
 
-| Layer            | Choice                                                                                                                            | Notes                                                                                                                                                                                                           |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework        | Next.js (App Router) + TypeScript                                                                                                 | RSC + route handlers                                                                                                                                                                                            |
-| Styling          | Tailwind CSS + CSS variables                                                                                                      | Tokens in `:root`; dark sections via data attributes                                                                                                                                                            |
-| Motion           | Framer Motion                                                                                                                     | `useScroll` for timeline; CSS `position: sticky` for pinned scenes                                                                                                                                              |
-| Forms/validation | React Hook Form + Zod                                                                                                             | Shared schemas client and server                                                                                                                                                                                |
-| DB / ORM         | PostgreSQL on Neon + Prisma                                                                                                       | Pooled URL for runtime, direct URL for migrations                                                                                                                                                               |
-| Auth (admin)     | Auth.js (v5 or current stable) + Prisma adapter                                                                                   | Magic link via a custom `sendVerificationRequest` that sends through Resend; JWT sessions (link 30 min, session 8 h); allow-list checked in the `signIn` callback **and** again in `requireAdmin()` (A6, §13.1) |
-| Media            | Cloudinary                                                                                                                        | Signed uploads, `f_auto,q_auto`, archive/zip API                                                                                                                                                                |
-| Payments         | Paystack                                                                                                                          | Initialize + verify + webhook                                                                                                                                                                                   |
-| Email            | Resend + React Email                                                                                                              | Confirmations, receipts                                                                                                                                                                                         |
-| Supporting libs  | `nanoid` (guest codes), `csv-parse` (`seed:guests`), `qrcode.react` (upload QR), `browser-image-compression` (client-side resize) | A5 — required by §21.4, §11.2, §9.6, §12                                                                                                                                                                        |
-| Tooling          | Husky + lint-staged + commitlint (Conventional Commits), Prettier                                                                 | A5 — standard git practice; enforced in CI                                                                                                                                                                      |
-| Hardening sprint | Sentry; rate limiting (Vercel Firewall rules where the plan allows, otherwise Upstash)                                            | Not needed on day 1                                                                                                                                                                                             |
-| Conditional      | Turnstile                                                                                                                         | Only if spam appears                                                                                                                                                                                            |
-| Testing          | Vitest, Playwright, `@axe-core/playwright`, Lighthouse CI                                                                         |                                                                                                                                                                                                                 |
+| Layer            | Choice                                                                                                                                 | Notes                                                                                                                                                                                                           |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework        | Next.js (App Router) + TypeScript                                                                                                      | RSC + route handlers                                                                                                                                                                                            |
+| Styling          | Tailwind CSS + CSS variables                                                                                                           | Tokens in `:root`; dark sections via data attributes                                                                                                                                                            |
+| Motion           | Framer Motion                                                                                                                          | `useScroll` for timeline; CSS `position: sticky` for pinned scenes                                                                                                                                              |
+| Forms/validation | React Hook Form + Zod                                                                                                                  | Shared schemas client and server                                                                                                                                                                                |
+| DB / ORM         | PostgreSQL on Neon + Prisma                                                                                                            | Pooled URL for runtime, direct URL for migrations                                                                                                                                                               |
+| Auth (admin)     | Auth.js (v5 or current stable) + Prisma adapter                                                                                        | Magic link via a custom `sendVerificationRequest` that sends through Resend; JWT sessions (link 30 min, session 8 h); allow-list checked in the `signIn` callback **and** again in `requireAdmin()` (A6, §13.1) |
+| Media            | Cloudinary                                                                                                                             | Signed uploads, `f_auto,q_auto`, archive/zip API                                                                                                                                                                |
+| Payments         | Paystack                                                                                                                               | Initialize + verify + webhook                                                                                                                                                                                   |
+| Email            | Resend + React Email                                                                                                                   | Confirmations, receipts                                                                                                                                                                                         |
+| Supporting libs  | `nanoid` (test id fixtures), `csv-parse` (`seed:guests`), `qrcode.react` (upload QR), `browser-image-compression` (client-side resize) | A5 — required by §11.2, §9.6, §12                                                                                                                                                                               |
+| Tooling          | Husky + lint-staged + commitlint (Conventional Commits), Prettier                                                                      | A5 — standard git practice; enforced in CI                                                                                                                                                                      |
+| Hardening sprint | Sentry; rate limiting (Vercel Firewall rules where the plan allows, otherwise Upstash)                                                 | Not needed on day 1                                                                                                                                                                                             |
+| Conditional      | Turnstile                                                                                                                              | Only if spam appears                                                                                                                                                                                            |
+| Testing          | Vitest, Playwright, `@axe-core/playwright`, Lighthouse CI                                                                              |                                                                                                                                                                                                                 |
 
 **Not used:** Stripe, GSAP, Upstash (until hardening), Turnstile (unless needed).
 
@@ -333,7 +333,6 @@ wedding-invite/                  # repo root (A10)
 │  │  ├─ rsvp/page.tsx
 │  │  ├─ thank-you/page.tsx
 │  │  ├─ privacy/page.tsx          # NDPA notice (A11)
-│  │  └─ i/[code]/route.ts         # Validate code, set cookie, redirect
 │  ├─ upload/[token]/page.tsx
 │  ├─ admin/
 │  │  ├─ layout.tsx                # Auth gate
@@ -412,14 +411,14 @@ enum Side { PARTNER_A PARTNER_B BOTH }
 
 model Guest {
   id           String   @id @default(cuid())
-  code         String   @unique              // 8 chars, unambiguous alphabet
   displayName  String                         // "The Adeyemi Family"
   email        String?
   phone        String?
   side         Side     @default(BOTH)          // A18: shown as an admin filter in Sprint 3, or dropped
   maxPartySize Int      @default(1)
-  openedAt     DateTime?
+  ipHash       String?                         // HMAC of client IP; per-IP throttle (A21)
   createdAt    DateTime @default(now())
+  @@index([ipHash])
   invitations  Invitation[]
   rsvp         Rsvp?
   gifts        Gift[]
@@ -556,7 +555,7 @@ model Photo {
   sortOrder   Int         @default(0)
   status      MediaStatus @default(APPROVED)      // guest uploads default to PENDING
   source      MediaSource @default(ADMIN)
-  uploadedBy  String?                              // guest code for guest uploads
+  uploadedBy  String?                              // guest session id for guest uploads
   createdAt   DateTime    @default(now())
   album       Album       @relation(fields: [albumId], references: [id])
   @@index([albumId, status, sortOrder])
@@ -631,36 +630,35 @@ model AuditLog {
 
 ### 8.1 Public pages
 
-| Path                      | Purpose                                                                                                                 |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `/`                       | Hero, story, events, venue, dress code, FAQ                                                                             |
-| `/i/[code]`               | Validates code, sets signed cookie, redirects to `/`                                                                    |
-| `/rsvp`                   | RSVP form (pre-filled from cookie). **Without a code**: shows the RSVP contacts with WhatsApp buttons instead of a form |
-| `/gift`, `/gift/complete` | Gifting hub and post-payment status                                                                                     |
-| `/gallery`                | Albums; locked albums show a "Coming soon" card                                                                         |
-| `/gallery/[slug]`         | Album detail with client pagination; hidden albums 404 like unknown slugs (A19)                                         |
-| `/privacy`                | Short NDPA privacy notice linked from the footer, RSVP form and upload page (A11)                                       |
-| `/thank-you`              | Post-wedding message                                                                                                    |
-| `/upload/[token]`         | Guest photo upload (window-gated)                                                                                       |
+| Path                      | Purpose                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `/`                       | Hero, story, events, venue, dress code, FAQ                                                                  |
+| `/rsvp`                   | Open RSVP form (no code required); a signed session cookie pre-fills and enables editing a previous response |
+| `/gift`, `/gift/complete` | Gifting hub and post-payment status                                                                          |
+| `/gallery`                | Albums; locked albums show a "Coming soon" card                                                              |
+| `/gallery/[slug]`         | Album detail with client pagination; hidden albums 404 like unknown slugs (A19)                              |
+| `/privacy`                | Short NDPA privacy notice linked from the footer, RSVP form and upload page (A11)                            |
+| `/thank-you`              | Post-wedding message                                                                                         |
+| `/upload/[token]`         | Guest photo upload (window-gated)                                                                            |
 
 > Indexing is disabled site-wide: `app/robots.ts` returns `Disallow: /`, every page sets
 > `robots: noindex, nofollow`, and an `X-Robots-Tag` header backs it up (A11, see §10.5).
 
 ### 8.2 API endpoints
 
-| Method | Path                     | Auth                               | Description                                                                                                                                                                                                                                                    |
-| ------ | ------------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/api/session/guest`     | guest cookie                       | **A1.** Resolves the signed cookie into `{ displayName, maxPartySize, events, greeting, rsvp }`, or `{ guest: null }`. `cache: no-store`. Never returns the guest's email/phone. Lets `/` stay static while the greeting and RSVP pre-fill hydrate client-side |
-| POST   | `/api/rsvp`              | guest cookie (resolved against DB) | Replace the household's attendees and per-event attendance in one transaction; send confirmation email                                                                                                                                                         |
-| GET    | `/api/events/[slug]/ics` | none                               | **A2.** Server-generated `.ics` (§21.5): `text/calendar; charset=utf-8` with `Content-Disposition: attachment`; all-day event when `timeTbc`; 404 for unknown slugs                                                                                            |
-| POST   | `/api/gifts/initialize`  | none (rate-limited in hardening)   | Validate, create `Gift` (PENDING, random reference), call Paystack initialize, return `authorization_url`                                                                                                                                                      |
-| POST   | `/api/gifts/declare`     | none (rate-limited in hardening)   | **A19.** "I've sent a transfer": creates `Gift{ channel: BANK_TRANSFER_DECLARED, status: PENDING }`. Never counts as paid until an admin marks it received (§9.5)                                                                                              |
-| GET    | `/api/gifts/verify?ref=` | none                               | **Returns `{ status }` only.** Reference is a random 128-bit value; rate-limited                                                                                                                                                                               |
-| POST   | `/api/webhooks/paystack` | HMAC signature                     | Verify, update `Gift`, send receipt                                                                                                                                                                                                                            |
-| POST   | `/api/upload/sign`       | upload token + window open         | **A3.** Generates the Cloudinary `public_id` server-side and returns signed params (`public_id`, `folder`, `timestamp`, `max_file_size`, `allowed_formats`) bound to them                                                                                      |
-| POST   | `/api/upload/complete`   | upload token                       | **A3.** Verifies the asset exists via the Cloudinary Admin API, takes `width`/`height` from it, and records `Photo` as `PENDING` (idempotent: an existing row is returned). A `publicId` that was never uploaded returns 404 and writes nothing                |
-| GET    | `/api/health`            | none                               | Uptime check (DB ping)                                                                                                                                                                                                                                         |
-| `*`    | `/api/admin/**`          | admin session                      | Admin mutations: `GET/PATCH` for `guests`, `rsvps` (incl. manual entry + `export`), `gifts` (+ `export`), `media` (+ `bulk`), `settings` (+ `upload-token`), `overview` (A19). **Every handler calls `requireAdmin()` first** (A16, §13.1)                     |
+| Method | Path                     | Auth                                          | Description                                                                                                                                                                                                                                                    |
+| ------ | ------------------------ | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/session/guest`     | guest cookie                                  | **A1.** Resolves the signed cookie into `{ displayName, maxPartySize, events, greeting, rsvp }`, or `{ guest: null }`. `cache: no-store`. Never returns the guest's email/phone. Lets `/` stay static while the greeting and RSVP pre-fill hydrate client-side |
+| POST   | `/api/rsvp`              | none (guest session cookie issued on success) | Open endpoint (A21): throttle new guests per IP hash, create-or-update the guest (new guests are invited to every seeded event), replace attendees and per-event attendance in one transaction, set the signed `guest_session` cookie, send confirmation email |
+| GET    | `/api/events/[slug]/ics` | none                                          | **A2.** Server-generated `.ics` (§21.5): `text/calendar; charset=utf-8` with `Content-Disposition: attachment`; all-day event when `timeTbc`; 404 for unknown slugs                                                                                            |
+| POST   | `/api/gifts/initialize`  | none (rate-limited in hardening)              | Validate, create `Gift` (PENDING, random reference), call Paystack initialize, return `authorization_url`                                                                                                                                                      |
+| POST   | `/api/gifts/declare`     | none (rate-limited in hardening)              | **A19.** "I've sent a transfer": creates `Gift{ channel: BANK_TRANSFER_DECLARED, status: PENDING }`. Never counts as paid until an admin marks it received (§9.5)                                                                                              |
+| GET    | `/api/gifts/verify?ref=` | none                                          | **Returns `{ status }` only.** Reference is a random 128-bit value; rate-limited                                                                                                                                                                               |
+| POST   | `/api/webhooks/paystack` | HMAC signature                                | Verify, update `Gift`, send receipt                                                                                                                                                                                                                            |
+| POST   | `/api/upload/sign`       | upload token + window open                    | **A3.** Generates the Cloudinary `public_id` server-side and returns signed params (`public_id`, `folder`, `timestamp`, `max_file_size`, `allowed_formats`) bound to them                                                                                      |
+| POST   | `/api/upload/complete`   | upload token                                  | **A3.** Verifies the asset exists via the Cloudinary Admin API, takes `width`/`height` from it, and records `Photo` as `PENDING` (idempotent: an existing row is returned). A `publicId` that was never uploaded returns 404 and writes nothing                |
+| GET    | `/api/health`            | none                                          | Uptime check (DB ping)                                                                                                                                                                                                                                         |
+| `*`    | `/api/admin/**`          | admin session                                 | Admin mutations: `GET/PATCH` for `guests`, `rsvps` (incl. manual entry + `export`), `gifts` (+ `export`), `media` (+ `bulk`), `settings` (+ `upload-token`), `overview` (A19). **Every handler calls `requireAdmin()` first** (A16, §13.1)                     |
 
 ### 8.3 RSVP payload
 
@@ -690,13 +688,18 @@ Server rules: events must be within the guest's `Invitation` rows; attendee coun
 
 ## 9. Core Flows
 
-### 9.1 Personalised invitation
+### 9.1 Open RSVP (A21)
 
-1. Admin seeds guests (CSV script); each household gets an unguessable 8-char `code`.
-2. Admin UI shows **Copy invite link** and **Copy WhatsApp message** per guest.
-3. Guest opens `/i/{code}`: server validates, sets a signed `HttpOnly` cookie, sets `openedAt`, redirects to `/`.
-4. Hero greets them by name; RSVP pre-fills; party-size and events come from the DB.
-5. Link previews use the single generic OG card.
+1. Anyone can open `/rsvp` — no invitation code or lookup step.
+2. The form asks for the responder's name (required) plus optional email and phone; the first
+   attendee row auto-fills from the responder name while it is empty. Party size is capped at
+   `SITE.rsvp.maxPartySize`.
+3. On submit, `POST /api/rsvp` throttles new guests per IP hash, creates the guest (invited to
+   every seeded event, so the event-gating rules stay unchanged) or updates the one bound to the
+   session, saves the RSVP, and sets a signed `guest_session` cookie carrying the guest id.
+4. Returning visitors get their previous response pre-filled and can edit it; "Start a different
+   response" clears the form and starts a new guest.
+5. Guest links for gifts and uploads resolve from the same session cookie.
 
 ### 9.2 RSVP (web)
 
@@ -707,12 +710,13 @@ sequenceDiagram
     participant A as API /rsvp
     participant DB as PostgreSQL
     participant E as Resend
-    G->>W: Open RSVP (cookie resolves the guest)
-    G->>W: Add attendees, pick events and meals, submit
-    W->>A: POST /api/rsvp (Zod-validated)
-    A->>DB: Load guest, invitations, settings
-    A->>A: Check deadline, party size, invited events
-    A->>DB: Transaction: replace attendees and AttendeeEvent rows, set status
+    G->>W: Open /rsvp (returning guest: session cookie prefills)
+    G->>W: Enter name (+ optional email/phone), add attendees, pick events and meals, submit
+    W->>A: POST /api/rsvp (Zod-validated, honeypot checked)
+    A->>DB: Load settings, events, guest from session
+    A->>A: Check deadline, party size, invited events; per-IP throttle for new guests
+    A->>DB: Transaction: create/update guest (+ invitations), replace attendees and AttendeeEvent rows, set status
+    A-->>W: 200 + summary, guest_session cookie set
     A->>E: Confirmation email (if email known)
     A-->>W: 200 + summary
     W-->>G: Confirmation screen with add-to-calendar
@@ -793,7 +797,7 @@ flowchart LR
 4. Browser uploads directly to Cloudinary. JPEG/PNG files over a threshold are compressed client-side; **HEIC from iPhones is uploaded as is and converted by Cloudinary**.
 5. **A3:** `/api/upload/complete` verifies the asset exists through the Cloudinary Admin API,
    takes `width` and `height` from it, then creates the `Photo` row (`PENDING`, `source = GUEST`,
-   `uploadedBy = guest code ?? "guest"`). The call is idempotent; a `publicId` that was never
+   `uploadedBy = guest session id ?? "guest"`). The call is idempotent; a `publicId` that was never
    uploaded returns 404 and writes nothing.
 6. Approved photos appear in the **Guest Moments** album (visible from `LIVE`).
 
@@ -901,18 +905,18 @@ flowchart LR
 
 Mobile-friendly, protected by Auth.js with an allow-list of the couple's and developer's emails.
 
-| Area     | Capabilities                                                                                                                                                                                 |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Overview | RSVP counts per event, total headcount, meals, gift total, pending uploads                                                                                                                   |
-| Guests   | List, search, **copy invite link**, **copy WhatsApp message** (rendered from the `SITE.inviteMessage` template with `{{name}}`/`{{link}}` — A17), add/edit one guest. Bulk import via script |
-| RSVPs    | List, filter non-responders, **add/edit for a guest (phone or WhatsApp)**, CSV export                                                                                                        |
-| Gifts    | Ledger by status and fund, mark bank transfer received, CSV export                                                                                                                           |
-| Media    | Moderation queue with **bulk approve/reject**; edit alt text and caption                                                                                                                     |
-| Settings | Mode toggle, RSVP deadline, upload window and QR regeneration, live-stream URL                                                                                                               |
+| Area     | Capabilities                                                                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Overview | RSVP counts per event, total headcount, meals, gift total, pending uploads                                                   |
+| Guests   | List, search, add/edit one guest (manual/phone entry alongside guests created by the open RSVP form). Bulk import via script |
+| RSVPs    | List, filter non-responders, **add/edit for a guest (phone or WhatsApp)**, CSV export                                        |
+| Gifts    | Ledger by status and fund, mark bank transfer received, CSV export                                                           |
+| Media    | Moderation queue with **bulk approve/reject**; edit alt text and caption                                                     |
+| Settings | Mode toggle, RSVP deadline, upload window and QR regeneration, live-stream URL                                               |
 
 **Managed by seed and Prisma Studio (no UI in v1):** funds, bank accounts, events, venue, milestones, albums.
 **Scripts:** `seed:guests` (import `guests.csv`, `--dry-run`, idempotent; **A20:** `--export`
-writes the guest list with invite links for the final headcount), `sync:album`, `zip:album`,
+writes the guest list for the final headcount), `sync:album`, `zip:album`,
 `gifts:reconcile`.
 
 ---
@@ -923,8 +927,9 @@ writes the guest list with invite links for the final headcount), `sync:album`, 
 
 | Area            | Risk                    | Control                                                                                                                                                                                                                                                                                                                                            |
 | --------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Guest codes     | Guessing                | 8-char unambiguous alphabet (~10^12 combinations), uniform error responses, rate limiting in hardening                                                                                                                                                                                                                                             |
-| Guest cookie    | Treated as auth         | **The cookie is a signed hint.** It remembers the code for pre-fill and greeting. Possession of the code is the only credential and grants only that household's RSVP actions. Party size and invited events are always enforced against the database                                                                                              |
+| RSVP throttle   | Spam guest creation     | Per-IP hash (`Guest.ipHash`, HMAC of client IP): max 10 new guests per 10-minute window → `429 RATE_LIMITED`; edits via a valid session cookie are never throttled (A21)                                                                                                                                                                           |
+| Guest session   | Tampering or replay     | **The cookie is a signed guest-id token**, not a bearer secret: HMAC-signed and `HttpOnly`. It only enables pre-filling and editing that guest's own RSVP; party size, invited events and the deadline are always re-checked against the database                                                                                                  |
+| Guest codes     | Guessing                | **Removed (A21).** `/rsvp` is open; anti-abuse is the honeypot + per-IP throttle above                                                                                                                                                                                                                                                             |
 | Payments        | Spoofed success         | HMAC-verified webhook, server-side verify call, amount and currency matching, idempotent updates                                                                                                                                                                                                                                                   |
 | Payments        | Signature handler crash | Length guard before `timingSafeEqual` (see §21.2)                                                                                                                                                                                                                                                                                                  |
 | `/gifts/verify` | Data leak               | Returns status only; random 128-bit reference; rate-limited                                                                                                                                                                                                                                                                                        |
@@ -1144,7 +1149,7 @@ pnpm dlx husky init             # pre-commit: lint-staged; commit-msg: commitlin
 **Operational**
 
 - [ ] Couple and coordinators have tested admin on their phones
-- [ ] Guest codes generated and spot-checked; WhatsApp invite text approved
+- [ ] Open RSVP tested end-to-end (fresh visitor + returning edit); RSVP contacts approved
 - [ ] RUNBOOK.md delivered
 
 ### 19.2 Runbook: payment issue
@@ -1244,14 +1249,17 @@ export const SITE = {
     { name: 'Shola Mass', tel: '09026892898', wa: '2349026892898' },
     { name: 'Adeola', tel: '08136437963', wa: '2348136437963' },
   ],
-  rsvp: { collectMeal: false, mealOptions: [] as string[], deadline: '2026-12-05' }, // deadline seeds Setting.rsvpDeadline
+  rsvp: {
+    collectMeal: false,
+    mealOptions: [] as string[],
+    deadline: '2026-12-05',
+    maxPartySize: 4,
+  }, // deadline seeds Setting.rsvpDeadline
   gift: {
     minAmountMinor: 100_000,
     maxAmountMinor: 50_000_000,
     presetAmountsMinor: [500_000, 1_000_000, 2_000_000, 5_000_000],
   },
-  // A17: admin "Copy WhatsApp message"
-  inviteMessage: "Dear {{name}}, we'd love to celebrate with you! 🤍\n{{link}}",
   hero: { poster: null as string | null, video: null as string | null }, // poster-only by default
   story: [] as { title: string; dateLabel: string; body: string; photo?: string }[], // seeds Milestone
   faq: [] as { q: string; a: string }[], // TODO(content)
@@ -1329,13 +1337,16 @@ export const formatNGN = (minor: number) =>
   new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(fromMinor(minor));
 ```
 
-### 21.4 Guest code generation
+### 21.4 Guest session cookie (A21)
 
 ```ts
-import { customAlphabet } from 'nanoid';
-// No 0/O/1/I/l to avoid confusion when read aloud or typed.
-export const newGuestCode = customAlphabet('23456789abcdefghjkmnpqrstuvwxyz', 8);
+import { createHmac, timingSafeEqual } from 'node:crypto';
+// signGuestId(id) -> "<id>.<hmac>"; verifyGuestToken() re-checks on every request.
+// The token carries only the guest id — no personal data, no role.
 ```
+
+- Cookie: `guest_session`, `HttpOnly`, `Secure` (production), `SameSite=Lax`, 90-day max age.
+- Set by `POST /api/rsvp` on success; read by `/api/session/guest`, gifts and uploads.
 
 ### 21.5 Add-to-calendar (.ics) outline
 

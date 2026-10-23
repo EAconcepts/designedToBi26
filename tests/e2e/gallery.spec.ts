@@ -28,9 +28,9 @@ test.describe('Gallery & Albums E2E', () => {
   }) => {
     await page.goto('/gallery');
 
-    // Click on pre-wedding album
+    // Click on pre-wedding album (generous timeout: dev compiles the [album] route on demand)
     await page.getByRole('link', { name: /pre-wedding/i }).click();
-    await expect(page).toHaveURL(/.*\/gallery\/pre-wedding/);
+    await expect(page).toHaveURL(/.*\/gallery\/pre-wedding/, { timeout: 30_000 });
 
     // Verify detail header and photo count
     await expect(page.getByRole('heading', { name: /pre-wedding/i })).toBeVisible();

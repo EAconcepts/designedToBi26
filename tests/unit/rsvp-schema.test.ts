@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { RsvpAttendeeInput, RsvpInput, AdminRsvpInput } from '@/lib/validation/rsvp';
+import { RsvpAttendeeInput, RsvpInput, AdminRsvpInput, OpenRsvpInput } from '@/lib/validation/rsvp';
 
 describe('RSVP attendee schema', () => {
   it('accepts valid attendee input and trims whitespace', () => {
@@ -118,6 +118,45 @@ describe('RSVP submission schema', () => {
         message: 'M'.repeat(601),
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('Open RSVP schema (public submission)', () => {
+  it('requires a responder name', () => {
+    const missing = OpenRsvpInput.safeParse({ declined: true });
+    expect(missing.success).toBe(false);
+
+    const tooShort = OpenRsvpInput.safeParse({ name: 'A', declined: true });
+    expect(tooShort.success).toBe(false);
+  });
+
+  it('accepts optional email and phone and defaults newResponse to false', () => {
+    const parsed = OpenRsvpInput.safeParse({
+      name: '  Tolu Familia  ',
+      email: 'tolu@example.com',
+      phone: '08012345678',
+      declined: false,
+      attendees: [{ name: 'Tolu Familia', events: ['solemnization'] }],
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.name).toBe('Tolu Familia');
+      expect(parsed.data.email).toBe('tolu@example.com');
+      expect(parsed.data.newResponse).toBe(false);
+    }
+  });
+
+  it('rejects malformed email and phone values', () => {
+    expect(OpenRsvpInput.safeParse({ name: 'Tolu', email: 'not-an-email' }).success).toBe(false);
+    expect(OpenRsvpInput.safeParse({ name: 'Tolu', phone: '12' }).success).toBe(false);
+  });
+
+  it('defaults newResponse to false and accepts an explicit true', () => {
+    const base = OpenRsvpInput.parse({ name: 'Tolu Familia' });
+    expect(base.newResponse).toBe(false);
+
+    const fresh = OpenRsvpInput.parse({ name: 'Tolu Familia', newResponse: true });
+    expect(fresh.newResponse).toBe(true);
   });
 });
 

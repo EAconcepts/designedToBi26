@@ -148,7 +148,13 @@ describe('Paystack & Gifting API Integration', () => {
         },
       });
 
-      // Valid reference
+      // Valid reference (verify on-demand is mocked so the test stays offline)
+      vi.spyOn(paystackLib, 'verifyTransaction').mockResolvedValue({
+        status: 'pending',
+        amount: 2000000,
+        currency: 'NGN',
+        id: 0,
+      });
       const req = new NextRequest(`http://localhost:3000/api/gifts/verify?ref=${gift.reference}`);
       const res = await verifyRoute(req);
       expect(res.status).toBe(200);

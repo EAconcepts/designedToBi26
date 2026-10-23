@@ -8,8 +8,8 @@ export interface RsvpContactsPanelProps {
 }
 
 export function RsvpContactsPanel({
-  title = 'Personal Invitation Required',
-  subtitle = 'To respond online, please use the personalized invitation link sent to you or printed on your invitation card.',
+  title = 'Contact Our RSVP Coordinators',
+  subtitle = 'We would love to hear from you — reach our coordinators directly by phone or WhatsApp.',
   isClosed = false,
 }: RsvpContactsPanelProps) {
   const whatsappIntro = encodeURIComponent(
@@ -19,9 +19,7 @@ export function RsvpContactsPanel({
   return (
     <div className="rsvp-contacts-panel paper-card" role="region" aria-label="RSVP Contacts">
       <div className="rsvp-contacts-panel__header">
-        <p className="section-kicker section-kicker--gold">
-          {isClosed ? 'RSVP Closed' : 'Invitation Code Required'}
-        </p>
+        <p className="section-kicker section-kicker--gold">{isClosed ? 'RSVP Closed' : 'RSVP'}</p>
         <h2 className="rsvp-contacts-panel__title">{title}</h2>
         <p className="rsvp-contacts-panel__subtitle">{subtitle}</p>
       </div>
@@ -56,10 +54,6 @@ export function RsvpContactsPanel({
       </div>
 
       <div className="rsvp-contacts-panel__footer">
-        <p>
-          Already have your 8-character invitation code? Enter your full link (e.g.{' '}
-          <code>/i/yourcode</code>) or message our coordinators above.
-        </p>
         <Link href="/" className="button button--glass" style={{ color: 'var(--ink)' }}>
           Return to Home
         </Link>

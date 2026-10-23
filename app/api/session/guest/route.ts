@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { ok } from '@/lib/api';
 import { prisma } from '@/lib/db';
-import { getGuestCode } from '@/lib/guest-cookie';
+import { getGuestId } from '@/lib/guest-cookie';
 import type { GuestSession } from '@/lib/validation/session';
 
 export const dynamic = 'force-dynamic';
@@ -12,11 +12,11 @@ function noStore(response: Response): Response {
 }
 
 export async function GET(request: NextRequest): Promise<Response> {
-  const code = getGuestCode(request);
-  if (!code) return noStore(ok({ guest: null }));
+  const guestId = getGuestId(request);
+  if (!guestId) return noStore(ok({ guest: null }));
 
   const guest = await prisma.guest.findUnique({
-    where: { code },
+    where: { id: guestId },
     include: {
       invitations: { include: { event: { select: { slug: true } } } },
       rsvp: {

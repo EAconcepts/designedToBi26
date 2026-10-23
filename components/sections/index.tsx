@@ -180,7 +180,7 @@ export function EventsSection() {
             <div className="event-meta">
               <p>{event.time}</p>
               <p>{event.place}</p>
-              <p>Dress: {event.dress}</p>
+              <p>Dress Code: {event.dress}</p>
             </div>
             <a
               className="text-link"

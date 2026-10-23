@@ -113,7 +113,7 @@ Environment variables are defined in `.env.example` and strictly validated at bo
 | `DIRECT_URL`                     | Server | Direct PostgreSQL connection string for migrations              | `postgresql://postgres:postgres@localhost:5432/wedding_dev` |
 | `NEXT_PUBLIC_SITE_URL`           | Public | Canonical public website URL                                    | `http://localhost:3000`                                     |
 | `AUTH_SECRET`                    | Server | NextAuth encryption secret (32+ bytes)                          | `dev-auth-secret-min-32-chars-for-testing-only`             |
-| `GUEST_COOKIE_SECRET`            | Server | Secret for signing guest code hint cookies                      | `dev-guest-cookie-secret-min-32-chars-long`                 |
+| `GUEST_COOKIE_SECRET`            | Server | Secret for signing guest session cookies and IP hashes          | `dev-guest-cookie-secret-min-32-chars-long`                 |
 | `ADMIN_ALLOWLIST`                | Server | Comma-delimited list of allowed admin emails                    | `adetolani@designedtobi26.com,emmanuel@designedtobi26.com`  |
 | `NOTIFY_EMAIL`                   | Server | Couple/coordinator recipient for gift and webhook notifications | `couple@designedtobi26.com`                                 |
 | `RESEND_API_KEY`                 | Server | Resend API key for transactional email & magic links            | `re_dev_placeholder`                                        |
@@ -158,7 +158,7 @@ Tracks external services, vendor requirements, and couple deliverables:
 
 2. **Guest Personalisation & Privacy:**
    - Public pages (`/`) are static/ISR for lightning-fast delivery and CDN caching.
-   - Guest URLs (`/i/[code]`) set an encrypted, signed HttpOnly cookie.
+   - Submitting the open `/rsvp` form issues a signed HttpOnly session cookie so guests can revisit and edit their response.
    - Client islands hydrate personalized greetings and RSVP pre-fills dynamically via `/api/session/guest`.
    - Indexing is prevented site-wide (`robots.txt`, `<meta name="robots" content="noindex, nofollow" />`, and `X-Robots-Tag` headers).
 

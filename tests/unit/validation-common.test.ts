@@ -3,7 +3,6 @@ import {
   trimmedString,
   slugSchema,
   positiveIntMinor,
-  guestCodeSchema,
   emailSchema,
   phoneSchema,
 } from '@/lib/validation/common';
@@ -29,14 +28,6 @@ describe('lib/validation/common', () => {
     expect(() => positiveIntMinor.parse(0)).toThrow();
     expect(() => positiveIntMinor.parse(-50)).toThrow();
     expect(() => positiveIntMinor.parse(10.5)).toThrow();
-  });
-
-  it('guestCodeSchema validates 8-character codes from CODE_ALPHABET', () => {
-    expect(guestCodeSchema.parse('23456789')).toBe('23456789');
-    expect(() => guestCodeSchema.parse('2345678')).toThrow(); // 7 chars
-    expect(() => guestCodeSchema.parse('234567899')).toThrow(); // 9 chars
-    expect(() => guestCodeSchema.parse('00000000')).toThrow(); // 0 is invalid
-    expect(() => guestCodeSchema.parse('llll1111')).toThrow(); // l, 1 are invalid
   });
 
   it('emailSchema and phoneSchema validate appropriate formats', () => {

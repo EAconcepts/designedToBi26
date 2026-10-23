@@ -13,7 +13,6 @@ describe('lib/api', () => {
   it('fail() maps every documented ErrorCode to the expected HTTP status', async () => {
     const errorCodes: ErrorCode[] = [
       'VALIDATION',
-      'GUEST_REQUIRED',
       'UNAUTHENTICATED',
       'FORBIDDEN',
       'NOT_FOUND',

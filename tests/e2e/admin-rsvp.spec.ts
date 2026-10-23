@@ -81,6 +81,6 @@ test.describe('Admin RSVP & Guest Management E2E', () => {
 
     await expect(page.getByRole('heading', { name: 'Guest Directory' })).toBeVisible();
     await expect(page.getByRole('button', { name: /add guest/i })).toBeVisible();
-    await expect(page.getByPlaceholder('Search by name, phone, code...')).toBeVisible();
+    await expect(page.getByPlaceholder('Search by name, phone...')).toBeVisible();
   });
 });

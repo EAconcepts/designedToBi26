@@ -102,7 +102,7 @@ describe('Seed Guests Bulk Import Integration Tests', () => {
 
     const result = await importGuests(csvContent, { dryRun: true, force: true });
     expect(result).toHaveLength(2);
-    expect(result[0]?.code).toBe('DRY_RUN_');
+    expect(result[0]?.action).toBe('created');
 
     const count = await prisma.guest.count({
       where: { displayName: { startsWith: testPrefix } },

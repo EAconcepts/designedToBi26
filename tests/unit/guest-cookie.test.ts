@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
-  signGuestCode,
+  signGuestId,
   verifyGuestToken,
-  getGuestCode,
+  getGuestId,
   setGuestCookie,
   clearGuestCookie,
   GUEST_COOKIE_NAME,
@@ -12,28 +12,28 @@ import { NextResponse } from 'next/server';
 describe('lib/guest-cookie', () => {
   const secretA = 'secret-a-for-testing-only-1234567890';
   const secretB = 'secret-b-different-key-123456789012';
-  const validCode = '23456789';
+  const validId = 'clx1234567890abcdefghijk';
 
   it('performs clean round-trip signing and verification', () => {
-    const token = signGuestCode(validCode, secretA);
+    const token = signGuestId(validId, secretA);
     const verified = verifyGuestToken(token, secretA);
-    expect(verified).toBe(validCode);
+    expect(verified).toBe(validId);
   });
 
-  it('returns null on tampered code or signature', () => {
-    const token = signGuestCode(validCode, secretA);
-    const [code, sig] = token.split('.');
+  it('returns null on tampered id or signature', () => {
+    const token = signGuestId(validId, secretA);
+    const [id, sig] = token.split('.');
 
-    // Tamper code
-    expect(verifyGuestToken(`abcdefgh.${sig}`, secretA)).toBeNull();
+    // Tamper id
+    expect(verifyGuestToken(`abcdefghij0123456789abcde.${sig}`, secretA)).toBeNull();
 
     // Tamper signature
     const badSig = sig!.slice(0, -2) + '00';
-    expect(verifyGuestToken(`${code}.${badSig}`, secretA)).toBeNull();
+    expect(verifyGuestToken(`${id}.${badSig}`, secretA)).toBeNull();
   });
 
   it('returns null when verified with a different secret', () => {
-    const token = signGuestCode(validCode, secretA);
+    const token = signGuestId(validId, secretA);
     expect(verifyGuestToken(token, secretB)).toBeNull();
   });
 
@@ -41,16 +41,19 @@ describe('lib/guest-cookie', () => {
     expect(verifyGuestToken('', secretA)).toBeNull();
     expect(verifyGuestToken('invalid-token-without-dot', secretA)).toBeNull();
     expect(verifyGuestToken('a.b.c', secretA)).toBeNull();
-    expect(verifyGuestToken('00000000.signature', secretA)).toBeNull(); // 0 is not in alphabet
+    // Uppercase ids do not match the cuid shape
+    expect(verifyGuestToken('VALIDGUESTID00000.signature', secretA)).toBeNull();
+    // Too short to be a real id
+    expect(verifyGuestToken('abc.signature', secretA)).toBeNull();
   });
 
   it('sets and clears cookies on NextResponse', () => {
     const res = NextResponse.json({ ok: true });
-    setGuestCookie(res, validCode, secretA);
+    setGuestCookie(res, validId, secretA);
 
     const cookie = res.cookies.get(GUEST_COOKIE_NAME);
     expect(cookie).toBeDefined();
-    expect(cookie?.value).toContain(validCode);
+    expect(cookie?.value).toContain(validId);
     expect(cookie?.httpOnly).toBe(true);
 
     const dummyReq = {
@@ -58,7 +61,7 @@ describe('lib/guest-cookie', () => {
         get: (name: string) => (name === GUEST_COOKIE_NAME ? { value: cookie!.value } : undefined),
       },
     };
-    expect(getGuestCode(dummyReq, secretA)).toBe(validCode);
+    expect(getGuestId(dummyReq, secretA)).toBe(validId);
 
     clearGuestCookie(res);
     const cleared = res.cookies.get(GUEST_COOKIE_NAME);

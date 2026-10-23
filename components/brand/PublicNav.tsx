@@ -10,7 +10,7 @@ export interface PublicNavProps {
 
 export function PublicNav({ dark = false }: PublicNavProps) {
   const pathname = usePathname();
-  const isHome = pathname === '/' || pathname?.startsWith('/i/');
+  const isHome = pathname === '/';
 
   if (isHome) {
     return (

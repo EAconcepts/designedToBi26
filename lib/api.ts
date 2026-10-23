@@ -3,7 +3,6 @@ import { ZodError } from 'zod';
 
 export type ErrorCode =
   | 'VALIDATION'
-  | 'GUEST_REQUIRED'
   | 'UNAUTHENTICATED'
   | 'FORBIDDEN'
   | 'NOT_FOUND'
@@ -19,7 +18,6 @@ export type ErrorCode =
 
 export const ERROR_STATUS_MAP: Record<ErrorCode, number> = {
   VALIDATION: 400,
-  GUEST_REQUIRED: 401,
   UNAUTHENTICATED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
@@ -48,7 +46,7 @@ export interface ApiResponseFail {
   };
 }
 
-export function ok<T>(data: T, init?: ResponseInit): Response {
+export function ok<T>(data: T, init?: ResponseInit): NextResponse {
   return NextResponse.json({ ok: true, data }, init);
 }
 
