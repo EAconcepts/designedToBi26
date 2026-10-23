@@ -1,9 +1,6 @@
 import { execSync } from 'node:child_process';
 import { prisma } from '@/lib/db';
 import { seed } from '@/prisma/seed';
-import { Side } from '@prisma/client';
-
-export const E2E_GUEST_CODE = 'e2e9test';
 
 export async function setup() {
   const dbUrl = process.env.DATABASE_URL;
@@ -24,28 +21,8 @@ export async function setup() {
     throw err;
   }
 
-  // 2. Ensure idempotent baseline seed is present
+  // 2. Ensure idempotent baseline seed is present (includes the deterministic e2e guest)
   await seed(prisma);
-
-  // 3. Seed deterministic e2e guest
-  const e2eGuest = await prisma.guest.upsert({
-    where: { code: E2E_GUEST_CODE },
-    update: {
-      displayName: 'E2E Deterministic Guest',
-      maxPartySize: 2,
-      side: Side.BOTH,
-    },
-    create: {
-      code: E2E_GUEST_CODE,
-      displayName: 'E2E Deterministic Guest',
-      maxPartySize: 2,
-      side: Side.BOTH,
-      email: 'e2e-guest@example.com',
-      phone: '+2348000000001',
-    },
-  });
-
-  console.log(`E2E_GUEST_CODE: ${e2eGuest.code}`);
 }
 
 export async function teardown() {

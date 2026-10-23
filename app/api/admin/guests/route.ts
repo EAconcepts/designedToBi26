@@ -2,7 +2,6 @@ import { NextRequest } from 'next/server';
 import { handle, ok, fail } from '@/lib/api';
 import { prisma } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin';
-import { newGuestCode } from '@/lib/codes';
 import { AdminGuestQueryInput, CreateGuestInput } from '@/lib/validation/admin';
 import { revalidateSite } from '@/lib/cache';
 import { Prisma } from '@prisma/client';
@@ -40,7 +39,6 @@ export async function GET(request: NextRequest): Promise<Response> {
         { displayName: { contains: q, mode: 'insensitive' } },
         { email: { contains: q, mode: 'insensitive' } },
         { phone: { contains: q, mode: 'insensitive' } },
-        { code: { contains: q, mode: 'insensitive' } },
       ];
     }
 
@@ -68,13 +66,11 @@ export async function GET(request: NextRequest): Promise<Response> {
 
     const rows = guests.map((g) => ({
       id: g.id,
-      code: g.code,
       displayName: g.displayName,
       email: g.email,
       phone: g.phone,
       side: g.side,
       maxPartySize: g.maxPartySize,
-      openedAt: g.openedAt?.toISOString() ?? null,
       createdAt: g.createdAt.toISOString(),
       events: g.invitations.map((i) => ({ slug: i.event.slug, title: i.event.title })),
       rsvpStatus: g.rsvp?.status ?? 'PENDING',
@@ -114,12 +110,9 @@ export async function POST(request: NextRequest): Promise<Response> {
       return fail('NOT_FOUND', 'One or more selected events do not exist');
     }
 
-    const code = newGuestCode();
-
     const guest = await prisma.$transaction(async (tx) => {
       const created = await tx.guest.create({
         data: {
-          code,
           displayName: input.displayName,
           email: input.email ? input.email.toLowerCase() : null,
           phone: input.phone || null,
@@ -145,7 +138,6 @@ export async function POST(request: NextRequest): Promise<Response> {
           entity: 'Guest',
           entityId: created.id,
           meta: {
-            code: created.code,
             displayName: created.displayName,
             maxPartySize: created.maxPartySize,
           },

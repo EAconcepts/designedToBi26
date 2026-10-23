@@ -134,7 +134,6 @@ export async function DELETE(
           entity: 'Guest',
           entityId: id,
           meta: {
-            code: existing.code,
             displayName: existing.displayName,
           },
         },

@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { prisma } from '@/lib/db';
-import { newGuestCode } from '@/lib/codes';
 import { Side, type PrismaClient } from '@prisma/client';
 
 export interface CsvGuestRow {
@@ -24,11 +23,9 @@ export interface ParseResult {
 export interface ImportResult {
   action: 'created' | 'updated';
   displayName: string;
-  code: string;
   side: Side;
   maxPartySize: number;
   invitedTo: string[];
-  inviteUrl: string;
 }
 
 /**
@@ -219,7 +216,6 @@ export async function importGuests(
   options: {
     dryRun?: boolean;
     force?: boolean;
-    baseUrl?: string;
     client?: PrismaClient;
   } = {},
 ): Promise<ImportResult[]> {
@@ -268,17 +264,13 @@ export async function importGuests(
     throw new Error(`Event Validation Failed:\n${slugErrors.join('\n')}`);
   }
 
-  const baseUrl = options.baseUrl || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-
   if (options.dryRun) {
     return rows.map((r) => ({
-      action: 'created',
+      action: 'created' as const,
       displayName: r.displayName,
-      code: 'DRY_RUN_',
       side: r.side,
       maxPartySize: r.maxPartySize,
       invitedTo: r.invitedTo,
-      inviteUrl: `${baseUrl}/i/DRY_RUN_`,
     }));
   }
 
@@ -298,13 +290,11 @@ export async function importGuests(
       });
 
       let guestId: string;
-      let code: string;
       let action: 'created' | 'updated';
 
       if (existing) {
         action = 'updated';
         guestId = existing.id;
-        code = existing.code;
 
         await tx.guest.update({
           where: { id: existing.id },
@@ -322,10 +312,8 @@ export async function importGuests(
         });
       } else {
         action = 'created';
-        code = newGuestCode();
         const created = await tx.guest.create({
           data: {
-            code,
             displayName: row.displayName,
             email: row.email,
             phone: row.phone,
@@ -352,11 +340,9 @@ export async function importGuests(
       results.push({
         action,
         displayName: row.displayName,
-        code,
         side: row.side,
         maxPartySize: row.maxPartySize,
         invitedTo: row.invitedTo,
-        inviteUrl: `${baseUrl}/i/${code}`,
       });
     }
 
@@ -394,7 +380,7 @@ async function runCli() {
       '\n--------------------------------------------------------------------------------------------------',
     );
     console.log(
-      `${'Action'.padEnd(9)} | ${'Name'.padEnd(25)} | ${'Code'.padEnd(10)} | ${'Side'.padEnd(10)} | ${'Cap'.padEnd(4)} | Invite URL`,
+      `${'Action'.padEnd(9)} | ${'Name'.padEnd(25)} | ${'Side'.padEnd(10)} | ${'Cap'.padEnd(4)} | Invited To`,
     );
     console.log(
       '--------------------------------------------------------------------------------------------------',
@@ -408,7 +394,7 @@ async function runCli() {
       if (r.action === 'updated') updatedCount++;
 
       console.log(
-        `${r.action.toUpperCase().padEnd(9)} | ${r.displayName.slice(0, 24).padEnd(25)} | ${r.code.padEnd(10)} | ${r.side.padEnd(10)} | ${r.maxPartySize.toString().padEnd(4)} | ${r.inviteUrl}`,
+        `${r.action.toUpperCase().padEnd(9)} | ${r.displayName.slice(0, 24).padEnd(25)} | ${r.side.padEnd(10)} | ${r.maxPartySize.toString().padEnd(4)} | ${r.invitedTo.join(', ')}`,
       );
     }
     console.log(

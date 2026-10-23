@@ -18,7 +18,6 @@ describe('Test Factories & Cleanup', () => {
   it('creates test entities with distinct prefixes and handles relations', async () => {
     const guest = await makeGuest();
     expect(guest.id).toBeDefined();
-    expect(guest.code).toHaveLength(8);
     expect(guest.displayName).toContain('Test Guest tst_');
 
     const event = await makeEvent();

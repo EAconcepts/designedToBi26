@@ -168,7 +168,6 @@ describe('Email Templates & Client Unit Tests', () => {
       const success = await sendRsvpConfirmationEmail({
         guestEmail: 'guest@example.com',
         guestName: 'Guest Name',
-        guestCode: 'testcode',
         status: 'ATTENDING',
         attendees: [{ name: 'Guest Name', events: ['solemnization'] }],
         invitedEvents: [
@@ -188,7 +187,6 @@ describe('Email Templates & Client Unit Tests', () => {
       const failure = await sendRsvpConfirmationEmail({
         guestEmail: 'guest@example.com',
         guestName: 'Guest Name',
-        guestCode: 'testcode',
         status: 'ATTENDING',
         attendees: [{ name: 'Guest Name', events: ['solemnization'] }],
         invitedEvents: [],

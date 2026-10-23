@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/db';
-import { newGuestCode } from '@/lib/codes';
 import {
   Side,
   RsvpStatus,
@@ -46,7 +45,6 @@ export async function makeGuest(overrides?: Partial<Prisma.GuestCreateInput>): P
   const prefix = getTestPrefix();
   const guest = await prisma.guest.create({
     data: {
-      code: newGuestCode(),
       displayName: `Test Guest ${prefix}`,
       side: Side.BOTH,
       maxPartySize: 2,
@@ -187,7 +185,7 @@ export async function cleanupTestRows(prefix?: string): Promise<void> {
     // Delete guests matching prefix
     await prisma.guest.deleteMany({
       where: {
-        OR: [{ displayName: { contains: prefix } }, { code: { contains: prefix } }],
+        displayName: { contains: prefix },
       },
     });
 

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import { env } from '@/lib/env';
 import { SITE } from '@/content/site.config';
 import { GiftInitInput } from '@/lib/validation/gift';
-import { getGuestCode } from '@/lib/guest-cookie';
+import { getGuestId } from '@/lib/guest-cookie';
 import { createGiftReference } from '@/lib/payments';
 import { initializeTransaction } from '@/lib/paystack';
 
@@ -43,10 +43,10 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 
     // 3. Resolve optional guest association
-    const guestCode = getGuestCode(request);
-    const guest = guestCode
+    const guestId = getGuestId(request);
+    const guest = guestId
       ? await prisma.guest.findUnique({
-          where: { code: guestCode },
+          where: { id: guestId },
           select: { id: true },
         })
       : null;

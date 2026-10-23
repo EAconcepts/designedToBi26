@@ -11,8 +11,8 @@ export default function AdminGuestsPage() {
         <div>
           <h1 className="text-2xl font-serif font-bold text-magenta-900">Guest Directory</h1>
           <p className="text-sm text-ink-600">
-            Search guest list, copy personalized invitation links and WhatsApp templates, and manage
-            party sizes.
+            Keep track of households, contact details and party sizes, and manage responses taken
+            over the phone.
           </p>
         </div>
       </div>

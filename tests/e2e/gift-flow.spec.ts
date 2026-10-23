@@ -95,7 +95,9 @@ test.describe('Gifting Experience E2E', () => {
     await bankTab.click();
     await expect(bankTab).toHaveAttribute('aria-selected', 'true');
     await expect(page).toHaveURL(/.*tab=bank/);
-    await expect(page.getByRole('heading', { name: /our wedding gift account/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /our wedding gift account/i }).first(),
+    ).toBeVisible();
 
     // Click back to Give Online
     await onlineTab.click();

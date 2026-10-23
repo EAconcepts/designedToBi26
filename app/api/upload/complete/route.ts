@@ -3,7 +3,7 @@ import { handle, ok, fail } from '@/lib/api';
 import { prisma } from '@/lib/db';
 import { resourceByPublicIds } from '@/lib/cloudinary';
 import { validateUploadAccess } from '@/lib/uploads';
-import { getGuestCode } from '@/lib/guest-cookie';
+import { getGuestId } from '@/lib/guest-cookie';
 import { UploadCompleteInput } from '@/lib/validation/upload';
 
 export async function POST(req: NextRequest) {
@@ -53,8 +53,8 @@ export async function POST(req: NextRequest) {
     }
 
     // 6. Attribution via session cookie
-    const guestCode = getGuestCode(req);
-    const uploadedBy = guestCode ?? 'guest';
+    const guestId = getGuestId(req);
+    const uploadedBy = guestId ?? 'guest';
 
     // 7. Persist pending photo row
     const photo = await prisma.photo.create({

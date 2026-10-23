@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { emailSchema, phoneSchema } from '@/lib/validation/common';
 
 export const RsvpAttendeeInput = z.object({
   name: z
@@ -25,6 +26,20 @@ export const RsvpInput = z.object({
 });
 
 export type RsvpInput = z.infer<typeof RsvpInput>;
+
+// Public, open RSVP payload: same response shape plus responder identity.
+export const OpenRsvpInput = RsvpInput.extend({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name cannot exceed 100 characters'),
+  email: emailSchema.optional(),
+  phone: phoneSchema.optional(),
+  newResponse: z.boolean().default(false),
+});
+
+export type OpenRsvpInput = z.infer<typeof OpenRsvpInput>;
 
 // Admin override of the same payload (Subphase 2.5)
 export const AdminRsvpInput = RsvpInput.extend({

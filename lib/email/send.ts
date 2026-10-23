@@ -15,7 +15,6 @@ import {
 export interface SendRsvpConfirmationParams {
   guestEmail: string;
   guestName: string;
-  guestCode: string;
   status: 'ATTENDING' | 'DECLINED';
   attendees: Array<{
     name: string;

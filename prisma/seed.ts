@@ -126,9 +126,9 @@ export async function seed(client: PrismaClient = globalPrisma) {
   const defaultAccounts = [
     {
       label: 'Default Wedding Account',
-      bankName: 'Guaranty Trust Bank (GTB)',
-      accountName: 'Abiodun Emmanuel / Adetolani Esther',
-      accountNumber: '0000000000',
+      bankName: 'Fidelity Bank',
+      accountName: 'Abiodun Emmanuel Adewale',
+      accountNumber: '5334203317',
       currency: 'NGN',
       sortOrder: 0,
       isActive: true,
@@ -324,22 +324,24 @@ export async function seed(client: PrismaClient = globalPrisma) {
   const solemnization = await client.event.findUnique({ where: { slug: 'solemnization' } });
   const reception = await client.event.findUnique({ where: { slug: 'reception' } });
 
-  const e2eGuest = await client.guest.upsert({
-    where: { code: 'e2e9test' },
-    update: {
-      displayName: 'E2E Deterministic Guest',
-      maxPartySize: 2,
-      side: 'BOTH',
-    },
-    create: {
-      code: 'e2e9test',
-      displayName: 'E2E Deterministic Guest',
-      maxPartySize: 2,
-      side: 'BOTH',
-      email: 'e2e-guest@example.com',
-      phone: '+2348000000001',
-    },
+  const existingE2eGuest = await client.guest.findFirst({
+    where: { displayName: 'E2E Deterministic Guest' },
   });
+
+  const e2eGuestData = {
+    displayName: 'E2E Deterministic Guest',
+    maxPartySize: 2,
+    side: 'BOTH' as const,
+    email: 'e2e-guest@example.com',
+    phone: '+2348000000001',
+  };
+
+  const e2eGuest = existingE2eGuest
+    ? await client.guest.update({
+        where: { id: existingE2eGuest.id },
+        data: { maxPartySize: 2, side: 'BOTH' },
+      })
+    : await client.guest.create({ data: e2eGuestData });
 
   if (solemnization) {
     await client.invitation.upsert({
@@ -355,7 +357,7 @@ export async function seed(client: PrismaClient = globalPrisma) {
       create: { guestId: e2eGuest.id, eventId: reception.id },
     });
   }
-  console.log(`✓ E2E guest seeded: ${e2eGuest.code}`);
+  console.log(`✓ E2E guest seeded: ${e2eGuest.displayName}`);
 
   console.log('🎉 Database seed completed successfully.');
 }

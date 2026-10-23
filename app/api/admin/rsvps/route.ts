@@ -36,7 +36,6 @@ export async function GET(request: NextRequest): Promise<Response> {
         { displayName: { contains: q, mode: 'insensitive' } },
         { email: { contains: q, mode: 'insensitive' } },
         { phone: { contains: q, mode: 'insensitive' } },
-        { code: { contains: q, mode: 'insensitive' } },
       ];
     }
 

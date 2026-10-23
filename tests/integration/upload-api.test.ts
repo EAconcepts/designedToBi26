@@ -4,7 +4,7 @@ import { POST as postSignRoute } from '@/app/api/upload/sign/route';
 import { POST as postCompleteRoute } from '@/app/api/upload/complete/route';
 import { prisma } from '@/lib/db';
 import * as cloudinary from '@/lib/cloudinary';
-import { signGuestCode, GUEST_COOKIE_NAME } from '@/lib/guest-cookie';
+import { signGuestId, GUEST_COOKIE_NAME } from '@/lib/guest-cookie';
 
 const TEST_TOKEN = 'test_upload_secret_token_123';
 
@@ -261,7 +261,7 @@ describe('Upload API Integration (Subphase 3.4)', () => {
       expect(count).toBe(1);
     });
 
-    it('attributes upload to authenticated guest code when cookie is present', async () => {
+    it('attributes upload to the guest session when a cookie is present', async () => {
       const publicId = 'wedding/guest-uploads/2026/10/guest1234567890ab';
       vi.spyOn(cloudinary, 'resourceByPublicIds').mockResolvedValue([
         {
@@ -274,7 +274,11 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         },
       ]);
 
-      const cookieVal = signGuestCode('e2e9test');
+      const e2eGuest = await prisma.guest.findFirst({
+        where: { displayName: 'E2E Deterministic Guest' },
+      });
+      expect(e2eGuest).not.toBeNull();
+      const cookieVal = signGuestId(e2eGuest!.id);
 
       const req = new NextRequest('http://localhost:3000/api/upload/complete', {
         method: 'POST',
@@ -296,7 +300,7 @@ describe('Upload API Integration (Subphase 3.4)', () => {
       const row = await prisma.photo.findUnique({
         where: { id: json.data.photoId },
       });
-      expect(row?.uploadedBy).toBe('e2e9test');
+      expect(row?.uploadedBy).toBe(e2eGuest!.id);
     });
   });
 });

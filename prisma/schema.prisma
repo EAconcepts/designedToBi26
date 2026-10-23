@@ -57,17 +57,18 @@ enum Side {
 
 model Guest {
   id           String       @id @default(cuid())
-  code         String       @unique // 8 chars, unambiguous alphabet
   displayName  String // "The Adeyemi Family"
   email        String?
   phone        String?
   side         Side         @default(BOTH) // A18: shown as an admin filter in Sprint 3, or dropped
   maxPartySize Int          @default(1)
-  openedAt     DateTime?
+  ipHash       String? // HMAC of submitter IP, used only for RSVP throttle checks
   createdAt    DateTime     @default(now())
   invitations  Invitation[]
   rsvp         Rsvp?
   gifts        Gift[]
+
+  @@index([ipHash])
 }
 
 model Venue {

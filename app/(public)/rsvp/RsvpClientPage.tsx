@@ -2,7 +2,6 @@
 
 import { RsvpPrefillProvider, useRsvpPrefill } from '@/components/forms/RsvpPrefillProvider';
 import { RsvpForm } from '@/components/sections/RsvpForm';
-import { RsvpContactsPanel } from '@/components/sections/RsvpContactsPanel';
 import { SITE } from '@/content/site.config';
 
 function RsvpPageContent() {
@@ -32,20 +31,10 @@ function RsvpPageContent() {
     );
   }
 
-  if (!guest) {
-    return (
-      <div className="route-page">
-        <div style={{ maxWidth: '640px', margin: '40px auto' }}>
-          <RsvpContactsPanel />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="route-page">
       <div style={{ maxWidth: '680px', margin: '40px auto' }}>
-        <RsvpForm guest={guest} />
+        <RsvpForm session={guest} />
       </div>
     </div>
   );

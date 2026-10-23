@@ -65,13 +65,14 @@ export interface SiteConfig {
     readonly collectMeal: boolean;
     readonly mealOptions: readonly string[];
     readonly deadline: string;
+    // Party cap applied to every online RSVP (open access, no per-guest codes).
+    readonly maxPartySize: number;
   };
   readonly gift: {
     readonly minAmountMinor: number;
     readonly maxAmountMinor: number;
     readonly presetAmountsMinor: readonly number[];
   };
-  readonly inviteMessage: string;
   readonly hero: {
     readonly poster: string | null;
     readonly video: string | null;

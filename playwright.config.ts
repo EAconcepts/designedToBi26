@@ -39,7 +39,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? 'pnpm build && pnpm start' : 'pnpm dev',
+    command:
+      process.env.PW_WEB_COMMAND ?? (process.env.CI ? 'pnpm build && pnpm start' : 'pnpm dev'),
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
