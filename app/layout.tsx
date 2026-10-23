@@ -10,7 +10,15 @@ const cormorant = Cormorant_Garamond({
   display: 'swap',
   variable: '--font-display',
   weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+  style: 'normal',
+});
+
+const cormorantItalic = Cormorant_Garamond({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-display-italic',
+  weight: ['400', '500', '600', '700'],
+  style: 'italic',
 });
 
 const jost = Jost({
@@ -45,7 +53,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${jost.variable} ${alexBrush.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${cormorantItalic.variable} ${jost.variable} ${alexBrush.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ivory text-ink-900 font-body">
         <a
