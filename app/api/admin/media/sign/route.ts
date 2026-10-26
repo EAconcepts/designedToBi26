@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Server-controlled publicId scoped to the target album
-    const { publicId, folder } = generateAdminPublicId(album.slug);
+    const { publicId } = generateAdminPublicId(album.slug);
     const timestamp = Math.floor(Date.now() / 1000);
 
     const signed = signUploadParams({

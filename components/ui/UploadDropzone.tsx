@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import Link from 'next/link';
 
 export interface FileUploadItem {
   id: string;
@@ -11,10 +10,6 @@ export interface FileUploadItem {
   status: 'idle' | 'compressing' | 'signing' | 'uploading' | 'completing' | 'done' | 'error';
   progress: number;
   errorMessage?: string;
-}
-
-export interface UploadDropzoneProps {
-  coupleContactPhone?: string;
 }
 
 const MAX_FILES = 10;
@@ -88,7 +83,7 @@ async function compressImageIfNeeded(file: File): Promise<File> {
   });
 }
 
-export function UploadDropzone({ coupleContactPhone = '+2348000000000' }: UploadDropzoneProps) {
+export function UploadDropzone() {
   const [items, setItems] = useState<FileUploadItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
@@ -455,31 +450,6 @@ export function UploadDropzone({ coupleContactPhone = '+2348000000000' }: Upload
           )}
         </div>
       )}
-
-      {/* Weak Connection Table Note Fallback */}
-      <div className="p-4 rounded-2xl bg-ivory-100/70 border border-gold-500/20 text-xs text-ink-600 space-y-1">
-        <p className="font-semibold text-magenta-950">Having trouble on venue Wi-Fi?</p>
-        <p>
-          Spotty cellular connection? No worries at all! You can save your photos and upload them
-          later, or tell us at the table or message us on WhatsApp at{' '}
-          <a
-            href={`https://wa.me/${coupleContactPhone.replace(/[^0-9]/g, '')}`}
-            className="text-magenta-900 font-semibold underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {coupleContactPhone}
-          </a>
-          .
-        </p>
-        <p className="pt-1 text-[11px] text-ink-500">
-          Read our{' '}
-          <Link href="/privacy" className="underline hover:text-ink-800">
-            Privacy Notice
-          </Link>{' '}
-          on how uploads are handled and how to request removal.
-        </p>
-      </div>
     </div>
   );
 }

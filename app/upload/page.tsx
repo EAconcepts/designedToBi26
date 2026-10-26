@@ -92,7 +92,7 @@ export default async function UploadPage() {
 
       {/* Upload Dropzone */}
       <section aria-label="Photo upload area">
-        <UploadDropzone coupleContactPhone={SITE.rsvpContacts[0]?.tel || '+2349026892898'} />
+        <UploadDropzone />
       </section>
     </div>
   );

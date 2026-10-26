@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Generate server-controlled publicId
-    const { publicId, folder } = generateGuestPublicId();
+    const { publicId } = generateGuestPublicId();
     const timestamp = Math.floor(Date.now() / 1000);
 
     // 3. Sign parameters for Cloudinary direct upload

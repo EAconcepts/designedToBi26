@@ -41,7 +41,7 @@ export default async function GalleryPage() {
         <div className="flex justify-center">
           <Link
             href="/upload"
-            className="inline-flex items-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold shadow-sm transition-colors"
+            className="inline-flex items-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-xs font-semibold shadow-sm transition-colors !text-white"
           >
             Share your celebration photos →
           </Link>

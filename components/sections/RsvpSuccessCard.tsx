@@ -58,10 +58,10 @@ export function RsvpSuccessCard({ form }: RsvpSuccessCardProps) {
       )}
 
       <div className="form-success__actions">
-        <button type="button" className="button button--glass" onClick={handleEditResponse}>
+        <button type="button" className="button !button--glass" onClick={handleEditResponse}>
           Edit Response
         </button>
-        <Link href="/" className="button button--magenta">
+        <Link href="/" className="button !button--magenta">
           Return to Home
         </Link>
       </div>
