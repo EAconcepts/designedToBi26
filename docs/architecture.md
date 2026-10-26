@@ -42,29 +42,29 @@
 Twenty amendments (A1–A20) found during implementation planning. Each is **applied inline** in the
 sections below; the full rationale lives in [`plan/README.md §3`](plan/README.md).
 
-| ID  | Amendment                                                                                                                                                     | Applied in  |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| A1  | `GET /api/session/guest` resolves the signed cookie so `/` can stay static while greeting and RSVP pre-fill hydrate client-side                               | §8.2        |
-| A2  | `GET /api/events/[slug]/ics` — the route required by §21.5                                                                                                    | §8.2        |
-| A3  | `/api/upload/sign` generates `public_id` server-side; `/api/upload/complete` verifies the asset exists in Cloudinary and reads `width`/`height` from it       | §8.2, §9.6  |
-| A4  | Map implemented as a designed `MapCard` poster + OpenStreetMap embed on tap (no Google Static Maps key); Bolt deep link only if the device test passes        | §10.1       |
-| A5  | Dependency list completed (`nanoid`, `next-auth` + adapter, `csv-parse`, `qrcode.react`, `browser-image-compression`, axe/LHCI, husky/lint-staged/commitlint) | §5          |
-| A6  | Auth.js pinned: v5, Prisma adapter, custom Resend `sendVerificationRequest`, JWT session, allow-list enforced in `signIn` **and** `requireAdmin()`            | §5, §13.1   |
-| A7  | All operational reads tagged `site`; mutations call `revalidateSite(paths)` = `revalidateTag` + `revalidatePath`                                              | §9.7, §4.2  |
-| A8  | Source-of-truth rule: `site.config.ts` seeds the DB; the DB wins at runtime for operational data                                                              | §7.3        |
-| A9  | `/gift/complete` polling state machine with backoff, timeout and honest terminal states                                                                       | §9.4        |
-| A10 | Scaffold at the repository root alongside `docs/`, not in a nested folder                                                                                     | §6, §18     |
-| A11 | `/privacy` route and `app/robots.ts` (noindex) added                                                                                                          | §8.1, §10.5 |
-| A12 | Local Postgres via `docker-compose.yml` (`wedding_dev`, `wedding_test`); CI service container                                                                 | §14.1       |
-| A13 | Vercel build runs `prisma migrate deploy && prisma generate && prisma db seed && next build`; local uses `migrate dev`                                        | §14.3       |
-| A14 | `NOTIFY_EMAIL` added for gift receipts and webhook alerts                                                                                                     | §14.2       |
-| A15 | `lib/env.ts` Zod schema + `.env.example` parity test in CI                                                                                                    | §14.2       |
-| A16 | `admin-guard-coverage.test.ts` fails CI if any `app/api/admin/**/route.ts` lacks `requireAdmin()`                                                             | §13.1       |
-| A17 | `inviteMessage` template added to `SITE` for the admin copy action — **removed** with invite codes (see A21)                                                  | §21.1, §12  |
-| A18 | `Guest.side` surfaced as an admin filter in Sprint 3, or removed                                                                                              | §7.2        |
-| A19 | `POST /api/gifts/declare`, admin collection endpoints and `/gallery/[slug]` added to the API surface                                                          | §8.1, §8.2  |
-| A20 | `seed:guests` supports `--export` for the final headcount export                                                                                              | §12         |
-| A21 | Invite codes removed: `/rsvp` is open to everyone; signed guest session cookie (guest id) enables revisit/edit; per-IP throttle + honeypot for anti-abuse     | §4.2, §9.1  |
+| ID  | Amendment                                                                                                                                                                                                           | Applied in  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| A1  | `GET /api/session/guest` resolves the signed cookie so `/` can stay static while greeting and RSVP pre-fill hydrate client-side                                                                                     | §8.2        |
+| A2  | `GET /api/events/[slug]/ics` — the route required by §21.5                                                                                                                                                          | §8.2        |
+| A3  | `/api/upload/sign` generates `public_id` server-side; `/api/upload/complete` verifies the asset exists in Cloudinary and reads `width`/`height` from it; both are gated on the open/closed upload window (no token) | §8.2, §9.6  |
+| A4  | Map implemented as a designed `MapCard` poster + OpenStreetMap embed on tap (no Google Static Maps key); Bolt deep link only if the device test passes                                                              | §10.1       |
+| A5  | Dependency list completed (`nanoid`, `next-auth` + adapter, `csv-parse`, `qrcode.react`, `browser-image-compression`, axe/LHCI, husky/lint-staged/commitlint)                                                       | §5          |
+| A6  | Auth.js pinned: v5, Prisma adapter, custom Resend `sendVerificationRequest`, JWT session, allow-list enforced in `signIn` **and** `requireAdmin()`                                                                  | §5, §13.1   |
+| A7  | All operational reads tagged `site`; mutations call `revalidateSite(paths)` = `revalidateTag` + `revalidatePath`                                                                                                    | §9.7, §4.2  |
+| A8  | Source-of-truth rule: `site.config.ts` seeds the DB; the DB wins at runtime for operational data                                                                                                                    | §7.3        |
+| A9  | `/gift/complete` polling state machine with backoff, timeout and honest terminal states                                                                                                                             | §9.4        |
+| A10 | Scaffold at the repository root alongside `docs/`, not in a nested folder                                                                                                                                           | §6, §18     |
+| A11 | `/privacy` route and `app/robots.ts` (noindex) added                                                                                                                                                                | §8.1, §10.5 |
+| A12 | Local Postgres via `docker-compose.yml` (`wedding_dev`, `wedding_test`); CI service container                                                                                                                       | §14.1       |
+| A13 | Vercel build runs `prisma migrate deploy && prisma generate && prisma db seed && next build`; local uses `migrate dev`                                                                                              | §14.3       |
+| A14 | `NOTIFY_EMAIL` added for gift receipts and webhook alerts                                                                                                                                                           | §14.2       |
+| A15 | `lib/env.ts` Zod schema + `.env.example` parity test in CI                                                                                                                                                          | §14.2       |
+| A16 | `admin-guard-coverage.test.ts` fails CI if any `app/api/admin/**/route.ts` lacks `requireAdmin()`                                                                                                                   | §13.1       |
+| A17 | `inviteMessage` template added to `SITE` for the admin copy action — **removed** with invite codes (see A21)                                                                                                        | §21.1, §12  |
+| A18 | `Guest.side` surfaced as an admin filter in Sprint 3, or removed                                                                                                                                                    | §7.2        |
+| A19 | `POST /api/gifts/declare`, admin collection endpoints and `/gallery/[slug]` added to the API surface                                                                                                                | §8.1, §8.2  |
+| A20 | `seed:guests` supports `--export` for the final headcount export                                                                                                                                                    | §12         |
+| A21 | Invite codes removed: `/rsvp` is open to everyone; signed guest session cookie (guest id) enables revisit/edit; per-IP throttle + honeypot for anti-abuse                                                           | §4.2, §9.1  |
 
 ### Decisions
 
@@ -124,7 +124,7 @@ A **gold-foil stationery suite brought to life**. The site should feel like rece
 | F4  | Events                         | Solemnization and Reception with date, time (or TBC), dress code, add-to-calendar                                                |
 | F5  | Venue and directions           | Map, deep links (Google Maps, Waze, Uber, Bolt), landmarks, travel and accommodation notes for out-of-town guests                |
 | F6  | Gallery                        | Albums: Pre-wedding, Wedding Day, Guest Moments. Lightbox, download, locked states                                               |
-| F7  | Guest uploads                  | QR → upload page → moderated into "Guest Moments"                                                                                |
+| F7  | Guest uploads                  | QR → /upload → moderated into "Guest Moments"                                                                                    |
 | F8  | RSVP                           | Per person, per event; meal and dietary per person; song request; private message to couple                                      |
 | F9  | Phone/WhatsApp RSVP path       | RSVP contacts with `wa.me` buttons; admin manual entry                                                                           |
 | F10 | Gifting and donations          | Bank details with copy, Paystack payments, funds, receipts                                                                       |
@@ -274,14 +274,14 @@ flowchart LR
 
 ### 4.3 Rendering strategy
 
-| Route             | Strategy                                          |
-| ----------------- | ------------------------------------------------- |
-| `/`               | Static + ISR, revalidated by tag on admin changes |
-| `/gallery`        | ISR + client pagination                           |
-| `/rsvp`, `/gift`  | Static shell + client forms                       |
-| `/gift/complete`  | Dynamic (reads gift status)                       |
-| `/upload/[token]` | Dynamic (validates window and token)              |
-| `/admin/**`       | Dynamic, auth-protected                           |
+| Route            | Strategy                                          |
+| ---------------- | ------------------------------------------------- |
+| `/`              | Static + ISR, revalidated by tag on admin changes |
+| `/gallery`       | ISR + client pagination                           |
+| `/rsvp`, `/gift` | Static shell + client forms                       |
+| `/gift/complete` | Dynamic (reads gift status)                       |
+| `/upload`        | Static (window-gated; tokenless)                  |
+| `/admin/**`      | Dynamic, auth-protected                           |
 
 ---
 
@@ -333,7 +333,8 @@ wedding-invite/                  # repo root (A10)
 │  │  ├─ rsvp/page.tsx
 │  │  ├─ thank-you/page.tsx
 │  │  ├─ privacy/page.tsx          # NDPA notice (A11)
-│  ├─ upload/[token]/page.tsx
+│  ├─ upload/page.tsx
+│  └─ upload/[token]/page.tsx (redirect stub → /upload)
 │  ├─ admin/
 │  │  ├─ layout.tsx                # Auth gate
 │  │  ├─ page.tsx  guests/  rsvps/  gifts/  media/  settings/
@@ -576,7 +577,6 @@ model Setting {                                  // singleton, always id = 1
   rsvpDeadline    DateTime?
   uploadsOpen     Boolean  @default(false)
   uploadsCloseAt  DateTime?
-  uploadToken     String?                          // rotates; embedded in the QR
   liveStreamUrl   String?
 }
 
@@ -639,7 +639,7 @@ model AuditLog {
 | `/gallery/[slug]`         | Album detail with client pagination; hidden albums 404 like unknown slugs (A19)                              |
 | `/privacy`                | Short NDPA privacy notice linked from the footer, RSVP form and upload page (A11)                            |
 | `/thank-you`              | Post-wedding message                                                                                         |
-| `/upload/[token]`         | Guest photo upload (window-gated)                                                                            |
+| `/upload`                 | Guest photo upload (window-gated, tokenless)                                                                 |
 
 > Indexing is disabled site-wide: `app/robots.ts` returns `Disallow: /`, every page sets
 > `robots: noindex, nofollow`, and an `X-Robots-Tag` header backs it up (A11, see §10.5).

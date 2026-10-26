@@ -14,7 +14,6 @@ export interface FileUploadItem {
 }
 
 export interface UploadDropzoneProps {
-  token: string;
   coupleContactPhone?: string;
 }
 
@@ -89,10 +88,7 @@ async function compressImageIfNeeded(file: File): Promise<File> {
   });
 }
 
-export function UploadDropzone({
-  token,
-  coupleContactPhone = '+2348000000000',
-}: UploadDropzoneProps) {
+export function UploadDropzone({ coupleContactPhone = '+2348000000000' }: UploadDropzoneProps) {
   const [items, setItems] = useState<FileUploadItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
@@ -176,11 +172,8 @@ export function UploadDropzone({
       );
       const signRes = await fetch('/api/upload/sign', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-upload-token': token,
-        },
-        body: JSON.stringify({ token }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
       });
 
       if (!signRes.ok) {
@@ -221,10 +214,7 @@ export function UploadDropzone({
 
       const completeRes = await fetch('/api/upload/complete', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-upload-token': token,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           publicId: signData.publicId,
           caption: item.caption.trim() || undefined,

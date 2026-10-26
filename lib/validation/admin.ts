@@ -76,6 +76,31 @@ export const AdminBulkMediaInput = z.object({
 });
 export type AdminBulkMediaInput = z.infer<typeof AdminBulkMediaInput>;
 
+const albumSlugSchema = z
+  .string()
+  .trim()
+  .min(1, 'Album is required')
+  .max(64)
+  .regex(/^[a-z0-9-]+$/, 'Album slug may only contain lowercase letters, numbers, and dashes');
+
+export const AdminUploadSignInput = z.object({
+  albumSlug: albumSlugSchema,
+});
+export type AdminUploadSignInput = z.infer<typeof AdminUploadSignInput>;
+
+export const AdminCreatePhotoInput = z.object({
+  publicId: z
+    .string()
+    .trim()
+    .min(3, 'publicId is required')
+    .max(255)
+    .regex(/^[a-zA-Z0-9/_-]+$/, 'publicId contains unsupported characters'),
+  albumSlug: albumSlugSchema,
+  altText: z.string().trim().max(300).optional().nullable(),
+  caption: z.string().trim().max(300).optional().nullable(),
+});
+export type AdminCreatePhotoInput = z.infer<typeof AdminCreatePhotoInput>;
+
 export const AdminSettingsUpdateInput = z.object({
   mode: z.enum(['PRE', 'LIVE', 'POST']).optional(),
   rsvpDeadline: z.string().optional().nullable(),

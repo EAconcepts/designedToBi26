@@ -11,7 +11,6 @@ export interface UploadWindowPanelProps {
     uploadsOpen?: boolean;
     uploadsCloseAt?: string | null;
   }) => Promise<void>;
-  onRotateToken: () => Promise<void>;
 }
 
 export function UploadWindowPanel({
@@ -20,10 +19,7 @@ export function UploadWindowPanel({
   uploadUrl,
   uploadQrSvg,
   onUpdateWindow,
-  onRotateToken,
 }: UploadWindowPanelProps) {
-  const [showRotateConfirm, setShowRotateConfirm] = useState(false);
-  const [isRotating, setIsRotating] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -39,16 +35,6 @@ export function UploadWindowPanel({
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const handleRotate = async () => {
-    setIsRotating(true);
-    try {
-      await onRotateToken();
-      setShowRotateConfirm(false);
-    } finally {
-      setIsRotating(false);
-    }
   };
 
   return (
@@ -80,7 +66,7 @@ export function UploadWindowPanel({
           Guest Photo Uploads & Table QR
         </h2>
         <p className="text-xs text-ink-600 mt-0.5">
-          Manage upload availability, table QR code tokens, and physical card printing.
+          Manage upload availability and table QR cards.
         </p>
       </div>
 
@@ -181,61 +167,9 @@ export function UploadWindowPanel({
             >
               Print Table QR Card 🖨️
             </button>
-
-            <button
-              type="button"
-              onClick={() => setShowRotateConfirm(true)}
-              className="min-h-[44px] px-4 py-2 rounded-xl border border-red-200 text-red-700 hover:bg-red-50 text-xs font-semibold cursor-pointer transition-colors"
-            >
-              Rotate Upload Token ↺
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Rotation Warning Modal */}
-      {showRotateConfirm && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-        >
-          <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl border border-red-300">
-            <div className="space-y-2">
-              <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-100 text-red-800">
-                Warning: Irreversible Token Rotation
-              </span>
-              <h3 className="text-xl font-serif font-bold text-magenta-950">
-                Regenerate Upload QR Token?
-              </h3>
-              <p className="text-xs text-ink-600 leading-relaxed">
-                Rotating this token will <strong>instantly invalidate</strong> any QR codes already
-                printed on table cards or shared with guests. Guests who scan the previous QR code
-                will receive an inactive link error.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowRotateConfirm(false)}
-                disabled={isRotating}
-                className="min-h-[44px] px-4 py-2 rounded-xl border border-ink-200 text-xs font-semibold text-ink-700 hover:bg-ivory-100 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleRotate}
-                disabled={isRotating}
-                className="min-h-[44px] px-6 py-2 rounded-xl bg-red-700 hover:bg-red-800 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {isRotating ? 'Regenerating...' : 'Yes, Rotate Token'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

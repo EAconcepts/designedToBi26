@@ -2,31 +2,16 @@ import { type NextRequest } from 'next/server';
 import { handle, ok, fail } from '@/lib/api';
 import { signUploadParams } from '@/lib/cloudinary';
 import {
-  validateUploadAccess,
   generateGuestPublicId,
   MAX_UPLOAD_BYTES,
   ALLOWED_UPLOAD_FORMATS,
+  validateUploadWindow,
 } from '@/lib/uploads';
-import { UploadSignInput } from '@/lib/validation/upload';
 
 export async function POST(req: NextRequest) {
   return handle(req, async () => {
-    // 1. Auth check via header or body
-    const headerToken = req.headers.get('x-upload-token');
-    let bodyToken: string | undefined;
-
-    try {
-      const body = await req.json().catch(() => ({}));
-      const parsed = UploadSignInput.safeParse(body);
-      if (parsed.success) {
-        bodyToken = parsed.data.token;
-      }
-    } catch {
-      // Body may be empty, which is completely valid per contract
-    }
-
-    const token = headerToken || bodyToken;
-    const access = await validateUploadAccess(token);
+    // 1. Active upload window check (no token required — open link for anyone)
+    const access = await validateUploadWindow();
 
     if (!access.ok) {
       return fail(access.error, access.message, { status: access.status });

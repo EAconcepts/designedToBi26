@@ -1,5 +1,7 @@
 import { getSettings } from '@/lib/settings';
 import { getVisibleAlbums } from '@/lib/albums';
+import { isUploadActive } from '@/lib/uploads';
+import Link from 'next/link';
 import { AlbumGrid } from '@/components/sections/AlbumGrid';
 import { SITE } from '@/content/site.config';
 
@@ -33,6 +35,18 @@ export default async function GalleryPage() {
           with love.
         </p>
       </header>
+
+      {/* Guest Upload CTA — only while the upload window is open */}
+      {isUploadActive(setting) && (
+        <div className="flex justify-center">
+          <Link
+            href="/upload"
+            className="inline-flex items-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold shadow-sm transition-colors"
+          >
+            Share your celebration photos →
+          </Link>
+        </div>
+      )}
 
       {/* Album Collections Grid */}
       <section aria-label="Wedding photo albums">

@@ -19,19 +19,17 @@ export async function GET(req: NextRequest) {
 
     const setting = await getSettingsUncached();
     const siteUrl = env.public.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const uploadUrl = setting.uploadToken ? `${siteUrl}/upload/${setting.uploadToken}` : null;
+    const uploadUrl = `${siteUrl}/upload`;
 
-    let uploadQrSvg: string | null = null;
-    if (uploadUrl) {
-      uploadQrSvg = await QRCode.toString(uploadUrl, {
-        type: 'svg',
-        margin: 2,
-        color: {
-          dark: '#3D0026', // magenta-950
-          light: '#FFFFFA', // ivory-100
-        },
-      });
-    }
+    // QR always rendered: tokenless link, gated only by the open/closed window
+    const uploadQrSvg = await QRCode.toString(uploadUrl, {
+      type: 'svg',
+      margin: 2,
+      color: {
+        dark: '#3D0026', // magenta-950
+        light: '#FFFFFA', // ivory-100
+      },
+    });
 
     return ok({
       ...setting,

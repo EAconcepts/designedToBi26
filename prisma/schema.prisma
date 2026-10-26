@@ -231,7 +231,6 @@ model Setting {
   rsvpDeadline   DateTime?
   uploadsOpen    Boolean   @default(false)
   uploadsCloseAt DateTime?
-  uploadToken    String? // rotates; embedded in the QR
   liveStreamUrl  String?
 }
 

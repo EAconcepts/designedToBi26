@@ -6,8 +6,6 @@ import { prisma } from '@/lib/db';
 import * as cloudinary from '@/lib/cloudinary';
 import { signGuestId, GUEST_COOKIE_NAME } from '@/lib/guest-cookie';
 
-const TEST_TOKEN = 'test_upload_secret_token_123';
-
 describe('Upload API Integration (Subphase 3.4)', () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
@@ -16,14 +14,12 @@ describe('Upload API Integration (Subphase 3.4)', () => {
       where: { id: 1 },
       update: {
         uploadsOpen: true,
-        uploadToken: TEST_TOKEN,
         uploadsCloseAt: null,
       },
       create: {
         id: 1,
         mode: 'PRE',
         uploadsOpen: true,
-        uploadToken: TEST_TOKEN,
       },
     });
 
@@ -67,13 +63,10 @@ describe('Upload API Integration (Subphase 3.4)', () => {
   });
 
   describe('POST /api/upload/sign', () => {
-    it('returns signed parameters and server-generated publicId when token and window are valid', async () => {
+    it('returns signed parameters and server-generated publicId when the upload window is active', async () => {
       const req = new NextRequest('http://localhost:3000/api/upload/sign', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-upload-token': TEST_TOKEN,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
 
@@ -90,22 +83,19 @@ describe('Upload API Integration (Subphase 3.4)', () => {
       expect(json.data.allowedFormats).toContain('heic');
     });
 
-    it('rejects missing or wrong token with 401 INVALID_TOKEN', async () => {
+    it('does not require a token when the upload window is active', async () => {
       const req = new NextRequest('http://localhost:3000/api/upload/sign', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-upload-token': 'wrong-token',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
 
       const res = await postSignRoute(req);
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(200);
 
       const json = await res.json();
-      expect(json.ok).toBe(false);
-      expect(json.error.code).toBe('INVALID_TOKEN');
+      expect(json.ok).toBe(true);
+      expect(json.data.publicId).toMatch(/^wedding\/guest-uploads\/\d{4}\/\d{2}\/[a-f0-9]{16}$/);
     });
 
     it('rejects signing when uploadsOpen is false with 403 UPLOADS_CLOSED', async () => {
@@ -118,7 +108,6 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-upload-token': TEST_TOKEN,
         },
         body: JSON.stringify({}),
       });
@@ -144,7 +133,6 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-upload-token': TEST_TOKEN,
         },
         body: JSON.stringify({}),
       });
@@ -167,7 +155,6 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-upload-token': TEST_TOKEN,
         },
         body: JSON.stringify({
           publicId: fakePublicId,
@@ -206,7 +193,6 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-upload-token': TEST_TOKEN,
         },
         body: JSON.stringify({
           publicId,
@@ -242,7 +228,6 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-upload-token': TEST_TOKEN,
         },
         body: JSON.stringify({
           publicId,
@@ -284,7 +269,6 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-upload-token': TEST_TOKEN,
           cookie: `${GUEST_COOKIE_NAME}=${cookieVal}`,
         },
         body: JSON.stringify({

@@ -1,21 +1,28 @@
 import { expect, test } from '@playwright/test';
+import { addAdminSession } from './admin-session';
 
 test.describe('Guest Upload Flow E2E (Subphase 3.4)', () => {
-  test('displays inactive link screen when accessing invalid or unconfigured token', async ({
-    page,
-  }) => {
-    await page.goto('/upload/completely-invalid-non-existent-token');
+  test('shows the inactive screen when the upload window is closed', async ({ page }) => {
+    // uploadsOpen defaults to false in PRE mode; no token is required anymore
+    await page.goto('/upload');
 
-    await expect(page.getByRole('heading', { name: /upload link inactive/i })).toBeVisible();
-    await expect(page.getByText(/this photograph upload link is not active/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Upload Link Inactive/i })).toBeVisible();
+    await expect(page.getByText(/Guest uploads are not open at this time/i)).toBeVisible();
     await expect(page.getByRole('link', { name: /return to celebration homepage/i })).toBeVisible();
   });
 
-  test('renders upload dropzone, privacy notice, and file selection trigger', async ({ page }) => {
-    // For local tests where uploadToken may not be open, navigating to an arbitrary token tests the guarded UI
-    await page.goto('/upload/test-token');
-    // If closed or invalid token, shows inactive screen with contacts
-    const heading = page.getByRole('heading', { level: 1 });
-    await expect(heading).toBeVisible();
+  test('renders the upload dropzone when the upload window is open', async ({ context, page }) => {
+    await addAdminSession(context);
+
+    // Open the window via the admin settings API (no token involved)
+    await page.request.post('/api/admin/settings', {
+      data: { uploadsOpen: true },
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    await page.goto('/upload');
+
+    await expect(page.getByRole('heading', { name: /Share Your Moments/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Drag & drop photos here/i })).toBeVisible();
   });
 });

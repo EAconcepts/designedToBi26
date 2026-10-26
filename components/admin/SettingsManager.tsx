@@ -80,31 +80,6 @@ export function SettingsManager() {
     }
   };
 
-  const handleRotateToken = async () => {
-    try {
-      const res = await fetch('/api/admin/settings/upload-token', {
-        method: 'POST',
-      });
-
-      if (res.ok) {
-        const json = await res.json();
-        setSettings((prev) =>
-          prev
-            ? {
-                ...prev,
-                uploadToken: json.data.token,
-                uploadUrl: json.data.uploadUrl,
-                uploadQrSvg: json.data.qrSvg,
-              }
-            : null,
-        );
-        showToast('Upload token rotated successfully. Previous QR codes are now inactive.');
-      }
-    } catch {
-      showToast('Failed to rotate upload token.');
-    }
-  };
-
   if (isLoading || !settings) {
     return <div className="py-20 text-center text-ink-500 text-sm">Loading settings...</div>;
   }
@@ -220,7 +195,6 @@ export function SettingsManager() {
         onUpdateWindow={async (updates) => {
           await handleUpdate(updates);
         }}
-        onRotateToken={handleRotateToken}
       />
     </div>
   );

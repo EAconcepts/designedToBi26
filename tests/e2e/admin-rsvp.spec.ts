@@ -1,21 +1,64 @@
 import { expect, test } from '@playwright/test';
-import { encode } from 'next-auth/jwt';
+import { createHash, randomBytes } from 'node:crypto';
+import { PrismaClient } from '@prisma/client';
+import { ADMIN_EMAIL, AUTH_SECRET, createAdminSessionToken } from './admin-session';
 
-const ADMIN_EMAIL = 'admin@example.com';
-const AUTH_SECRET = process.env.AUTH_SECRET || 'uqxfaUFAiALabLo2W9v79eSM4qiuE+JQmbkWTNvB7fU=';
+// Fabricate the verification token exactly as Auth.js v5 stores it:
+// sha256(`${rawToken}${AUTH_SECRET}`) — see @auth/core send-token.
+async function createMagicLinkToken(): Promise<string> {
+  const raw = randomBytes(32).toString('hex');
+  const hashed = createHash('sha256').update(`${raw}${AUTH_SECRET}`).digest('hex');
 
-async function createAdminSessionToken() {
-  return await encode({
-    token: { email: ADMIN_EMAIL },
-    secret: AUTH_SECRET,
-    salt: 'authjs.session-token',
-  });
+  const urls = [
+    process.env.DATABASE_URL,
+    'postgresql://postgres:postgres@localhost:5432/wedding_dev?schema=public',
+    'postgresql://postgres:postgres@localhost:5432/wedding_test?schema=public',
+  ].filter(Boolean) as string[];
+
+  for (const url of new Set(urls)) {
+    try {
+      const client = new PrismaClient({ datasources: { db: { url } } });
+      await client.verificationToken.create({
+        data: {
+          identifier: ADMIN_EMAIL,
+          token: hashed,
+          expires: new Date(Date.now() + 10 * 60 * 1000),
+        },
+      });
+      await client.$disconnect();
+      return raw;
+    } catch {
+      // try the next candidate database
+    }
+  }
+  throw new Error('Unable to create magic-link verification token in any candidate database');
 }
 
 test.describe('Admin RSVP & Guest Management E2E', () => {
   test('unauthenticated visitor to /admin/rsvps is redirected to signin', async ({ page }) => {
     await page.goto('/admin/rsvps');
     await expect(page).toHaveURL(/.*\/api\/auth\/signin.*/);
+  });
+
+  test('magic-link sign-in returns the admin to the dashboard, not the public site', async ({
+    page,
+  }) => {
+    // 1. The unauthenticated redirect preserves the intended destination
+    await page.goto('/admin');
+    await expect(page).toHaveURL(/\/api\/auth\/signin\?callbackUrl=%2Fadmin/);
+
+    // 2. Follow the email link exactly as Auth.js would build it
+    const rawToken = await createMagicLinkToken();
+    await page.goto(
+      `/api/auth/callback/resend?callbackUrl=%2Fadmin&token=${rawToken}&email=${encodeURIComponent(
+        ADMIN_EMAIL,
+      )}`,
+    );
+
+    // 3. Signed in and back on the admin dashboard
+    await expect(page).toHaveURL(/\/admin$/);
+    await expect(page.getByRole('heading', { name: 'Dashboard Overview' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
   });
 
   test('authenticated admin can view RSVP dashboard, filters, and manual modal', async ({

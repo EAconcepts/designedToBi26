@@ -2,15 +2,14 @@ import { type NextRequest } from 'next/server';
 import { handle, ok, fail } from '@/lib/api';
 import { prisma } from '@/lib/db';
 import { resourceByPublicIds } from '@/lib/cloudinary';
-import { validateUploadAccess } from '@/lib/uploads';
+import { validateUploadWindow } from '@/lib/uploads';
 import { getGuestId } from '@/lib/guest-cookie';
 import { UploadCompleteInput } from '@/lib/validation/upload';
 
 export async function POST(req: NextRequest) {
   return handle(req, async () => {
-    // 1. Auth check via header
-    const token = req.headers.get('x-upload-token');
-    const access = await validateUploadAccess(token);
+    // 1. Active upload window check (no token required — open link for anyone)
+    const access = await validateUploadWindow();
 
     if (!access.ok) {
       return fail(access.error, access.message, { status: access.status });

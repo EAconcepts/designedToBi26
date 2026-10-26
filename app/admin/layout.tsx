@@ -5,11 +5,15 @@ import { requireAdmin } from '@/lib/admin';
 import { signOut } from '@/lib/auth';
 import { SITE } from '@/content/site.config';
 
+// Preserve the intended destination so the magic-link flow returns to the
+// dashboard instead of bouncing to the public home page (Auth.js defaults to "/").
+const ADMIN_SIGNIN_URL = '/api/auth/signin?callbackUrl=%2Fadmin';
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const admin = await requireAdmin();
 
   if (!admin) {
-    redirect('/api/auth/signin');
+    redirect(ADMIN_SIGNIN_URL);
   }
 
   const navItems = [
@@ -54,7 +58,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <form
             action={async () => {
               'use server';
-              await signOut({ redirectTo: '/api/auth/signin' });
+              await signOut({ redirectTo: ADMIN_SIGNIN_URL });
             }}
           >
             <button

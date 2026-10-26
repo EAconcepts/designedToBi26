@@ -35,7 +35,7 @@ export function RsvpForm({ session }: RsvpFormProps) {
   }
 
   return (
-    <div className="rsvp-form-container paper-section">
+    <div className="rsvp-form-container paper-section px-2">
       <RsvpStepper currentStep={form.step} totalSteps={4} steps={STEPS} />
 
       {form.generalError && (

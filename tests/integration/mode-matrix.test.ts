@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach, afterAll } from 'vitest';
 import { prisma } from '@/lib/db';
 import { SiteMode } from '@prisma/client';
 import { getVisibleAlbums } from '@/lib/albums';
-import { isUploadActive, validateUploadAccess } from '@/lib/uploads';
+import { isUploadActive, validateUploadWindow } from '@/lib/uploads';
 import { evaluateRsvpRules } from '@/lib/rsvp';
 import { RsvpInput } from '@/lib/validation/rsvp';
 import { cleanupTestRows } from '@/tests/factories';
@@ -32,14 +32,12 @@ describe('Site Modes End-to-End Matrix Integration Test (§3.8)', () => {
   describe('Complete 10-Surface Matrix Verification', () => {
     it.each(modes)('correctly asserts all 10 surfaces in mode: %s', async (mode) => {
       const liveStreamUrl = 'https://youtube.com/live/stream-test-123';
-      const token = 'matrix_test_token_99';
 
       const setting = await prisma.setting.update({
         where: { id: 1 },
         data: {
           mode,
           liveStreamUrl,
-          uploadToken: token,
           uploadsOpen: false, // In PRE this keeps it closed; in LIVE/POST mode matrix rules apply
           uploadsCloseAt: new Date(Date.now() + 86400000), // 1 day in the future
         },
@@ -163,16 +161,16 @@ describe('Site Modes End-to-End Matrix Integration Test (§3.8)', () => {
       const uploadActive = isUploadActive(setting);
       if (mode === 'PRE') {
         expect(uploadActive).toBe(false); // uploadsOpen was false
-        const access = await validateUploadAccess(token);
+        const access = await validateUploadWindow();
         expect(access.ok).toBe(false);
         if (!access.ok) expect(access.error).toBe('UPLOADS_CLOSED');
       } else if (mode === 'LIVE') {
         expect(uploadActive).toBe(true);
-        const access = await validateUploadAccess(token);
+        const access = await validateUploadWindow();
         expect(access.ok).toBe(true);
       } else if (mode === 'POST') {
         expect(uploadActive).toBe(true); // CloseAt is in the future
-        const access = await validateUploadAccess(token);
+        const access = await validateUploadWindow();
         expect(access.ok).toBe(true);
 
         // Verify that past uploadsCloseAt closes the window in POST
