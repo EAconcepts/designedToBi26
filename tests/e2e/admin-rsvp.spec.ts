@@ -16,22 +16,17 @@ async function createMagicLinkToken(): Promise<string> {
   ].filter(Boolean) as string[];
 
   for (const url of new Set(urls)) {
-    try {
-      const client = new PrismaClient({ datasources: { db: { url } } });
-      await client.verificationToken.create({
-        data: {
-          identifier: ADMIN_EMAIL,
-          token: hashed,
-          expires: new Date(Date.now() + 10 * 60 * 1000),
-        },
-      });
-      await client.$disconnect();
-      return raw;
-    } catch {
-      // try the next candidate database
-    }
+    const client = new PrismaClient({ datasources: { db: { url } } });
+    await client.verificationToken.create({
+      data: {
+        identifier: ADMIN_EMAIL,
+        token: hashed,
+        expires: new Date(Date.now() + 10 * 60 * 1000),
+      },
+    });
+    await client.$disconnect();
   }
-  throw new Error('Unable to create magic-link verification token in any candidate database');
+  return raw;
 }
 
 test.describe('Admin RSVP & Guest Management E2E', () => {

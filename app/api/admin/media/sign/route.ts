@@ -26,7 +26,6 @@ export async function POST(req: NextRequest) {
     const timestamp = Math.floor(Date.now() / 1000);
 
     const signed = signUploadParams({
-      folder,
       public_id: publicId,
       timestamp,
     });
@@ -36,7 +35,6 @@ export async function POST(req: NextRequest) {
     return ok({
       uploadUrl,
       publicId,
-      folder,
       albumSlug: album.slug,
       apiKey: signed.apiKey,
       timestamp: signed.timestamp,

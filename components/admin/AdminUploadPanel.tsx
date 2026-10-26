@@ -78,7 +78,6 @@ function uploadToCloudinary(
     formData.append('api_key', sign.apiKey);
     formData.append('timestamp', String(sign.timestamp));
     formData.append('public_id', sign.publicId);
-    formData.append('folder', sign.folder);
     formData.append('signature', sign.signature);
     xhr.send(formData);
   });

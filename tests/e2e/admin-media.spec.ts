@@ -54,7 +54,7 @@ test.describe('Admin Media Upload E2E', () => {
       mimeType: 'image/png',
       buffer: TINY_PNG,
     });
-    await expect(page.getByText('couple-portrait.png')).toBeVisible();
+    await expect(page.locator('span').filter({ hasText: 'couple-portrait.png' })).toBeVisible();
     await expect(page.getByPlaceholder('Alt text (accessibility)')).toBeVisible();
     await expect(page.getByPlaceholder('Caption / memory note')).toBeVisible();
 

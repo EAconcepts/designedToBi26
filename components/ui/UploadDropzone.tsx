@@ -193,7 +193,6 @@ export function UploadDropzone({ coupleContactPhone = '+2348000000000' }: Upload
       formData.append('api_key', signData.apiKey);
       formData.append('timestamp', String(signData.timestamp));
       formData.append('public_id', signData.publicId);
-      formData.append('folder', signData.folder);
       formData.append('signature', signData.signature);
 
       const uploadRes = await fetch(signData.uploadUrl, {

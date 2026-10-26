@@ -89,13 +89,11 @@ describe('Admin Upload API Integration', () => {
     expect(data.publicId).toMatch(
       new RegExp(`^wedding/admin-uploads/${TEST_ALBUM_SLUG}/\\d{4}/\\d{2}/[0-9a-f]{16}$`),
     );
-    expect(data.folder).toBe(data.publicId.slice(0, data.publicId.lastIndexOf('/')));
     expect(data.maxBytes).toBe(10 * 1024 * 1024);
     expect(data.allowedFormats).toContain('heic');
 
     // Signature must match Cloudinary's canonical sorted key=value + secret construction
     const recomputed = cloudinary.signUploadParams({
-      folder: data.folder,
       public_id: data.publicId,
       timestamp: data.timestamp,
     });

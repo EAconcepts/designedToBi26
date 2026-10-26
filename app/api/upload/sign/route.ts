@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
 
     // 3. Sign parameters for Cloudinary direct upload
     const signed = signUploadParams({
-      folder,
       public_id: publicId,
       timestamp,
     });
@@ -33,7 +32,6 @@ export async function POST(req: NextRequest) {
     return ok({
       uploadUrl,
       publicId,
-      folder,
       apiKey: signed.apiKey,
       timestamp: signed.timestamp,
       signature: signed.signature,

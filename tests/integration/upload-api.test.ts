@@ -77,7 +77,6 @@ describe('Upload API Integration (Subphase 3.4)', () => {
       expect(json.ok).toBe(true);
       expect(json.data.uploadUrl).toContain('https://api.cloudinary.com/v1_1/');
       expect(json.data.publicId).toMatch(/^wedding\/guest-uploads\/\d{4}\/\d{2}\/[a-f0-9]{16}$/);
-      expect(json.data.folder).toMatch(/^wedding\/guest-uploads\/\d{4}\/\d{2}$/);
       expect(json.data.signature).toBeDefined();
       expect(json.data.maxBytes).toBe(10485760);
       expect(json.data.allowedFormats).toContain('heic');
