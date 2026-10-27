@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db';
 import { resend } from '@/lib/email/client';
 import { SITE } from '@/content/site.config';
 import { makeGuest, makeEvent, makeInvitation, cleanupTestRows } from '@/tests/factories';
+import { PATCH as patchSettingsRoute } from '@/app/api/admin/settings/route';
+import * as adminAuth from '@/lib/admin';
 
 let ipCounter = 0;
 
@@ -212,6 +214,39 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
     const body = await res.json();
     expect(body.ok).toBe(false);
     expect(body.error.code).toBe('RSVP_CLOSED');
+  });
+
+  it('rejects guest submissions after an admin saves a backdated deadline', async () => {
+    vi.spyOn(adminAuth, 'requireAdmin').mockResolvedValue({ email: 'admin@example.com' });
+    const settingsResponse = await patchSettingsRoute(
+      new NextRequest('http://localhost:3000/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rsvpDeadline: '2020-01-01' }),
+      }),
+    );
+    expect(settingsResponse.status).toBe(200);
+
+    const guest = await makeGuest();
+    const event = await makeEvent();
+    await makeInvitation(guest.id, event.id);
+
+    const response = await rsvpRoute(
+      makeRsvpRequest({
+        sessionGuestId: guest.id,
+        body: {
+          name: 'Late Household',
+          declined: false,
+          attendees: [{ name: 'Ayo', events: [event.slug] }],
+        },
+      }),
+    );
+
+    expect(response.status).toBe(409);
+    const body = await response.json();
+    expect(body.ok).toBe(false);
+    expect(body.error.code).toBe('RSVP_CLOSED');
+    expect(await prisma.rsvp.findUnique({ where: { guestId: guest.id } })).toBeNull();
   });
 
   it('rejects submissions when siteMode is POST even before deadline', async () => {

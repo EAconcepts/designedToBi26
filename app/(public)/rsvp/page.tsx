@@ -1,4 +1,4 @@
-import { getSettings } from '@/lib/settings';
+import { getSettingsUncached } from '@/lib/settings';
 import { RsvpContactsPanel } from '@/components/sections/RsvpContactsPanel';
 import { RsvpClientPage } from './RsvpClientPage';
 
@@ -10,7 +10,7 @@ export const metadata = {
 };
 
 export default async function RsvpPage() {
-  const settings = await getSettings();
+  const settings = await getSettingsUncached();
 
   const isPastDeadline = settings.rsvpDeadline && new Date() > settings.rsvpDeadline;
 
