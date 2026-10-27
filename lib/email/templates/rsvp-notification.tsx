@@ -22,7 +22,6 @@ export interface RsvpNotificationEmailProps {
     meal?: string | null;
     dietary?: string | null;
   }>;
-  songRequest?: string | null;
   message?: string | null;
   adminUrl?: string;
 }
@@ -31,7 +30,6 @@ export function RsvpNotificationEmail({
   guestName,
   status,
   attendees,
-  songRequest,
   message,
   adminUrl,
 }: RsvpNotificationEmailProps) {
@@ -72,14 +70,9 @@ export function RsvpNotificationEmail({
             </Section>
           )}
 
-          {(songRequest || message) && (
+          {message && (
             <Section style={sectionStyle}>
               <Text style={labelStyle}>NOTES</Text>
-              {songRequest && (
-                <Text style={noteStyle}>
-                  🎵 <strong>Song Request:</strong> {songRequest}
-                </Text>
-              )}
               {message && (
                 <Text style={noteStyle}>
                   💌 <strong>Message:</strong> &quot;{message}&quot;

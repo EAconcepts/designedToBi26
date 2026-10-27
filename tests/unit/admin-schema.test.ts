@@ -5,6 +5,8 @@ import {
   AdminRsvpQueryInput,
   AdminGuestQueryInput,
   AdminUpdateGiftInput,
+  AdminUploadSignInput,
+  AdminCreatePhotoInput,
 } from '@/lib/validation/admin';
 
 describe('Admin create guest schema', () => {
@@ -106,5 +108,68 @@ describe('Admin queries and updates', () => {
     expect(AdminUpdateGiftInput.safeParse({ status: 'ABANDONED' }).success).toBe(true);
     expect(AdminUpdateGiftInput.safeParse({ status: 'PENDING' }).success).toBe(false);
     expect(AdminUpdateGiftInput.safeParse({ status: 'FAILED' }).success).toBe(false);
+  });
+});
+
+describe('Admin upload schemas', () => {
+  it('accepts a valid album slug in AdminUploadSignInput and trims it', () => {
+    const parsed = AdminUploadSignInput.safeParse({ albumSlug: '  pre-wedding  ' });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.albumSlug).toBe('pre-wedding');
+    }
+  });
+
+  it('rejects empty or unsafe album slugs (path traversal guard)', () => {
+    expect(AdminUploadSignInput.safeParse({ albumSlug: '' }).success).toBe(false);
+    expect(AdminUploadSignInput.safeParse({ albumSlug: '../../etc' }).success).toBe(false);
+    expect(AdminUploadSignInput.safeParse({ albumSlug: 'Pre Wedding' }).success).toBe(false);
+    expect(AdminUploadSignInput.safeParse({}).success).toBe(false);
+  });
+
+  it('accepts a full AdminCreatePhotoInput payload', () => {
+    const parsed = AdminCreatePhotoInput.safeParse({
+      publicId: 'wedding/admin-uploads/pre-wedding/2026/10/abcdef0123456789',
+      albumSlug: 'pre-wedding',
+      altText: 'The couple walking on the beach',
+      caption: 'Sunset stroll',
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it('makes altText and caption optional and nullable', () => {
+    const base = {
+      publicId: 'wedding/admin-uploads/pre-wedding/2026/10/abcdef0123456789',
+      albumSlug: 'pre-wedding',
+    };
+    expect(AdminCreatePhotoInput.safeParse(base).success).toBe(true);
+    expect(AdminCreatePhotoInput.safeParse({ ...base, altText: null, caption: null }).success).toBe(
+      true,
+    );
+  });
+
+  it('rejects missing or unsafe publicId values', () => {
+    const base = { albumSlug: 'pre-wedding' };
+    expect(AdminCreatePhotoInput.safeParse({ ...base, publicId: '' }).success).toBe(false);
+    expect(AdminCreatePhotoInput.safeParse({ ...base }).success).toBe(false);
+    expect(
+      AdminCreatePhotoInput.safeParse({ ...base, publicId: 'wedding/x/../evil' }).success,
+    ).toBe(false);
+    expect(AdminCreatePhotoInput.safeParse({ ...base, publicId: 'has spaces here' }).success).toBe(
+      false,
+    );
+  });
+
+  it('rejects altText or caption longer than 300 characters', () => {
+    const base = {
+      publicId: 'wedding/admin-uploads/pre-wedding/2026/10/abcdef0123456789',
+      albumSlug: 'pre-wedding',
+    };
+    expect(AdminCreatePhotoInput.safeParse({ ...base, altText: 'a'.repeat(301) }).success).toBe(
+      false,
+    );
+    expect(AdminCreatePhotoInput.safeParse({ ...base, caption: 'b'.repeat(301) }).success).toBe(
+      false,
+    );
   });
 });

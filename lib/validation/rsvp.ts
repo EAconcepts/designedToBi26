@@ -21,7 +21,6 @@ export type RsvpAttendeeInput = z.infer<typeof RsvpAttendeeInput>;
 export const RsvpInput = z.object({
   declined: z.boolean().default(false),
   attendees: z.array(RsvpAttendeeInput).max(10, 'Cannot exceed 10 attendees').default([]),
-  songRequest: z.string().trim().max(120, 'Song request cannot exceed 120 characters').optional(),
   message: z.string().trim().max(600, 'Message cannot exceed 600 characters').optional(),
 });
 

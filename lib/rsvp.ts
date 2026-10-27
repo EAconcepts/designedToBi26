@@ -122,7 +122,6 @@ export interface SubmitRsvpParams {
   guestId: string;
   status: RsvpStatus;
   source?: RsvpSource;
-  songRequest?: string | null;
   message?: string | null;
   attendees: SanitizedAttendee[];
   eventSlugToId: Map<string, string>;
@@ -142,14 +141,12 @@ export async function submitRsvpTransaction(
       guestId: params.guestId,
       status: params.status,
       source: params.source ?? 'WEB',
-      songRequest: params.songRequest?.trim() || null,
       message: params.message?.trim() || null,
       respondedAt: now,
     },
     update: {
       status: params.status,
       source: params.source ?? 'WEB',
-      songRequest: params.songRequest?.trim() || null,
       message: params.message?.trim() || null,
       respondedAt: now,
     },

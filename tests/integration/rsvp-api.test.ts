@@ -73,7 +73,6 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
         { name: 'Adewale Adeleke', events: [event1.slug, event2.slug] },
         { name: 'Bolanle Adeleke', events: [event1.slug] },
       ],
-      songRequest: 'Buga - Kizz Daniel',
       message: 'So happy for both of you!',
     };
 
@@ -100,7 +99,6 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
 
     expect(rsvpInDb).not.toBeNull();
     expect(rsvpInDb?.status).toBe('ATTENDING');
-    expect(rsvpInDb?.songRequest).toBe('Buga - Kizz Daniel');
     expect(rsvpInDb?.message).toBe('So happy for both of you!');
     expect(rsvpInDb?.attendees).toHaveLength(2);
 

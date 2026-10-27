@@ -29,7 +29,7 @@ export interface RsvpConfirmationEmailProps {
     timeFormatted: string;
     venueName: string;
   }>;
-  songRequest?: string | null;
+
   message?: string | null;
   calendarUrl?: string;
   manageRsvpUrl?: string;
@@ -40,7 +40,6 @@ export function RsvpConfirmationEmail({
   status,
   attendees,
   events,
-  songRequest,
   message,
   calendarUrl,
   manageRsvpUrl,
@@ -135,15 +134,10 @@ export function RsvpConfirmationEmail({
             )}
 
             {/* Personal messages */}
-            {(songRequest || message) && (
+            {message && (
               <Section style={sectionBlockStyle}>
                 <Text style={sectionTitleStyle}>YOUR NOTES</Text>
                 <div style={notesCardStyle}>
-                  {songRequest && (
-                    <Text style={noteTextStyle}>
-                      🎶 <strong>Song Request:</strong> &quot;{songRequest}&quot;
-                    </Text>
-                  )}
                   {message && (
                     <Text style={noteTextStyle}>
                       💌 <strong>Message to the Couple:</strong> &quot;{message}&quot;

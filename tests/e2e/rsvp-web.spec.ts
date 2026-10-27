@@ -81,7 +81,6 @@ test.describe('RSVP Web Experience', () => {
     // 3. Details & Notes
     await page.getByRole('button', { name: /continue/i }).click();
     await expect(page.getByText('Step 3 of 4')).toBeVisible();
-    await page.locator('#song-request').fill('Sweet Mother - Prince Nico Mbarga');
     await page.locator('#couple-message').fill('Congratulations Adetolani and Emmanuel!');
 
     // 4. Review & Confirm
@@ -89,7 +88,6 @@ test.describe('RSVP Web Experience', () => {
     await expect(page.getByText('Step 4 of 4')).toBeVisible();
     await expect(page.getByText('Joyfully Attending')).toBeVisible();
     await expect(page.getByText('Companion One')).toBeVisible();
-    await expect(page.getByText('Sweet Mother - Prince Nico Mbarga')).toBeVisible();
 
     await page.getByRole('button', { name: /confirm and send rsvp/i }).click();
 

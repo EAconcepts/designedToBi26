@@ -43,7 +43,6 @@ export async function GET(request: NextRequest): Promise<Response> {
             meal: attendee.meal,
             dietary: attendee.dietary,
           })),
-          songRequest: guest.rsvp.songRequest,
           message: guest.rsvp.message,
         }
       : null,

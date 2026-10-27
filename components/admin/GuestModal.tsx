@@ -201,7 +201,7 @@ export function GuestModal({ guest, onClose, onSuccess }: GuestModalProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded bg-magenta-700 hover:bg-magenta-800 text-white px-5 py-2 text-sm font-semibold disabled:opacity-50"
+              className="rounded !bg-magenta-700 bg-magenta-800 text-white px-5 py-2 text-sm font-semibold disabled:opacity-50"
             >
               {isSubmitting ? 'Saving...' : isEditing ? 'Update Guest' : 'Create Guest'}
             </button>

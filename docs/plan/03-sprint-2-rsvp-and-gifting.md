@@ -58,7 +58,6 @@ export const RsvpAttendeeInput = z.object({
 export const RsvpInput = z.object({
   declined: z.boolean().default(false),
   attendees: z.array(RsvpAttendeeInput).max(10).default([]),
-  songRequest: z.string().trim().max(120).optional(),
   message: z.string().trim().max(600).optional(),
 });
 export type RsvpInput = z.infer<typeof RsvpInput>;
@@ -146,7 +145,7 @@ Errors: 401 GUEST_REQUIRED · 400 VALIDATION (+fields) · 409 RSVP_CLOSED ·
 
 ```
 deleteMany RsvpAttendee where rsvpId = existing (cascades AttendeeEvent)
-upsert Rsvp by guestId → { status, source: WEB, songRequest, message, respondedAt: now }
+upsert Rsvp by guestId → { status, source: WEB, message, respondedAt: now }
 create RsvpAttendee rows + AttendeeEvent rows for each (attendee × event)
 ```
 
@@ -203,9 +202,9 @@ no-code fallback.
    Empty state defaults to 1 row.
 3. **Step 2 — Events:** per attendee, checkbox list built **only** from `guest.events`
    (invited events), showing title + date + time/TBC.
-4. **Step 3 — Details:** meal select (only when `collectMeal`), dietary text, song request,
-   private message — each with a one-line explanation of who sees it ("private to the couple").
-   Also a "Sorry, we can't make it" decline toggle that disables steps 1–2 and clears them.
+4. **Step 3 — Details:** meal select (only when `collectMeal`), dietary text, private message —
+   each with a one-line explanation of who sees it ("private to the couple"). Also a "Sorry, we can't
+   make it" decline toggle that disables steps 1–2 and clears them.
 5. **Step 4 — Review + submit:** summary, submit → `POST /api/rsvp` → success screen with
    per-event summary, add-to-calendar links (reuse `AddToCalendar`), and an "Edit response"
    button that returns to the form.
@@ -313,7 +312,7 @@ Every handler: `requireAdmin()` first (A16), Zod validation, `revalidateSite([..
    song, message) with `source = PHONE | WHATSAPP` selectable; **same server rules**
    (party size, invitations) — the admin path only bypasses the cookie and deadline
    (`allowDeadlineOverride` flag, default true, audited).
-4. CSV export: `guest,side,email,phone,status,source,events,attendees,meal,dietary,songRequest,message,respondedAt`
+4. CSV export: `guest,side,email,phone,status,source,events,attendees,meal,dietary,message,respondedAt`
    via `lib/csv.ts`; UTF-8 BOM so Excel opens it correctly.
 5. Guests page: search by name/phone, "copy link" and "copy WhatsApp message" buttons using
    `GET /api/admin/guests/[id]/invite` with `SITE.inviteMessage` template (A17) — clipboard API

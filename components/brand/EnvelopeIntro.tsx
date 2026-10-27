@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Monogram } from './Monogram';
+import Image from 'next/image';
+import { SITE } from '@/content/site.config';
 
 function ArrowIcon() {
   return (
@@ -76,7 +78,14 @@ export function EnvelopeIntro() {
       <div className="envelope">
         <div className="envelope-flap" />
         <div className="envelope-card">
-          <Monogram compact />
+          {/* <Monogram compact /> */}
+          <Image
+            src={SITE.brand.logo.src}
+            alt="Couple Logo"
+            width={100}
+            height={100}
+            className="size:[60px] object-cover md:size-[100px]"
+          />
           <p>We invite you to celebrate with us</p>
         </div>
         <button
@@ -85,7 +94,7 @@ export function EnvelopeIntro() {
           aria-label="Open invitation"
           type="button"
         >
-          AE
+          <Image src={SITE.brand.logo.src} alt="Couple Logo" width={80} height={80} />
         </button>
       </div>
       <button className="open-prompt" onClick={closeEnvelope} type="button">

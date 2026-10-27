@@ -110,7 +110,6 @@ export async function makeRsvp(
       },
       status: RsvpStatus.PENDING,
       source: RsvpSource.WEB,
-      songRequest: 'Test Celebration Song',
       message: 'Looking forward to celebrating with you!',
       ...overrides,
     },

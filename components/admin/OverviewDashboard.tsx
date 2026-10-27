@@ -450,7 +450,7 @@ export function OverviewDashboard() {
           <div className="py-8 text-center text-xs text-ink-500">No activity logged yet.</div>
         ) : (
           <div className="divide-y divide-ink-100">
-            {recentActivity.map((log) => (
+            {recentActivity.slice(0, 3).map((log) => (
               <div
                 key={log.id}
                 className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm"

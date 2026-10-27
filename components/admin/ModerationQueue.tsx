@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { AdminUploadPanel } from '@/components/admin/AdminUploadPanel';
 
 export interface AdminPhotoRow {
   id: string;
@@ -33,6 +34,7 @@ export function ModerationQueue() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeMessage, setActiveMessage] = useState<string | null>(null);
+  const [showUpload, setShowUpload] = useState(false);
 
   const loadPhotos = useCallback(async (tab: 'PENDING' | 'APPROVED' | 'REJECTED', pg: number) => {
     setIsLoading(true);
@@ -145,6 +147,15 @@ export function ModerationQueue() {
     }
   };
 
+  const handleUploaded = (count: number) => {
+    setActiveMessage(`${count} photo${count === 1 ? '' : 's'} uploaded and published.`);
+    setTimeout(() => setActiveMessage(null), 4000);
+    setStatusTab('APPROVED');
+    setPage(1);
+    setSelectedIds(new Set());
+    void loadPhotos('APPROVED', 1);
+  };
+
   return (
     <div className="space-y-6 pb-20">
       {/* Header */}
@@ -154,76 +165,90 @@ export function ModerationQueue() {
             Media Moderation
           </h1>
           <p className="text-xs sm:text-sm text-ink-600 mt-1">
-            Review, approve, or reject photographs uploaded by wedding guests.
+            Upload your own photographs or review submissions from wedding guests.
           </p>
         </div>
 
-        {/* Status Filter Tabs (Touch Targets ≥ 44px) */}
-        <div className="flex p-1 rounded-2xl bg-ivory-200 border border-ink-100 self-start sm:self-auto">
+        <div className="flex flex-col gap-3 items-stretch sm:items-end">
           <button
             type="button"
-            onClick={() => {
-              setStatusTab('PENDING');
-              setSelectedIds(new Set());
-              setPage(1);
-            }}
-            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-              statusTab === 'PENDING'
-                ? 'bg-magenta-900 text-white shadow-xs'
-                : 'text-ink-700 hover:text-ink-900'
-            }`}
+            onClick={() => setShowUpload((open) => !open)}
+            aria-expanded={showUpload}
+            className="min-h-[44px] px-4 py-2 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
-            <span>Pending</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-[10px] ${statusTab === 'PENDING' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
-            >
-              {counts.pending}
-            </span>
+            {showUpload ? 'Hide Upload Panel' : 'Upload Photos'}
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setStatusTab('APPROVED');
-              setSelectedIds(new Set());
-              setPage(1);
-            }}
-            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-              statusTab === 'APPROVED'
-                ? 'bg-magenta-900 text-white shadow-xs'
-                : 'text-ink-700 hover:text-ink-900'
-            }`}
-          >
-            <span>Approved</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-[10px] ${statusTab === 'APPROVED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+          {/* Status Filter Tabs (Touch Targets ≥ 44px) */}
+          <div className="grid w-full grid-cols-3 p-1 rounded-2xl bg-ivory-200 border border-ink-100 sm:flex sm:w-auto">
+            <button
+              type="button"
+              onClick={() => {
+                setStatusTab('PENDING');
+                setSelectedIds(new Set());
+                setPage(1);
+              }}
+              className={`min-h-[44px] min-w-0 justify-center px-2 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 sm:px-4 sm:justify-start cursor-pointer ${
+                statusTab === 'PENDING'
+                  ? 'bg-magenta-900 text-white shadow-xs'
+                  : 'text-ink-700 hover:text-ink-900'
+              }`}
             >
-              {counts.approved}
-            </span>
-          </button>
+              <span>Pending</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] sm:px-2 ${statusTab === 'PENDING' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+              >
+                {counts.pending}
+              </span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setStatusTab('REJECTED');
-              setSelectedIds(new Set());
-              setPage(1);
-            }}
-            className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-              statusTab === 'REJECTED'
-                ? 'bg-magenta-900 text-white shadow-xs'
-                : 'text-ink-700 hover:text-ink-900'
-            }`}
-          >
-            <span>Rejected</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-[10px] ${statusTab === 'REJECTED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+            <button
+              type="button"
+              onClick={() => {
+                setStatusTab('APPROVED');
+                setSelectedIds(new Set());
+                setPage(1);
+              }}
+              className={`min-h-[44px] min-w-0 justify-center px-2 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 sm:px-4 sm:justify-start cursor-pointer ${
+                statusTab === 'APPROVED'
+                  ? 'bg-magenta-900 text-white shadow-xs'
+                  : 'text-ink-700 hover:text-ink-900'
+              }`}
             >
-              {counts.rejected}
-            </span>
-          </button>
+              <span>Approved</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] sm:px-2 ${statusTab === 'APPROVED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+              >
+                {counts.approved}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setStatusTab('REJECTED');
+                setSelectedIds(new Set());
+                setPage(1);
+              }}
+              className={`min-h-[44px] min-w-0 justify-center px-2 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 sm:px-4 sm:justify-start cursor-pointer ${
+                statusTab === 'REJECTED'
+                  ? 'bg-magenta-900 text-white shadow-xs'
+                  : 'text-ink-700 hover:text-ink-900'
+              }`}
+            >
+              <span>Rejected</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] sm:px-2 ${statusTab === 'REJECTED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+              >
+                {counts.rejected}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Admin Upload Panel */}
+      {showUpload && <AdminUploadPanel onUploaded={handleUploaded} />}
 
       {/* Toast Feedback */}
       {activeMessage && (

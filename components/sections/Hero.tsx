@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { SiteMode } from '@prisma/client';
-import { Monogram } from '@/components/brand';
+// import { Monogram } from '@/components/brand';
 import { SITE } from '@/content/site.config';
 import { Countdown } from './Countdown';
 
@@ -47,7 +47,7 @@ export function Hero({ mode = 'PRE', liveStreamUrl }: HeroProps) {
         <p className="eyebrow" data-testid="hero-eyebrow">
           {eyebrow}
         </p>
-        <Monogram />
+        {/* <Monogram /> */}
         <h1>
           {firstNameA} <em>&amp;</em> {firstNameB}
         </h1>

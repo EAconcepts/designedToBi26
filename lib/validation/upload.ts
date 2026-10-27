@@ -1,11 +1,5 @@
 import { z } from 'zod';
 
-export const UploadSignInput = z.object({
-  token: z.string().trim().optional(),
-});
-
-export type UploadSignInput = z.infer<typeof UploadSignInput>;
-
 export const UploadCompleteInput = z.object({
   publicId: z
     .string()

@@ -153,7 +153,6 @@ export async function POST(request: NextRequest): Promise<Response> {
         guestId: guest.id,
         status: evalResult.status,
         source: 'WEB',
-        songRequest: input.songRequest,
         message: input.message,
         attendees: evalResult.sanitizedAttendees,
         eventSlugToId,
@@ -174,7 +173,6 @@ export async function POST(request: NextRequest): Promise<Response> {
           startsAt: i.event.startsAt,
           timeTbc: i.event.timeTbc,
         })),
-        songRequest: input.songRequest,
         message: input.message,
       });
     }
@@ -185,7 +183,6 @@ export async function POST(request: NextRequest): Promise<Response> {
         guestName: guest.displayName,
         status: evalResult.status,
         attendees: evalResult.sanitizedAttendees,
-        songRequest: input.songRequest,
         message: input.message,
       }).catch((err) => {
         console.error('[RSVP NOTIFICATION ASYNC ERROR]:', err);

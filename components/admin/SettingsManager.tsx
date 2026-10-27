@@ -5,13 +5,12 @@ import type { SiteMode, Setting } from '@prisma/client';
 import { ModeToggle } from './ModeToggle';
 import { UploadWindowPanel } from './UploadWindowPanel';
 
-export type SettingsWithQr = Setting & {
+export type SettingsWithUploadLink = Setting & {
   uploadUrl: string | null;
-  uploadQrSvg: string | null;
 };
 
 export function SettingsManager() {
-  const [settings, setSettings] = useState<SettingsWithQr | null>(null);
+  const [settings, setSettings] = useState<SettingsWithUploadLink | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [rsvpDate, setRsvpDate] = useState<string>('');
@@ -80,31 +79,6 @@ export function SettingsManager() {
     }
   };
 
-  const handleRotateToken = async () => {
-    try {
-      const res = await fetch('/api/admin/settings/upload-token', {
-        method: 'POST',
-      });
-
-      if (res.ok) {
-        const json = await res.json();
-        setSettings((prev) =>
-          prev
-            ? {
-                ...prev,
-                uploadToken: json.data.token,
-                uploadUrl: json.data.uploadUrl,
-                uploadQrSvg: json.data.qrSvg,
-              }
-            : null,
-        );
-        showToast('Upload token rotated successfully. Previous QR codes are now inactive.');
-      }
-    } catch {
-      showToast('Failed to rotate upload token.');
-    }
-  };
-
   if (isLoading || !settings) {
     return <div className="py-20 text-center text-ink-500 text-sm">Loading settings...</div>;
   }
@@ -140,7 +114,7 @@ export function SettingsManager() {
       />
 
       {/* 2. RSVP Deadline & Live Stream Settings */}
-      <div className="p-6 rounded-3xl bg-white border border-ink-100 shadow-xs space-y-6">
+      <div className="min-w-0 p-6 rounded-3xl bg-white border border-ink-100 shadow-xs space-y-6">
         <div>
           <h2 className="text-lg font-serif font-bold text-magenta-950">
             RSVP & Ceremony Broadcast
@@ -150,7 +124,7 @@ export function SettingsManager() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Deadline field */}
           <div className="space-y-2">
             <label
@@ -159,18 +133,18 @@ export function SettingsManager() {
             >
               RSVP Deadline Date (WAT):
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
               <input
                 id="rsvp-deadline-input"
                 type="date"
                 value={rsvpDate}
                 onChange={(e) => setRsvpDate(e.target.value)}
-                className="flex-1 text-xs px-3 py-2 rounded-xl border border-ink-200 bg-ivory-50/50 text-ink-900"
+                className="w-full min-w-0 flex-1 text-xs px-3 py-2 rounded-xl border border-ink-200 bg-ivory-50/50 text-ink-900"
               />
               <button
                 type="button"
                 onClick={() => handleUpdate({ rsvpDeadline: rsvpDate || null })}
-                className="min-h-[40px] px-4 py-2 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold transition-colors cursor-pointer"
+                className="min-h-[40px] w-full px-4 py-2 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold transition-colors cursor-pointer lg:w-auto"
               >
                 Save
               </button>
@@ -185,19 +159,19 @@ export function SettingsManager() {
             <label htmlFor="live-stream-input" className="block text-xs font-semibold text-ink-800">
               Live Stream Broadcast URL (HTTPS):
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
               <input
                 id="live-stream-input"
                 type="url"
                 placeholder="https://youtube.com/live/..."
                 value={liveStream}
                 onChange={(e) => setLiveStream(e.target.value)}
-                className="flex-1 text-xs px-3 py-2 rounded-xl border border-ink-200 bg-ivory-50/50 text-ink-900 placeholder:text-ink-400"
+                className="w-full min-w-0 flex-1 text-xs px-3 py-2 rounded-xl border border-ink-200 bg-ivory-50/50 text-ink-900 placeholder:text-ink-400"
               />
               <button
                 type="button"
                 onClick={() => handleUpdate({ liveStreamUrl: liveStream.trim() || null })}
-                className="min-h-[40px] px-4 py-2 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold transition-colors cursor-pointer"
+                className="min-h-[40px] w-full px-4 py-2 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold transition-colors cursor-pointer lg:w-auto"
               >
                 Save
               </button>
@@ -209,18 +183,16 @@ export function SettingsManager() {
         </div>
       </div>
 
-      {/* 3. Upload Window & Table QR Panel */}
+      {/* 3. Guest Photo Upload Window */}
       <UploadWindowPanel
         uploadsOpen={settings.uploadsOpen}
         uploadsCloseAt={
           settings.uploadsCloseAt ? new Date(settings.uploadsCloseAt).toISOString() : null
         }
         uploadUrl={settings.uploadUrl}
-        uploadQrSvg={settings.uploadQrSvg}
         onUpdateWindow={async (updates) => {
           await handleUpdate(updates);
         }}
-        onRotateToken={handleRotateToken}
       />
     </div>
   );

@@ -10,7 +10,7 @@ export const SITE: SiteConfig = {
   timezone: 'Africa/Lagos',
   colours: ['White', 'Gold', 'Magenta'],
   colourGuidance:
-    'TODO(content): Guests are warmly invited to celebrate with us in White, Gold, or Magenta formal attire.',
+    'Guests are warmly invited to celebrate with us in White, Gold, or Magenta formal attire.',
 
   // Copy the families' wording verbatim from the printed invitation.
   invitationText: {
@@ -67,8 +67,8 @@ export const SITE: SiteConfig = {
 
   gift: {
     minAmountMinor: 100_000, // ₦1,000 in kobo
-    maxAmountMinor: 50_000_000, // ₦500,000 in kobo
-    presetAmountsMinor: [500_000, 1_000_000, 2_000_000, 5_000_000],
+    maxAmountMinor: 1_000_000_000, // ₦10,000,000 in kobo
+    presetAmountsMinor: [1_000_000, 2_000_000, 5_000_000, 10_000_000],
   },
 
   hero: {
@@ -81,12 +81,12 @@ export const SITE: SiteConfig = {
     {
       title: 'How We Met',
       dateLabel: 'The Beginning',
-      body: 'TODO(content): Our journey began with a serendipitous meeting that turned into a lifelong friendship.',
+      body: 'Our journey began with a serendipitous meeting that turned into a lifelong friendship.',
     },
     {
       title: 'The Proposal',
       dateLabel: 'She Said Yes',
-      body: 'TODO(content): Surrounded by close family and love, we decided on forever together.',
+      body: 'Surrounded by close family and love, we decided on forever together.',
     },
   ],
 
@@ -103,7 +103,7 @@ export const SITE: SiteConfig = {
 
   thankYou: {
     headline: 'Thank You for Celebrating With Us',
-    body: 'TODO(content): Your love, presence, and prayers made our day truly unforgettable.',
+    body: 'Your love, presence, and prayers made our day truly unforgettable.',
   },
 
   home: {
@@ -143,7 +143,7 @@ export const SITE: SiteConfig = {
 
   brand: {
     logo: {
-      src: '/brand/logo-placeholder.svg',
+      src: '/brand/icon.png',
       kind: 'svg',
       width: 240,
       height: 240,

@@ -15,7 +15,6 @@ describe('guest session response schema', () => {
             status: 'ATTENDING',
             respondedAt: '2026-10-06T10:00:00.000Z',
             attendees: [{ name: 'Ayo', events: ['solemnization'], meal: null, dietary: null }],
-            songRequest: null,
             message: null,
           },
         },
