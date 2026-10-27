@@ -477,8 +477,8 @@ export function RsvpContacts() {
               lineHeight: '1.6',
             }}
           >
-            Please let us know your attendance status, household details, and song requests so we
-            can plan your place at the table.
+            Please let us know your attendance status and household details so we can plan your
+            place at the table.
           </p>
           <Link href="/rsvp" className="button button--magenta" style={{ width: '100%' }}>
             Complete RSVP form <ArrowIcon />

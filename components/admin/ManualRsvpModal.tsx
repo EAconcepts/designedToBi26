@@ -13,7 +13,6 @@ export function ManualRsvpModal({ guest, onClose, onSuccess }: ManualRsvpModalPr
   const [source, setSource] = useState<'PHONE' | 'WHATSAPP'>('PHONE');
   const [declined, setDeclined] = useState(guest?.status === 'DECLINED');
   const [allowDeadlineOverride, setAllowDeadlineOverride] = useState(true);
-  const [songRequest, setSongRequest] = useState(guest?.songRequest || '');
   const [message, setMessage] = useState(guest?.message || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +88,6 @@ export function ManualRsvpModal({ guest, onClose, onSuccess }: ManualRsvpModalPr
               meal: a.meal?.trim() || null,
               dietary: a.dietary?.trim() || null,
             })),
-        songRequest: songRequest.trim() || null,
         message: message.trim() || null,
       };
 
@@ -244,16 +242,6 @@ export function ManualRsvpModal({ guest, onClose, onSuccess }: ManualRsvpModalPr
           )}
 
           <div className="space-y-2 pt-2 border-t">
-            <div>
-              <label className="block text-xs font-semibold mb-1">Song Request</label>
-              <input
-                type="text"
-                placeholder="Optional song title & artist"
-                value={songRequest}
-                onChange={(e) => setSongRequest(e.target.value)}
-                className="w-full rounded border border-ink-300 p-2 text-sm"
-              />
-            </div>
             <div>
               <label className="block text-xs font-semibold mb-1">Message to Couple</label>
               <textarea

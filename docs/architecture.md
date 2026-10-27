@@ -125,7 +125,7 @@ A **gold-foil stationery suite brought to life**. The site should feel like rece
 | F5  | Venue and directions           | Map, deep links (Google Maps, Waze, Uber, Bolt), landmarks, travel and accommodation notes for out-of-town guests                |
 | F6  | Gallery                        | Albums: Pre-wedding, Wedding Day, Guest Moments. Lightbox, download, locked states                                               |
 | F7  | Guest uploads                  | QR → /upload → moderated into "Guest Moments"                                                                                    |
-| F8  | RSVP                           | Per person, per event; meal and dietary per person; song request; private message to couple                                      |
+| F8  | RSVP                           | Per person, per event; meal and dietary per person; private message to couple                                                    |
 | F9  | Phone/WhatsApp RSVP path       | RSVP contacts with `wa.me` buttons; admin manual entry                                                                           |
 | F10 | Gifting and donations          | Bank details with copy, Paystack payments, funds, receipts                                                                       |
 | F11 | Dress code / colour of the day | White, Gold, Magenta swatches and guidance                                                                                       |
@@ -465,7 +465,6 @@ model Rsvp {                                     // one household response
   guestId     String     @unique
   status      RsvpStatus @default(PENDING)
   source      RsvpSource @default(WEB)
-  songRequest String?
   message     String?                             // private to the couple
   respondedAt DateTime?
   updatedAt   DateTime   @updatedAt
@@ -677,7 +676,6 @@ export const RsvpInput = z.object({
     )
     .max(10)
     .default([]),
-  songRequest: z.string().max(120).optional(),
   message: z.string().max(600).optional(),
 });
 ```

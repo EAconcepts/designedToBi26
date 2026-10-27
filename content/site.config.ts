@@ -143,7 +143,7 @@ export const SITE: SiteConfig = {
 
   brand: {
     logo: {
-      src: '/brand/logo-placeholder.svg',
+      src: '/brand/icon.png',
       kind: 'svg',
       width: 240,
       height: 240,

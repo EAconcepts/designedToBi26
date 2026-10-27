@@ -44,7 +44,6 @@ export async function GET(request: NextRequest): Promise<Response> {
       'attendees',
       'meal',
       'dietary',
-      'songRequest',
       'message',
       'respondedAt',
     ];
@@ -76,7 +75,6 @@ export async function GET(request: NextRequest): Promise<Response> {
         attendees: attendeesList,
         meal: meals,
         dietary: dietaries,
-        songRequest: rsvp?.songRequest ?? '',
         message: rsvp?.message ?? '',
         respondedAt: rsvp?.respondedAt?.toISOString() ?? '',
       };

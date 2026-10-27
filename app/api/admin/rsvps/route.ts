@@ -101,7 +101,6 @@ export async function GET(request: NextRequest): Promise<Response> {
         headcountByEvent,
         respondedAt: rsvp?.respondedAt?.toISOString() ?? null,
         attendees,
-        songRequest: rsvp?.songRequest ?? null,
         message: rsvp?.message ?? null,
       };
     });

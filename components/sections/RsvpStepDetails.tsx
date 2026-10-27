@@ -5,33 +5,15 @@ interface RsvpStepDetailsProps {
 }
 
 export function RsvpStepDetails({ form }: RsvpStepDetailsProps) {
-  const { declined, message, setMessage, songRequest, setSongRequest } = form;
+  const { declined, message, setMessage } = form;
 
   return (
     <fieldset className="form-step-fieldset">
       <legend className="form-step-legend">
         <span className="section-kicker section-kicker--gold">Step 3 of 4</span>
         <h2>A note for the couple</h2>
-        <p>Share your wishes, a special song, or notes for our planning team.</p>
+        <p>Share your wishes or notes for our planning team.</p>
       </legend>
-
-      {!declined && (
-        <div className="form-field">
-          <label htmlFor="song-request">
-            Dance-floor song request
-            <span className="field-hint">A track that is guaranteed to get you moving</span>
-          </label>
-          <input
-            id="song-request"
-            type="text"
-            className="input"
-            placeholder="e.g. Sweet Mother - Prince Nico Mbarga"
-            value={songRequest}
-            onChange={(e) => setSongRequest(e.target.value)}
-            maxLength={120}
-          />
-        </div>
-      )}
 
       <div className="form-field">
         <label htmlFor="couple-message">

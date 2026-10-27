@@ -99,7 +99,6 @@ describe('Admin RSVPs API Integration', () => {
           { name: 'Person 1', events: [event1.slug] },
           { name: 'Person 2', events: [event1.slug] },
         ],
-        songRequest: 'Sweet Mother',
         message: 'Phone confirmation received from guest.',
       }),
     });

@@ -96,26 +96,18 @@ describe('RSVP submission schema', () => {
     expect(parsed.success).toBe(false);
   });
 
-  it('trims and bounds songRequest and message', () => {
+  it('trims and bounds message', () => {
     const parsed = RsvpInput.safeParse({
-      songRequest: '  Sweet Mother - Prince Nico Mbarga  ',
       message: '  Congratulations to the couple!  ',
     });
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data.songRequest).toBe('Sweet Mother - Prince Nico Mbarga');
       expect(parsed.data.message).toBe('Congratulations to the couple!');
     }
 
     expect(
       RsvpInput.safeParse({
-        songRequest: 'S'.repeat(121),
-      }).success,
-    ).toBe(false);
-
-    expect(
-      RsvpInput.safeParse({
-        message: 'M'.repeat(601),
+        message: 'S'.repeat(601),
       }).success,
     ).toBe(false);
   });

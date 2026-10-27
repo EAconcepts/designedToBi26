@@ -5,7 +5,7 @@ interface RsvpStepReviewProps {
 }
 
 export function RsvpStepReview({ form }: RsvpStepReviewProps) {
-  const { attendees, declined, message, songRequest } = form;
+  const { attendees, declined, message } = form;
 
   return (
     <fieldset className="form-step-fieldset">
@@ -38,13 +38,6 @@ export function RsvpStepReview({ form }: RsvpStepReviewProps) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {songRequest && (
-          <div className="review-summary__item">
-            <span className="review-label">Song Request:</span>
-            <span className="review-value">{songRequest}</span>
           </div>
         )}
 

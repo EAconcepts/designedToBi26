@@ -151,7 +151,7 @@ export function RsvpStepAttendees({ form }: RsvpStepAttendeesProps) {
 
           {attendees.length < maxPartySize && (
             <button type="button" className="button rsvp-add-attendee" onClick={handleAddAttendee}>
-              / + Add companion
+              + Add companion
             </button>
           )}
         </div>

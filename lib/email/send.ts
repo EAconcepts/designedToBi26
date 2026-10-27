@@ -29,7 +29,6 @@ export interface SendRsvpConfirmationParams {
     timeTbc: boolean;
   }>;
   venueName?: string;
-  songRequest?: string | null;
   message?: string | null;
 }
 
@@ -57,7 +56,6 @@ export async function sendRsvpConfirmationEmail(
       status: params.status,
       attendees: params.attendees,
       events: formattedEvents,
-      songRequest: params.songRequest,
       message: params.message,
       calendarUrl,
       manageRsvpUrl,
@@ -85,7 +83,6 @@ export interface SendRsvpNotificationParams {
     meal?: string | null;
     dietary?: string | null;
   }>;
-  songRequest?: string | null;
   message?: string | null;
 }
 
@@ -104,7 +101,6 @@ export async function sendRsvpNotificationEmail(
       guestName: params.guestName,
       status: params.status,
       attendees: params.attendees,
-      songRequest: params.songRequest,
       message: params.message,
       adminUrl,
     } as RsvpNotificationEmailProps);

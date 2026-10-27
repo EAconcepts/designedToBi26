@@ -134,6 +134,5 @@ export interface RsvpListRow {
     meal: string | null;
     dietary: string | null;
   }>;
-  songRequest: string | null;
   message: string | null;
 }

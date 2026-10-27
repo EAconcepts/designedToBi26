@@ -91,7 +91,6 @@ export async function PUT(
         guestId: guest.id,
         status: finalStatus,
         source: input.source,
-        songRequest: input.songRequest ?? null,
         message: input.message ?? null,
         attendees: input.declined ? [] : input.attendees,
         eventSlugToId,

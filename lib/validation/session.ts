@@ -20,7 +20,6 @@ export const GuestSessionSchema = z
             dietary: z.string().nullable(),
           }),
         ),
-        songRequest: z.string().nullable(),
         message: z.string().nullable(),
       })
       .nullable(),

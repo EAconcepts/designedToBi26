@@ -112,7 +112,6 @@ model Rsvp {
   guestId     String         @unique
   status      RsvpStatus     @default(PENDING)
   source      RsvpSource     @default(WEB)
-  songRequest String?
   message     String? // private to the couple
   respondedAt DateTime?
   updatedAt   DateTime       @updatedAt

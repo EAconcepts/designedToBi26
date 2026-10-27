@@ -42,7 +42,6 @@ describe('Email Templates & Client Unit Tests', () => {
           venueName: 'Methodist Church, Olorunsogo-GeriAlimi',
         },
       ],
-      songRequest: 'Buga by Kizz Daniel',
       message: 'Congratulations to the beautiful couple!',
       calendarUrl: 'https://example.com/#schedule',
       manageRsvpUrl: 'https://example.com/rsvp',
@@ -56,7 +55,6 @@ describe('Email Templates & Client Unit Tests', () => {
       expect(html).toContain('Saturday, 19 December 2026');
       expect(html).toContain('11:00 WAT');
       expect(html).toContain('Deji Adeleke');
-      expect(html).toContain('Buga by Kizz Daniel');
       expect(html).toContain('Congratulations to the beautiful couple!');
       expect(html).toContain('#designedToBi');
       // Must not contain raw undefined
@@ -93,7 +91,6 @@ describe('Email Templates & Client Unit Tests', () => {
           events: ['solemnization', 'reception'],
         },
       ],
-      songRequest: 'Sweet Mother',
       message: 'Can’t wait!',
       adminUrl: 'https://example.com/admin/rsvps',
     };
@@ -103,7 +100,7 @@ describe('Email Templates & Client Unit Tests', () => {
 
       expect(html).toContain('Chief Babatunde');
       expect(html).toContain('ATTENDING');
-      expect(html).toContain('Sweet Mother');
+      expect(html).toContain('Can’t wait!');
       expect(html).toContain('https://example.com/admin/rsvps');
       expect(html).not.toContain('undefined');
     });

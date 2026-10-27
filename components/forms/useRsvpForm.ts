@@ -27,7 +27,6 @@ export interface RsvpFormApi {
   responderEmail: string;
   responderPhone: string;
   startFresh: boolean;
-  songRequest: string;
   message: string;
   honeypot: string;
 
@@ -45,7 +44,6 @@ export interface RsvpFormApi {
   setDeclined: Dispatch<SetStateAction<boolean>>;
   setResponderEmail: Dispatch<SetStateAction<string>>;
   setResponderPhone: Dispatch<SetStateAction<string>>;
-  setSongRequest: Dispatch<SetStateAction<string>>;
   setMessage: Dispatch<SetStateAction<string>>;
   setHoneypot: Dispatch<SetStateAction<string>>;
   handleResponderNameChange: (name: string) => void;
@@ -89,7 +87,6 @@ export function useRsvpForm(session: GuestSession | null): RsvpFormApi {
   const [responderEmail, setResponderEmail] = useState('');
   const [responderPhone, setResponderPhone] = useState('');
   const [startFresh, setStartFresh] = useState(false);
-  const [songRequest, setSongRequest] = useState(existingRsvp?.songRequest ?? '');
   const [message, setMessage] = useState(existingRsvp?.message ?? '');
   const [honeypot, setHoneypot] = useState('');
 
@@ -126,7 +123,6 @@ export function useRsvpForm(session: GuestSession | null): RsvpFormApi {
     setResponderPhone('');
     setDeclined(false);
     setAttendees([{ name: '', events: [...eventSlugs] }]);
-    setSongRequest('');
     setMessage('');
     setStep(1);
     setGeneralError(null);
@@ -259,7 +255,6 @@ export function useRsvpForm(session: GuestSession | null): RsvpFormApi {
             meal: att.meal?.trim() || undefined,
             dietary: att.dietary?.trim() || undefined,
           })),
-      songRequest: songRequest.trim() || undefined,
       message: message.trim() || undefined,
     };
 
@@ -321,7 +316,6 @@ export function useRsvpForm(session: GuestSession | null): RsvpFormApi {
     responderEmail,
     responderPhone,
     startFresh,
-    songRequest,
     message,
     honeypot,
     isSubmitting,
@@ -333,7 +327,6 @@ export function useRsvpForm(session: GuestSession | null): RsvpFormApi {
     setDeclined,
     setResponderEmail,
     setResponderPhone,
-    setSongRequest,
     setMessage,
     setHoneypot,
     handleResponderNameChange,
