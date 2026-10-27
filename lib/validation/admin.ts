@@ -135,4 +135,5 @@ export interface RsvpListRow {
     dietary: string | null;
   }>;
   message: string | null;
+  invitations: Array<{ slug: string; title: string }>;
 }

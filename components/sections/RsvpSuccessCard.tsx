@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { SITE } from '@/content/site.config';
 import type { RsvpFormApi } from '@/components/forms/useRsvpForm';
+import Image from 'next/image';
 
 interface RsvpSuccessCardProps {
   form: RsvpFormApi;
@@ -10,8 +11,9 @@ export function RsvpSuccessCard({ form }: RsvpSuccessCardProps) {
   const { attendees, completedStatus, handleEditResponse } = form;
 
   return (
-    <div className="form-success paper-card" role="region" aria-label="RSVP Confirmation">
-      <div className="locked-seal">AE</div>
+    <div className="form-success paper-card !px-2" role="region" aria-label="RSVP Confirmation">
+      <Image src={SITE.brand.logo.src} alt="Couple Logo" width={46} height={46} />
+
       <p className="section-kicker section-kicker--gold">Response Received</p>
       <h2 className="form-success__title">
         {completedStatus === 'ATTENDING'

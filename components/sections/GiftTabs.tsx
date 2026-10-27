@@ -61,7 +61,7 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
   const [customAmountText, setCustomAmountText] = useState(
     (SITE.gift.presetAmountsMinor[1]
       ? SITE.gift.presetAmountsMinor[1] / 100
-      : 10000
+      : 100000
     ).toLocaleString('en-NG'),
   );
   const [giverName, setGiverName] = useState('');

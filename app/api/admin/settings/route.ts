@@ -1,5 +1,4 @@
 import { type NextRequest } from 'next/server';
-import QRCode from 'qrcode';
 import { handle, ok, fail } from '@/lib/api';
 import { requireAdmin } from '@/lib/admin';
 import { prisma } from '@/lib/db';
@@ -21,20 +20,9 @@ export async function GET(req: NextRequest) {
     const siteUrl = env.public.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const uploadUrl = `${siteUrl}/upload`;
 
-    // QR always rendered: tokenless link, gated only by the open/closed window
-    const uploadQrSvg = await QRCode.toString(uploadUrl, {
-      type: 'svg',
-      margin: 2,
-      color: {
-        dark: '#3D0026', // magenta-950
-        light: '#FFFFFA', // ivory-100
-      },
-    });
-
     return ok({
       ...setting,
       uploadUrl,
-      uploadQrSvg,
     });
   });
 }

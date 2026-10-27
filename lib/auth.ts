@@ -40,12 +40,17 @@ export const authConfig: NextAuthConfig = {
   },
   secret: env.server.AUTH_SECRET,
   trustHost: true,
+  pages: {
+    signIn: '/login',
+  },
   providers: [
     Resend({
       apiKey: env.server.RESEND_API_KEY,
       from: env.server.EMAIL_FROM,
       maxAge: 30 * 60, // 30 minutes magic link per spec
       async sendVerificationRequest({ identifier: to, url }) {
+        if (!isAllowedAdminEmail(to)) return;
+
         if (!env.isProd) {
           console.log('\n======================================================');
           console.log(`🔑 ADMIN MAGIC LINK for ${to}:`);

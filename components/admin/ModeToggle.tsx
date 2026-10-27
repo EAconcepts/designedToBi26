@@ -113,36 +113,38 @@ export function ModeToggle({ currentMode, onModeChange, disabled = false }: Mode
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+          aria-labelledby="mode-switch-title"
+          aria-describedby="mode-switch-description"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-xs sm:p-4"
         >
-          <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl border border-gold-500/30">
+          <div className="my-auto w-full min-w-0 max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto rounded-3xl border border-gold-500/30 bg-white p-5 shadow-2xl space-y-5 sm:max-h-[calc(100dvh-2rem)] sm:p-8 sm:space-y-6">
             <div className="space-y-2">
               <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-magenta-100 text-magenta-900">
                 Mode Switch Confirmation
               </span>
-              <h3 className="text-xl font-serif font-bold text-magenta-950">
+              <h3 id="mode-switch-title" className="text-xl font-serif font-bold text-magenta-950">
                 Switch site to {selectedMode} mode?
               </h3>
-              <p className="text-xs text-ink-600">
+              <p id="mode-switch-description" className="text-xs text-ink-600">
                 {MODE_DESCRIPTIONS[selectedMode].subtitle} Here is what will update immediately:
               </p>
             </div>
 
-            <ul className="space-y-2 text-xs text-ink-700 bg-ivory-100/70 p-4 rounded-2xl border border-ink-100">
+            <ul className="min-w-0 space-y-2 text-xs text-ink-700 bg-ivory-100/70 p-4 rounded-2xl border border-ink-100">
               {MODE_DESCRIPTIONS[selectedMode].consequences.map((c, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <span className="text-magenta-800 font-bold">✓</span>
-                  <span>{c}</span>
+                  <span className="shrink-0 text-magenta-800 font-bold">✓</span>
+                  <span className="min-w-0 break-words">{c}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:pt-2">
               <button
                 type="button"
                 onClick={() => setSelectedMode(null)}
                 disabled={isUpdating}
-                className="min-h-[44px] px-4 py-2 rounded-xl border border-ink-200 text-xs font-semibold text-ink-700 hover:bg-ivory-100 transition-colors cursor-pointer"
+                className="min-h-[44px] w-full px-4 py-2 rounded-xl border border-ink-200 text-xs font-semibold text-ink-700 hover:bg-ivory-100 transition-colors cursor-pointer sm:w-auto"
               >
                 Cancel
               </button>
@@ -150,7 +152,7 @@ export function ModeToggle({ currentMode, onModeChange, disabled = false }: Mode
                 type="button"
                 onClick={handleConfirm}
                 disabled={isUpdating}
-                className="min-h-[44px] px-6 py-2 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                className="min-h-[44px] w-full px-6 py-2 rounded-xl bg-magenta-900 hover:bg-magenta-950 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer disabled:opacity-50 sm:w-auto"
               >
                 {isUpdating ? 'Updating Site...' : 'Confirm & Switch Mode'}
               </button>

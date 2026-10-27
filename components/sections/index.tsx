@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Monogram } from '@/components/brand';
 import { SITE } from '@/content/site.config';
 import { Greeting } from './Greeting';
+import Image from 'next/image';
 
 export { Hero } from './Hero';
 export { Countdown } from './Countdown';
@@ -15,13 +16,6 @@ function ArrowIcon() {
     </svg>
   );
 }
-
-// const photos = {
-//   storyOne:
-//     'https://images.unsplash.com/photo-1733319619122-b488fc1f1be0?auto=format&fit=crop&w=1200&q=85',
-//   storyTwo:
-//     'https://images.unsplash.com/photo-1733319619127-d7e1be53c806?auto=format&fit=crop&w=1200&q=85',
-// };
 
 const photos = {
   storyOne: '/img-6.jpg',
@@ -458,8 +452,15 @@ export function RsvpContacts() {
             boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
           }}
         >
-          <Monogram compact />
+          <Image
+            src={SITE.brand.logo.src}
+            alt="Couple Logo"
+            width={100}
+            height={100}
+            className="mx-auto"
+          />
           <h3
+            className="text-magenta-800"
             style={{
               fontFamily: 'Cormorant Garamond, serif',
               fontSize: '28px',

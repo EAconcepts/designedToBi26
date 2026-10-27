@@ -169,7 +169,7 @@ export function ModerationQueue() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 items-start sm:items-end">
+        <div className="flex flex-col gap-3 items-stretch sm:items-end">
           <button
             type="button"
             onClick={() => setShowUpload((open) => !open)}
@@ -180,7 +180,7 @@ export function ModerationQueue() {
           </button>
 
           {/* Status Filter Tabs (Touch Targets ≥ 44px) */}
-          <div className="flex p-1 rounded-2xl bg-ivory-200 border border-ink-100 self-start sm:self-auto">
+          <div className="grid w-full grid-cols-3 p-1 rounded-2xl bg-ivory-200 border border-ink-100 sm:flex sm:w-auto">
             <button
               type="button"
               onClick={() => {
@@ -188,7 +188,7 @@ export function ModerationQueue() {
                 setSelectedIds(new Set());
                 setPage(1);
               }}
-              className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[44px] min-w-0 justify-center px-2 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 sm:px-4 sm:justify-start cursor-pointer ${
                 statusTab === 'PENDING'
                   ? 'bg-magenta-900 text-white shadow-xs'
                   : 'text-ink-700 hover:text-ink-900'
@@ -196,7 +196,7 @@ export function ModerationQueue() {
             >
               <span>Pending</span>
               <span
-                className={`px-2 py-0.5 rounded-full text-[10px] ${statusTab === 'PENDING' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+                className={`px-1.5 py-0.5 rounded-full text-[10px] sm:px-2 ${statusTab === 'PENDING' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
               >
                 {counts.pending}
               </span>
@@ -209,7 +209,7 @@ export function ModerationQueue() {
                 setSelectedIds(new Set());
                 setPage(1);
               }}
-              className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[44px] min-w-0 justify-center px-2 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 sm:px-4 sm:justify-start cursor-pointer ${
                 statusTab === 'APPROVED'
                   ? 'bg-magenta-900 text-white shadow-xs'
                   : 'text-ink-700 hover:text-ink-900'
@@ -217,7 +217,7 @@ export function ModerationQueue() {
             >
               <span>Approved</span>
               <span
-                className={`px-2 py-0.5 rounded-full text-[10px] ${statusTab === 'APPROVED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+                className={`px-1.5 py-0.5 rounded-full text-[10px] sm:px-2 ${statusTab === 'APPROVED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
               >
                 {counts.approved}
               </span>
@@ -230,7 +230,7 @@ export function ModerationQueue() {
                 setSelectedIds(new Set());
                 setPage(1);
               }}
-              className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[44px] min-w-0 justify-center px-2 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1 sm:px-4 sm:justify-start cursor-pointer ${
                 statusTab === 'REJECTED'
                   ? 'bg-magenta-900 text-white shadow-xs'
                   : 'text-ink-700 hover:text-ink-900'
@@ -238,7 +238,7 @@ export function ModerationQueue() {
             >
               <span>Rejected</span>
               <span
-                className={`px-2 py-0.5 rounded-full text-[10px] ${statusTab === 'REJECTED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
+                className={`px-1.5 py-0.5 rounded-full text-[10px] sm:px-2 ${statusTab === 'REJECTED' ? 'bg-magenta-800 text-white' : 'bg-ivory-300 text-ink-600'}`}
               >
                 {counts.rejected}
               </span>

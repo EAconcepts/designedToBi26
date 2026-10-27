@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { RsvpListRow } from '@/lib/validation/admin';
+import { GuestModal, type GuestData } from './GuestModal';
 import { ManualRsvpModal } from './ManualRsvpModal';
 
 export function RsvpsManager() {
@@ -11,16 +12,20 @@ export function RsvpsManager() {
 
   // Filters
   const [search, setSearch] = useState('');
+  const [sideFilter, setSideFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [nonRespondersOnly, setNonRespondersOnly] = useState(false);
 
-  // Modal
+  // Modals
   const [activeGuest, setActiveGuest] = useState<RsvpListRow | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingGuest, setEditingGuest] = useState<GuestData | null>(null);
 
   const fetchRsvps = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (search.trim()) params.set('q', search.trim());
+      if (sideFilter) params.set('side', sideFilter);
       if (statusFilter) params.set('status', statusFilter);
       if (nonRespondersOnly) params.set('nonResponders', 'true');
 
@@ -36,7 +41,7 @@ export function RsvpsManager() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, nonRespondersOnly]);
+  }, [search, sideFilter, statusFilter, nonRespondersOnly]);
 
   useEffect(() => {
     let ignore = false;
@@ -44,6 +49,7 @@ export function RsvpsManager() {
       try {
         const params = new URLSearchParams();
         if (search.trim()) params.set('q', search.trim());
+        if (sideFilter) params.set('side', sideFilter);
         if (statusFilter) params.set('status', statusFilter);
         if (nonRespondersOnly) params.set('nonResponders', 'true');
 
@@ -69,7 +75,7 @@ export function RsvpsManager() {
     return () => {
       ignore = true;
     };
-  }, [search, statusFilter, nonRespondersOnly]);
+  }, [search, sideFilter, statusFilter, nonRespondersOnly]);
 
   // Derived stats
   const totalGuests = rows.length;
@@ -78,8 +84,37 @@ export function RsvpsManager() {
   const declinedCount = rows.filter((r) => r.status === 'DECLINED').length;
   const pendingCount = rows.filter((r) => r.status === 'PENDING').length;
 
+  const openGuestModal = (row: RsvpListRow | null) => {
+    setEditingGuest(
+      row
+        ? {
+            id: row.guestId,
+            displayName: row.guestName,
+            email: row.email,
+            phone: row.phone,
+            side: row.side,
+            maxPartySize: row.maxPartySize,
+            events: row.invitations,
+          }
+        : null,
+    );
+    setModalOpen(true);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-serif font-bold text-magenta-900">
+            Guest Directory &amp; RSVPs
+          </h1>
+          <p className="text-sm text-ink-600">
+            Manage guest contacts, party sizes, and RSVP responses in one place.
+          </p>
+        </div>
+      </div>
+
       {/* Stats Summary Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="rounded-lg border border-ink-100 bg-white p-4 shadow-sm">
@@ -119,6 +154,17 @@ export function RsvpsManager() {
           />
 
           <select
+            value={sideFilter}
+            onChange={(e) => setSideFilter(e.target.value)}
+            className="rounded-md border border-ink-300 px-3 py-2 text-sm bg-white focus:outline-gold-500"
+          >
+            <option value="">All Sides</option>
+            <option value="BOTH">Both</option>
+            <option value="PARTNER_A">Partner A (Bride)</option>
+            <option value="PARTNER_B">Partner B (Groom)</option>
+          </select>
+
+          <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             disabled={nonRespondersOnly}
@@ -142,6 +188,13 @@ export function RsvpsManager() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => openGuestModal(null)}
+            className="rounded-md !bg-magenta-700 bg-magenta-800 text-white px-3 py-2 text-sm font-semibold min-h-[44px]"
+          >
+            + Add Guest
+          </button>
           <a
             href="/api/admin/rsvps/export"
             download="rsvps-export.csv"
@@ -160,25 +213,26 @@ export function RsvpsManager() {
 
       {/* Content list */}
       {loading ? (
-        <div className="py-12 text-center text-sm text-ink-500">Loading RSVP responses...</div>
+        <div className="py-12 text-center text-sm text-ink-500">Loading guest directory...</div>
       ) : rows.length === 0 ? (
         <div className="py-12 text-center text-sm text-ink-500 bg-white rounded-lg border border-ink-100">
-          No RSVP records found matching your filters.
+          No guests found matching your filters.
         </div>
       ) : (
         <>
-          {/* Desktop Table View (>= 640px) */}
+          {/* Desktop Table View */}
           <div className="hidden sm:block overflow-x-auto rounded-lg border border-ink-100 bg-white shadow-sm">
             <table className="w-full text-left text-sm text-ink-800">
               <thead className="bg-neutral-50 text-xs uppercase tracking-wider text-ink-500 border-b">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Guest</th>
+                  <th className="px-4 py-3 font-semibold">Side</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Party / Seats</th>
                   <th className="px-4 py-3 font-semibold">Events</th>
                   <th className="px-4 py-3 font-semibold">Source</th>
                   <th className="px-4 py-3 font-semibold">Responded</th>
-                  <th className="px-4 py-3 font-semibold text-right">Action</th>
+                  <th className="px-4 py-3 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-100">
@@ -187,9 +241,10 @@ export function RsvpsManager() {
                     <td className="px-4 py-3.5">
                       <div className="font-semibold text-ink-900">{row.guestName}</div>
                       <div className="text-xs text-ink-500">
-                        {row.phone || row.email || row.side}
+                        {row.phone || row.email || 'No contact provided'}
                       </div>
                     </td>
+                    <td className="px-4 py-3.5 text-xs text-ink-600 capitalize">{row.side}</td>
                     <td className="px-4 py-3.5">
                       <StatusBadge status={row.status} />
                     </td>
@@ -215,13 +270,20 @@ export function RsvpsManager() {
                         ? new Date(row.respondedAt).toLocaleDateString('en-GB')
                         : '—'}
                     </td>
-                    <td className="px-4 py-3.5 text-right">
+                    <td className="px-4 py-3.5 text-right space-x-2">
                       <button
                         type="button"
                         onClick={() => setActiveGuest(row)}
-                        className="rounded px-3 py-1.5 text-xs font-medium text-magenta-800 hover:bg-magenta-50 border border-magenta-200"
+                        className="rounded px-2.5 py-1 text-xs border border-magenta-200 hover:bg-magenta-50 text-magenta-800"
                       >
-                        {row.status === 'PENDING' ? 'Log RSVP' : 'Edit'}
+                        {row.status === 'PENDING' ? 'Log RSVP' : 'Edit RSVP'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openGuestModal(row)}
+                        className="rounded px-2.5 py-1 text-xs border border-ink-300 hover:bg-neutral-50 text-ink-700"
+                      >
+                        Edit Guest
                       </button>
                     </td>
                   </tr>
@@ -240,7 +302,9 @@ export function RsvpsManager() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h3 className="font-semibold text-ink-900">{row.guestName}</h3>
-                    <p className="text-xs text-ink-500">{row.phone || row.email || row.side}</p>
+                    <p className="text-xs text-ink-500">
+                      {row.phone || row.email || 'No contact provided'}
+                    </p>
                   </div>
                   <StatusBadge status={row.status} />
                 </div>
@@ -250,6 +314,7 @@ export function RsvpsManager() {
                     <span className="font-medium text-ink-900">{row.headcount}</span> of{' '}
                     {row.maxPartySize} attending
                   </div>
+                  <div>Side: {row.side}</div>
                   <div>Source: {row.source || 'Pending'}</div>
                 </div>
 
@@ -259,19 +324,38 @@ export function RsvpsManager() {
                   </div>
                 )}
 
-                <div className="pt-2 border-t flex justify-end">
+                <div className="pt-2 border-t flex gap-2">
                   <button
                     type="button"
                     onClick={() => setActiveGuest(row)}
-                    className="w-full rounded-md border border-magenta-300 py-2.5 text-sm font-semibold text-magenta-800 hover:bg-magenta-50 min-h-[44px]"
+                    className="flex-1 rounded-md border border-magenta-300 py-2.5 text-sm font-semibold text-magenta-800 hover:bg-magenta-50 min-h-[44px]"
                   >
                     {row.status === 'PENDING' ? 'Log RSVP' : 'Edit RSVP'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openGuestModal(row)}
+                    className="flex-1 rounded-md border border-ink-300 py-2.5 text-sm font-semibold text-ink-700 hover:bg-neutral-50 min-h-[44px]"
+                  >
+                    Edit Guest
                   </button>
                 </div>
               </div>
             ))}
           </div>
         </>
+      )}
+
+      {/* Guest Modal (add/edit contacts) */}
+      {modalOpen && (
+        <GuestModal
+          guest={editingGuest}
+          onClose={() => {
+            setModalOpen(false);
+            setEditingGuest(null);
+          }}
+          onSuccess={fetchRsvps}
+        />
       )}
 
       {/* Manual RSVP Modal */}

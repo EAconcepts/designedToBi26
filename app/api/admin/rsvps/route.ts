@@ -66,6 +66,11 @@ export async function GET(request: NextRequest): Promise<Response> {
             },
           },
         },
+        invitations: {
+          include: {
+            event: { select: { slug: true, title: true } },
+          },
+        },
       },
     });
 
@@ -102,6 +107,10 @@ export async function GET(request: NextRequest): Promise<Response> {
         respondedAt: rsvp?.respondedAt?.toISOString() ?? null,
         attendees,
         message: rsvp?.message ?? null,
+        invitations: guest.invitations.map((i) => ({
+          slug: i.event.slug,
+          title: i.event.title,
+        })),
       };
     });
 

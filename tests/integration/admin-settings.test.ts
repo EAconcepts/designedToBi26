@@ -56,7 +56,7 @@ describe('Admin Settings & Mode Toggle Integration (Subphase 3.6)', () => {
     expect(resPatch.status).toBe(401);
   });
 
-  it('retrieves settings with upload URL and valid SVG QR code', async () => {
+  it('retrieves settings with the guest photo upload link', async () => {
     vi.spyOn(adminAuth, 'requireAdmin').mockResolvedValue({ email: 'admin@example.com' });
 
     const req = new NextRequest('http://localhost:3000/api/admin/settings');
@@ -67,7 +67,7 @@ describe('Admin Settings & Mode Toggle Integration (Subphase 3.6)', () => {
     expect(json.ok).toBe(true);
     expect(json.data.mode).toBe('PRE');
     expect(json.data.uploadUrl).toMatch(/\/upload$/);
-    expect(json.data.uploadQrSvg).toContain('<svg');
+    expect(json.data).not.toHaveProperty('uploadQrSvg');
   });
 
   it('updates site mode, rsvp deadline, and logs an AuditLog entry', async () => {

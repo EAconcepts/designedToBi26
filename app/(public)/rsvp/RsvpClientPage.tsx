@@ -3,6 +3,7 @@
 import { RsvpPrefillProvider, useRsvpPrefill } from '@/components/forms/RsvpPrefillProvider';
 import { RsvpForm } from '@/components/sections/RsvpForm';
 import { SITE } from '@/content/site.config';
+import Image from 'next/image';
 
 function RsvpPageContent() {
   const { guest, loading } = useRsvpPrefill();
@@ -19,7 +20,14 @@ function RsvpPageContent() {
             padding: '60px 24px',
           }}
         >
-          <div className="locked-seal">AE</div>
+          <Image
+            src={SITE.brand.logo.src}
+            alt="Couple Logo"
+            width={46}
+            height={46}
+            className="mx-auto"
+          />
+
           <p className="section-kicker section-kicker--gold">Preparing your invitation</p>
           <h2
             style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '32px', margin: '16px 0' }}

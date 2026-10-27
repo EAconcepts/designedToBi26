@@ -167,7 +167,7 @@ export function GiftComplete() {
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/"
-              className="w-full sm:w-auto px-6 py-3 rounded-lg bg-magenta-900 hover:bg-magenta-950 text-white font-serif font-bold text-sm transition-colors shadow-sm"
+              className="w-full sm:w-auto px-6 py-3 rounded-lg bg-magenta-900 hover:bg-magenta-950 !text-white font-serif font-bold text-sm transition-colors shadow-sm"
             >
               Return to Invitation
             </Link>

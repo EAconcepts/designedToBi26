@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/db';
 import { SITE } from '@/content/site.config';
 import { GiftTabs } from '@/components/sections/GiftTabs';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: `Wedding Gift Registry | ${SITE.couple.a} & ${SITE.couple.b}`,
@@ -42,7 +43,15 @@ export default async function GiftPage() {
     <div className="route-page">
       {/* Editorial Header */}
       <header className="inner-hero">
-        <div className="inner-hero__ornament">{SITE.couple.initials}</div>
+        <div className=" mb-2">
+          <Image
+            src={SITE.brand.logo.src}
+            alt="Couple Logo"
+            width={120}
+            height={120}
+            className="mx-auto"
+          />
+        </div>
         <p className="section-kicker section-kicker--gold">Your presence is our greatest gift</p>
         <h1>
           A gift, <em>with love</em>
