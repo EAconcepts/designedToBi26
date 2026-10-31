@@ -298,11 +298,11 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
         {currentTab === 'online' ? (
           <div role="tabpanel" id="panel-online" aria-labelledby="tab-online">
             <form onSubmit={handleOnlineSubmit}>
-              <p className="selected-fund">
+              <p className="selected-fund !border-b-0">
                 Your gift to <strong>{selectedFund?.title || 'Selected Fund'}</strong>
               </p>
 
-              <div className="amount-grid" role="group" aria-label="Gift amount presets">
+              {/* <div className="amount-grid" role="group" aria-label="Gift amount presets">
                 {SITE.gift.presetAmountsMinor.map((minor) => {
                   const naira = minor / 100;
                   const label = naira.toLocaleString('en-NG');
@@ -317,10 +317,10 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
                     </button>
                   );
                 })}
-              </div>
+              </div> */}
 
               <label className="gift-label" htmlFor="custom-amount-input">
-                Or enter an amount
+                Enter an amount
                 <div className="currency-input">
                   <span>₦</span>
                   <input

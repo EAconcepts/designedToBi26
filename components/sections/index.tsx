@@ -115,7 +115,7 @@ export function StoryTimeline() {
             <span>01</span>
           </div>
           <div className="story-text">
-            <time>March 2026</time>
+            {/* <time>March 2026</time> */}
             <h3>
               The hello
               <br />
@@ -129,13 +129,13 @@ export function StoryTimeline() {
         </article>
         <article className="story-moment story-moment--right">
           <div className="story-text">
-            <time>May 2026</time>
+            {/* <time>May 2026</time> */}
             <h3>
               A promise
               <br />
-              by the sea
+              by prophecy
             </h3>
-            <p>At golden hour, with the ocean keeping our secret, we chose forever.</p>
+            <p>At golden hour, with the witnesses cheering our decision, we choose forever.</p>
           </div>
           <div className="story-photo image-frame image-frame--tall">
             {/* eslint-disable-next-line @next/next/no-img-element */}
