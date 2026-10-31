@@ -21,7 +21,7 @@ export async function setup() {
     throw err;
   }
 
-  // 2. Ensure idempotent baseline seed is present (includes the deterministic e2e guest)
+  // 2. Ensure idempotent baseline seed is present
   await seed(prisma);
 }
 

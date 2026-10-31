@@ -5,6 +5,7 @@ import { POST as postCompleteRoute } from '@/app/api/upload/complete/route';
 import { prisma } from '@/lib/db';
 import * as cloudinary from '@/lib/cloudinary';
 import { signGuestId, GUEST_COOKIE_NAME } from '@/lib/guest-cookie';
+import { makeGuest } from '@/tests/factories';
 
 describe('Upload API Integration (Subphase 3.4)', () => {
   beforeEach(async () => {
@@ -258,11 +259,8 @@ describe('Upload API Integration (Subphase 3.4)', () => {
         },
       ]);
 
-      const e2eGuest = await prisma.guest.findFirst({
-        where: { displayName: 'E2E Deterministic Guest' },
-      });
-      expect(e2eGuest).not.toBeNull();
-      const cookieVal = signGuestId(e2eGuest!.id);
+      const guest = await makeGuest();
+      const cookieVal = signGuestId(guest.id);
 
       const req = new NextRequest('http://localhost:3000/api/upload/complete', {
         method: 'POST',
@@ -283,7 +281,7 @@ describe('Upload API Integration (Subphase 3.4)', () => {
       const row = await prisma.photo.findUnique({
         where: { id: json.data.photoId },
       });
-      expect(row?.uploadedBy).toBe(e2eGuest!.id);
+      expect(row?.uploadedBy).toBe(guest.id);
     });
   });
 });
