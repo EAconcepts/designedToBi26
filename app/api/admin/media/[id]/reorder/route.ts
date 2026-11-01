@@ -19,7 +19,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    const { direction } = AdminReorderPhotoInput.parse(await req.json());
+    const input = AdminReorderPhotoInput.parse(await req.json());
     const existingPhoto = await prisma.photo.findUnique({
       where: { id },
       include: { album: { select: { slug: true } } },
@@ -42,47 +42,68 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       const photoIndex = photos.findIndex((photo) => photo.id === id);
 
       if (photoIndex < 0) {
-        return { moved: false, stillApproved: false };
+        return {
+          moved: false,
+          stillApproved: false,
+          invalidPosition: false,
+          currentPosition: 0,
+          total: photos.length,
+        };
       }
 
-      const neighborIndex = photoIndex + (direction === 'up' ? -1 : 1);
-      const neighbor = photos[neighborIndex];
-      if (!neighbor) {
-        return { moved: false, stillApproved: true };
+      const targetIndex =
+        'position' in input ? input.position - 1 : photoIndex + (input.direction === 'up' ? -1 : 1);
+      if ('position' in input && targetIndex >= photos.length) {
+        return {
+          moved: false,
+          stillApproved: true,
+          invalidPosition: true,
+          currentPosition: photoIndex + 1,
+          total: photos.length,
+        };
       }
 
       const photo = photos[photoIndex];
       if (!photo) {
-        return { moved: false, stillApproved: false };
+        return {
+          moved: false,
+          stillApproved: false,
+          invalidPosition: false,
+          currentPosition: 0,
+          total: photos.length,
+        };
       }
 
-      let newSortOrder = neighbor.sortOrder;
-      if (photo.sortOrder === neighbor.sortOrder) {
-        const reorderedPhotos = [...photos];
-        reorderedPhotos[photoIndex] = neighbor;
-        reorderedPhotos[neighborIndex] = photo;
-        newSortOrder = neighborIndex;
-
-        await Promise.all(
-          reorderedPhotos.map((item, index) =>
-            tx.photo.update({
-              where: { id: item.id },
-              data: { sortOrder: index },
-            }),
-          ),
-        );
-      } else {
-        await Promise.all([
-          tx.photo.update({
-            where: { id: photo.id },
-            data: { sortOrder: neighbor.sortOrder },
-          }),
-          tx.photo.update({
-            where: { id: neighbor.id },
-            data: { sortOrder: photo.sortOrder },
-          }),
-        ]);
+      if (targetIndex < 0 || targetIndex >= photos.length || targetIndex === photoIndex) {
+        return {
+          moved: false,
+          stillApproved: true,
+          invalidPosition: false,
+          currentPosition: photoIndex + 1,
+          total: photos.length,
+        };
       }
+
+      const [movedPhoto] = photos.splice(photoIndex, 1);
+      if (!movedPhoto) {
+        return {
+          moved: false,
+          stillApproved: false,
+          invalidPosition: false,
+          currentPosition: 0,
+          total: photos.length,
+        };
+      }
+      photos.splice(targetIndex, 0, movedPhoto);
+
+      await Promise.all(
+        photos.map((item, index) =>
+          tx.photo.update({
+            where: { id: item.id },
+            data: { sortOrder: index },
+          }),
+        ),
+      );
 
       await tx.auditLog.create({
         data: {
@@ -92,25 +113,40 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
           entityId: photo.id,
           meta: {
             albumSlug: existingPhoto.album.slug,
-            direction,
-            neighborPhotoId: neighbor.id,
+            ...('direction' in input ? { direction: input.direction } : {}),
+            neighborPhotoId: photos[targetIndex + (targetIndex < photoIndex ? 1 : -1)]?.id ?? null,
             oldSortOrder: photo.sortOrder,
-            newSortOrder,
+            newSortOrder: targetIndex,
+            newPosition: targetIndex + 1,
           },
         },
       });
 
-      return { moved: true, stillApproved: true };
+      return {
+        moved: true,
+        stillApproved: true,
+        invalidPosition: false,
+        currentPosition: targetIndex + 1,
+        total: photos.length,
+      };
     });
 
     if (!result.stillApproved) {
       return fail('VALIDATION', 'Only approved photographs can be reordered.');
     }
 
+    if (result.invalidPosition) {
+      return fail('VALIDATION', `Position must be between 1 and ${result.total}.`);
+    }
+
     if (result.moved) {
       await revalidateSite(['/', '/gallery', `/gallery/${existingPhoto.album.slug}`]);
     }
 
-    return ok({ moved: result.moved, direction });
+    return ok({
+      moved: result.moved,
+      position: result.currentPosition,
+      total: result.total,
+    });
   });
 }

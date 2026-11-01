@@ -224,7 +224,7 @@ describe('Admin Media Moderation API Integration (Subphase 3.5)', () => {
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toMatchObject({
       ok: true,
-      data: { moved: true, direction: 'up' },
+      data: { moved: true, position: 1, total: 3 },
     });
 
     const orderedPhotos = await prisma.photo.findMany({
@@ -244,6 +244,18 @@ describe('Admin Media Moderation API Integration (Subphase 3.5)', () => {
         .filter((photo: { id: string }) => [first.id, second.id, third.id].includes(photo.id))
         .map((photo: { id: string }) => photo.id),
     ).toEqual([second.id, first.id, third.id]);
+    expect(
+      listed.data.rows
+        .filter((photo: { id: string }) => [first.id, second.id, third.id].includes(photo.id))
+        .map((photo: { albumPosition: number; albumPhotoCount: number }) => [
+          photo.albumPosition,
+          photo.albumPhotoCount,
+        ]),
+    ).toEqual([
+      [1, 3],
+      [2, 3],
+      [3, 3],
+    ]);
 
     const audit = await prisma.auditLog.findFirst({
       where: { entityId: second.id, action: 'PHOTO_REORDER' },
@@ -251,12 +263,47 @@ describe('Admin Media Moderation API Integration (Subphase 3.5)', () => {
     expect(audit?.actor).toBe('admin@example.com');
     expect(audit?.meta).toMatchObject({ direction: 'up', newSortOrder: 0 });
 
+    const jumpReq = new NextRequest(`http://localhost:3000/api/admin/media/${second.id}/reorder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ position: 3 }),
+    });
+    const jumpRes = await reorderPhotoRoute(jumpReq, {
+      params: Promise.resolve({ id: second.id }),
+    });
+    expect(jumpRes.status).toBe(200);
+    await expect(jumpRes.json()).resolves.toMatchObject({
+      ok: true,
+      data: { moved: true, position: 3, total: 3 },
+    });
+
+    const jumpedPhotos = await prisma.photo.findMany({
+      where: { albumId: album.id, status: 'APPROVED' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      select: { id: true, sortOrder: true },
+    });
+    expect(jumpedPhotos.map((photo) => photo.id)).toEqual([first.id, third.id, second.id]);
+    expect(jumpedPhotos.map((photo) => photo.sortOrder)).toEqual([0, 1, 2]);
+
+    const invalidPositionReq = new NextRequest(
+      `http://localhost:3000/api/admin/media/${second.id}/reorder`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position: 4 }),
+      },
+    );
+    const invalidPositionRes = await reorderPhotoRoute(invalidPositionReq, {
+      params: Promise.resolve({ id: second.id }),
+    });
+    expect(invalidPositionRes.status).toBe(400);
+
     const boundaryReq = new NextRequest(
       `http://localhost:3000/api/admin/media/${second.id}/reorder`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direction: 'up' }),
+        body: JSON.stringify({ direction: 'down' }),
       },
     );
     const boundaryRes = await reorderPhotoRoute(boundaryReq, {
@@ -264,7 +311,7 @@ describe('Admin Media Moderation API Integration (Subphase 3.5)', () => {
     });
     await expect(boundaryRes.json()).resolves.toMatchObject({
       ok: true,
-      data: { moved: false, direction: 'up' },
+      data: { moved: false, position: 3, total: 3 },
     });
   });
 

@@ -17,6 +17,8 @@ export interface AdminPhotoRow {
   source: 'ADMIN' | 'GUEST';
   uploadedBy: string | null;
   createdAt: string;
+  albumPosition: number | null;
+  albumPhotoCount: number;
   album: {
     id: string;
     slug: string;
@@ -148,13 +150,13 @@ export function ModerationQueue() {
     }
   };
 
-  const handleReorder = async (id: string, direction: 'up' | 'down') => {
+  const handleReorder = async (id: string, position: number) => {
     setReorderingPhotoId(id);
     try {
       const res = await fetch(`/api/admin/media/${id}/reorder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direction }),
+        body: JSON.stringify({ position }),
       });
       const json = await res.json();
 
@@ -163,14 +165,12 @@ export function ModerationQueue() {
       }
 
       if (json.data.moved) {
-        setActiveMessage(`Photograph moved ${direction} in its album.`);
+        setActiveMessage(
+          `Photograph moved to position ${json.data.position} of ${json.data.total} in its album.`,
+        );
         await loadPhotos(statusTab, page);
       } else {
-        setActiveMessage(
-          direction === 'up'
-            ? 'This photograph is already first in its album.'
-            : 'This photograph is already last in its album.',
-        );
+        setActiveMessage(`Photograph is already at position ${json.data.position}.`);
       }
       setTimeout(() => setActiveMessage(null), 3000);
     } catch (err) {
@@ -495,26 +495,41 @@ export function ModerationQueue() {
                   {/* Actions (Touch targets ≥ 44px) */}
                   <div className="pt-2 border-t border-ink-100 flex items-center justify-end gap-2">
                     {photo.status === 'APPROVED' && (
-                      <div className="mr-auto flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleReorder(photo.id, 'up')}
+                      <form
+                        className="mr-auto flex items-center gap-2"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          const formData = new FormData(event.currentTarget);
+                          const position = Number(formData.get('position'));
+                          if (Number.isInteger(position)) {
+                            void handleReorder(photo.id, position);
+                          }
+                        }}
+                      >
+                        <label htmlFor={`position-${photo.id}`} className="text-xs text-ink-700">
+                          Position
+                        </label>
+                        <input
+                          id={`position-${photo.id}`}
+                          name="position"
+                          type="number"
+                          min={1}
+                          max={photo.albumPhotoCount}
+                          defaultValue={photo.albumPosition ?? 1}
+                          required
+                          aria-label={`Position of photograph in ${photo.album.title}`}
                           disabled={reorderingPhotoId !== null || isActing}
-                          aria-label={`Move photograph in ${photo.album.title} up`}
+                          className="min-h-[44px] w-20 rounded-xl border border-ink-200 bg-white px-2 text-sm text-ink-900 focus:outline-hidden focus:border-gold-500 disabled:opacity-50"
+                        />
+                        <span className="text-xs text-ink-500">of {photo.albumPhotoCount}</span>
+                        <button
+                          type="submit"
+                          disabled={reorderingPhotoId !== null || isActing}
                           className="min-h-[44px] px-3 rounded-xl border border-ink-200 text-ink-800 hover:bg-ivory-100 text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Move Up
+                          Move
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleReorder(photo.id, 'down')}
-                          disabled={reorderingPhotoId !== null || isActing}
-                          aria-label={`Move photograph in ${photo.album.title} down`}
-                          className="min-h-[44px] px-3 rounded-xl border border-ink-200 text-ink-800 hover:bg-ivory-100 text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Move Down
-                        </button>
-                      </div>
+                      </form>
                     )}
                     {photo.status === 'PENDING' && (
                       <>
