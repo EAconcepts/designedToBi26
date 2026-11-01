@@ -70,6 +70,11 @@ export const AdminUpdatePhotoInput = z.object({
 });
 export type AdminUpdatePhotoInput = z.infer<typeof AdminUpdatePhotoInput>;
 
+export const AdminReorderPhotoInput = z.object({
+  direction: z.enum(['up', 'down']),
+});
+export type AdminReorderPhotoInput = z.infer<typeof AdminReorderPhotoInput>;
+
 export const AdminBulkMediaInput = z.object({
   ids: z.array(z.string().min(1)).min(1, 'At least one photo ID is required'),
   action: z.enum(['approve', 'reject', 'restore']),

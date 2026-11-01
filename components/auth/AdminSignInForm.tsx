@@ -15,7 +15,7 @@ export function AdminSignInForm() {
     const email = String(formData.get('email') ?? '').trim();
 
     try {
-      const response = await signIn('resend', {
+      const response = await signIn('brevo', {
         email,
         redirectTo: '/admin',
         redirect: false,

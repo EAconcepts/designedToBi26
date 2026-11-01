@@ -1,7 +1,5 @@
-import { Resend } from 'resend';
+import { render } from '@react-email/render';
 import { env } from '@/lib/env';
-
-export const resend = new Resend(env.server.RESEND_API_KEY);
 
 export interface SendEmailOptions {
   to: string | string[];
@@ -20,50 +18,54 @@ export interface SendEmailResult {
 }
 
 /**
- * Send an email via Resend with guaranteed non-throwing error handling.
+ * Send an email via Brevo with guaranteed non-throwing error handling.
  * Never throws to the caller — returns { ok: false, error: ... } on failure.
  */
 export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
   const from = options.from || env.server.EMAIL_FROM;
 
   try {
-    const base = {
-      from,
-      to: options.to,
-      subject: options.subject,
-      ...(options.replyTo ? { replyTo: options.replyTo } : {}),
-    };
-
-    let response: Awaited<ReturnType<typeof resend.emails.send>>;
+    let htmlContent: string | undefined;
     if (options.react) {
-      response = await resend.emails.send({
-        ...base,
-        react: options.react,
-        ...(options.text ? { text: options.text } : {}),
-      });
+      htmlContent = await render(options.react);
     } else if (options.html) {
-      response = await resend.emails.send({
-        ...base,
-        html: options.html,
-        ...(options.text ? { text: options.text } : {}),
-      });
-    } else if (options.text) {
-      response = await resend.emails.send({
-        ...base,
-        text: options.text,
-      });
-    } else {
+      htmlContent = options.html;
+    }
+
+    if (!htmlContent && !options.text) {
       return { ok: false, error: 'No email content provided (react, html, or text required)' };
     }
 
-    const { data, error } = response;
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': env.server.BREVO_API_KEY,
+        'content-type': 'application/json',
+        accept: 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { email: from },
+        to: (Array.isArray(options.to) ? options.to : [options.to]).map((email) => ({ email })),
+        subject: options.subject,
+        ...(htmlContent ? { htmlContent } : {}),
+        ...(options.text ? { textContent: options.text } : {}),
+        ...(options.replyTo ? { replyTo: { email: options.replyTo } } : {}),
+      }),
+    });
 
-    if (error) {
-      console.error('[EMAIL ERROR] Resend returned error:', error);
-      return { ok: false, error: error.message };
+    const result = (await response.json()) as {
+      messageId?: string;
+      message?: string;
+      code?: string;
+    };
+
+    if (!response.ok) {
+      const message = result.message || result.code || response.statusText;
+      console.error('[EMAIL ERROR] Brevo returned error:', message);
+      return { ok: false, error: message };
     }
 
-    return { ok: true, id: data?.id };
+    return { ok: true, id: result.messageId };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('[EMAIL EXCEPTION] Failed to send email:', message);

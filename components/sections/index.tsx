@@ -19,7 +19,7 @@ function ArrowIcon() {
 
 const photos = {
   storyOne: '/img-6.jpg',
-  storyTwo: '/img-3.jpg',
+  storyTwo: '/img-11.JPG',
 };
 
 const eventDetails = [

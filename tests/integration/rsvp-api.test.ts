@@ -3,7 +3,6 @@ import { NextRequest } from 'next/server';
 import { POST as rsvpRoute } from '@/app/api/rsvp/route';
 import { GUEST_COOKIE_NAME, signGuestId } from '@/lib/guest-cookie';
 import { prisma } from '@/lib/db';
-import { resend } from '@/lib/email/client';
 import { SITE } from '@/content/site.config';
 import { makeGuest, makeEvent, makeInvitation, cleanupTestRows } from '@/tests/factories';
 import { PATCH as patchSettingsRoute } from '@/app/api/admin/settings/route';
@@ -40,10 +39,9 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
   beforeEach(async () => {
     await cleanupTestRows();
     vi.restoreAllMocks();
-    vi.spyOn(resend.emails, 'send').mockResolvedValue({
-      data: null,
-      error: { name: 'mock_error', message: 'Mocked in integration test' },
-    } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ message: 'Mocked in integration test' }), { status: 500 }),
+    );
     // Ensure default settings are in open state
     await prisma.setting.upsert({
       where: { id: 1 },
@@ -478,11 +476,12 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
     expect(rsvpInDb?.attendees[0]?.dietary).toBeNull();
   });
 
-  it('sets emailSent: true when Resend confirmation succeeds', async () => {
-    const sendSpy = vi.spyOn(resend.emails, 'send').mockResolvedValueOnce({
-      data: { id: 'email_ok_123' },
-      error: null,
-    } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
+  it('sets emailSent: true when Brevo confirmation succeeds', async () => {
+    const sendSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ messageId: 'email_ok_123' }), { status: 201 }),
+      );
 
     const guest = await makeGuest({ email: 'happyguest@example.com' });
     const event = await makeEvent();
@@ -502,10 +501,8 @@ describe('RSVP API route integration (POST /api/rsvp)', () => {
     expect(sendSpy).toHaveBeenCalled();
   });
 
-  it('sets emailSent: false and leaves RSVP committed when Resend rejects', async () => {
-    vi.spyOn(resend.emails, 'send').mockRejectedValueOnce(
-      new Error('Resend network connection timeout'),
-    );
+  it('sets emailSent: false and leaves RSVP committed when Brevo rejects', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Brevo network timeout'));
 
     const guest = await makeGuest({ email: 'failingemail@example.com' });
     const event = await makeEvent();

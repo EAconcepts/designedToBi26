@@ -49,7 +49,7 @@ sections below; the full rationale lives in [`plan/README.md §3`](plan/README.m
 | A3  | `/api/upload/sign` generates `public_id` server-side; `/api/upload/complete` verifies the asset exists in Cloudinary and reads `width`/`height` from it; both are gated on the open/closed upload window (no token) | §8.2, §9.6  |
 | A4  | Map implemented as a designed `MapCard` poster + OpenStreetMap embed on tap (no Google Static Maps key); Bolt deep link only if the device test passes                                                              | §10.1       |
 | A5  | Dependency list completed (`nanoid`, `next-auth` + adapter, `csv-parse`, `qrcode.react`, `browser-image-compression`, axe/LHCI, husky/lint-staged/commitlint)                                                       | §5          |
-| A6  | Auth.js pinned: v5, Prisma adapter, custom Resend `sendVerificationRequest`, JWT session, allow-list enforced in `signIn` **and** `requireAdmin()`                                                                  | §5, §13.1   |
+| A6  | Auth.js pinned: v5, Prisma adapter, custom Brevo `sendVerificationRequest`, JWT session, allow-list enforced in `signIn` **and** `requireAdmin()`                                                                   | §5, §13.1   |
 | A7  | All operational reads tagged `site`; mutations call `revalidateSite(paths)` = `revalidateTag` + `revalidatePath`                                                                                                    | §9.7, §4.2  |
 | A8  | Source-of-truth rule: `site.config.ts` seeds the DB; the DB wins at runtime for operational data                                                                                                                    | §7.3        |
 | A9  | `/gift/complete` polling state machine with backoff, timeout and honest terminal states                                                                                                                             | §9.4        |
@@ -80,7 +80,7 @@ sections below; the full rationale lives in [`plan/README.md §3`](plan/README.m
 | D8  | **Framer Motion only** (no GSAP at launch)                                      | Revisit only if the timeline genuinely needs pinning that CSS sticky cannot do                                                    |
 | D9  | **Minimal admin**; funds, bank accounts, events and milestones are seed-managed | See §12                                                                                                                           |
 | D10 | **Phone/WhatsApp RSVP path is a requirement**                                   | Two RSVP contacts are printed on the invitation; admin supports manual RSVP entry                                                 |
-| D11 | **Launch vendor set: Vercel, Neon, Cloudinary, Resend, Paystack**               | Sentry and rate limiting added in the hardening sprint; Turnstile only if spam appears                                            |
+| D11 | **Launch vendor set: Vercel, Neon, Cloudinary, Brevo, Paystack**                | Brevo sender verification uses an existing email address; a custom domain is optional                                             |
 | D12 | **Security fixes from review applied**                                          | Webhook signature guard, verify endpoint hardening, redacted webhook payloads, bootstrap for settings, join table for invitations |
 
 ---
@@ -250,7 +250,7 @@ flowchart LR
     APP --> DB[(PostgreSQL<br/>Neon)]
     APP --> CLD[Cloudinary<br/>Media storage and transforms]
     APP --> PAY[Paystack]
-    APP --> MAIL[Resend<br/>Transactional email]
+    APP --> MAIL[Brevo<br/>Transactional email]
     PAY -- webhook --> APP
     G -- signed direct upload --> CLD
     A[Admin / Couple] -->|Auth.js session| APP
@@ -287,22 +287,22 @@ flowchart LR
 
 ## 5. Tech Stack
 
-| Layer            | Choice                                                                                                                                 | Notes                                                                                                                                                                                                           |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework        | Next.js (App Router) + TypeScript                                                                                                      | RSC + route handlers                                                                                                                                                                                            |
-| Styling          | Tailwind CSS + CSS variables                                                                                                           | Tokens in `:root`; dark sections via data attributes                                                                                                                                                            |
-| Motion           | Framer Motion                                                                                                                          | `useScroll` for timeline; CSS `position: sticky` for pinned scenes                                                                                                                                              |
-| Forms/validation | React Hook Form + Zod                                                                                                                  | Shared schemas client and server                                                                                                                                                                                |
-| DB / ORM         | PostgreSQL on Neon + Prisma                                                                                                            | Pooled URL for runtime, direct URL for migrations                                                                                                                                                               |
-| Auth (admin)     | Auth.js (v5 or current stable) + Prisma adapter                                                                                        | Magic link via a custom `sendVerificationRequest` that sends through Resend; JWT sessions (link 30 min, session 8 h); allow-list checked in the `signIn` callback **and** again in `requireAdmin()` (A6, §13.1) |
-| Media            | Cloudinary                                                                                                                             | Signed uploads, `f_auto,q_auto`, archive/zip API                                                                                                                                                                |
-| Payments         | Paystack                                                                                                                               | Initialize + verify + webhook                                                                                                                                                                                   |
-| Email            | Resend + React Email                                                                                                                   | Confirmations, receipts                                                                                                                                                                                         |
-| Supporting libs  | `nanoid` (test id fixtures), `csv-parse` (`seed:guests`), `qrcode.react` (upload QR), `browser-image-compression` (client-side resize) | A5 — required by §11.2, §9.6, §12                                                                                                                                                                               |
-| Tooling          | Husky + lint-staged + commitlint (Conventional Commits), Prettier                                                                      | A5 — standard git practice; enforced in CI                                                                                                                                                                      |
-| Hardening sprint | Sentry; rate limiting (Vercel Firewall rules where the plan allows, otherwise Upstash)                                                 | Not needed on day 1                                                                                                                                                                                             |
-| Conditional      | Turnstile                                                                                                                              | Only if spam appears                                                                                                                                                                                            |
-| Testing          | Vitest, Playwright, `@axe-core/playwright`, Lighthouse CI                                                                              |                                                                                                                                                                                                                 |
+| Layer            | Choice                                                                                                                                 | Notes                                                                                                                                                                                                          |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework        | Next.js (App Router) + TypeScript                                                                                                      | RSC + route handlers                                                                                                                                                                                           |
+| Styling          | Tailwind CSS + CSS variables                                                                                                           | Tokens in `:root`; dark sections via data attributes                                                                                                                                                           |
+| Motion           | Framer Motion                                                                                                                          | `useScroll` for timeline; CSS `position: sticky` for pinned scenes                                                                                                                                             |
+| Forms/validation | React Hook Form + Zod                                                                                                                  | Shared schemas client and server                                                                                                                                                                               |
+| DB / ORM         | PostgreSQL on Neon + Prisma                                                                                                            | Pooled URL for runtime, direct URL for migrations                                                                                                                                                              |
+| Auth (admin)     | Auth.js (v5 or current stable) + Prisma adapter                                                                                        | Magic link via a custom `sendVerificationRequest` that sends through Brevo; JWT sessions (link 30 min, session 8 h); allow-list checked in the `signIn` callback **and** again in `requireAdmin()` (A6, §13.1) |
+| Media            | Cloudinary                                                                                                                             | Signed uploads, `f_auto,q_auto`, archive/zip API                                                                                                                                                               |
+| Payments         | Paystack                                                                                                                               | Initialize + verify + webhook                                                                                                                                                                                  |
+| Email            | Brevo API + React Email                                                                                                                | Confirmations, receipts, and admin magic links                                                                                                                                                                 |
+| Supporting libs  | `nanoid` (test id fixtures), `csv-parse` (`seed:guests`), `qrcode.react` (upload QR), `browser-image-compression` (client-side resize) | A5 — required by §11.2, §9.6, §12                                                                                                                                                                              |
+| Tooling          | Husky + lint-staged + commitlint (Conventional Commits), Prettier                                                                      | A5 — standard git practice; enforced in CI                                                                                                                                                                     |
+| Hardening sprint | Sentry; rate limiting (Vercel Firewall rules where the plan allows, otherwise Upstash)                                                 | Not needed on day 1                                                                                                                                                                                            |
+| Conditional      | Turnstile                                                                                                                              | Only if spam appears                                                                                                                                                                                           |
+| Testing          | Vitest, Playwright, `@axe-core/playwright`, Lighthouse CI                                                                              |                                                                                                                                                                                                                |
 
 **Not used:** Stripe, GSAP, Upstash (until hardening), Turnstile (unless needed).
 
@@ -707,7 +707,7 @@ sequenceDiagram
     participant W as Web app
     participant A as API /rsvp
     participant DB as PostgreSQL
-    participant E as Resend
+    participant E as Brevo
     G->>W: Open /rsvp (returning guest: session cookie prefills)
     G->>W: Enter name (+ optional email/phone), add attendees, pick events and meals, submit
     W->>A: POST /api/rsvp (Zod-validated, honeypot checked)
@@ -734,7 +734,7 @@ sequenceDiagram
     participant A as API
     participant P as Paystack
     participant DB as PostgreSQL
-    participant E as Resend
+    participant E as Brevo
     G->>W: Choose fund and amount, enter name and email
     W->>A: POST /api/gifts/initialize
     A->>DB: Create Gift (PENDING, random reference)
@@ -973,8 +973,8 @@ AUTH_SECRET=
 GUEST_COOKIE_SECRET=
 ADMIN_ALLOWLIST=a@x.com,b@y.com
 NOTIFY_EMAIL=                    # A14: gift receipts and webhook alerts to the couple/coordinator
-RESEND_API_KEY=
-EMAIL_FROM=
+BREVO_API_KEY=
+EMAIL_FROM=                    # verified Brevo sender address
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
@@ -1021,9 +1021,10 @@ generate`). The explicit `generate` in the build command is required: when Verce
 
 ### 14.4 Domain and email
 
-- Register the domain early (couple's names or hashtag-based).
-- SPF, DKIM and DMARC for Resend so confirmations reach inboxes.
-- `www` → apex redirect; force HTTPS.
+- A custom website domain is optional; the Vercel `*.vercel.app` hostname works for this deployment.
+- Verify the sender email address in Brevo. Domain authentication (SPF, DKIM, and DMARC) is
+  recommended for deliverability if you later use a domain you own.
+- If a custom website domain is added, configure its `www` → apex redirect and force HTTPS.
 
 ---
 
@@ -1085,7 +1086,7 @@ rsync -a .scaffold/ ./ && rm -rf .scaffold
 
 # 2. Dependencies (A5 — add only what a task needs; justify any addition in the PR)
 pnpm add prisma @prisma/client zod react-hook-form @hookform/resolvers framer-motion \
-  next-auth @auth/prisma-adapter resend @react-email/components cloudinary nanoid \
+  next-auth @auth/prisma-adapter @react-email/components cloudinary nanoid \
   csv-parse qrcode.react browser-image-compression
 pnpm add -D vitest @playwright/test @axe-core/playwright @lhci/cli tsx \
   husky lint-staged @commitlint/cli @commitlint/config-conventional
@@ -1116,7 +1117,7 @@ pnpm dlx husky init             # pre-commit: lint-staged; commit-msg: commitlin
       `guest-cookie`) with unit tests
 - [ ] Auth.js magic-link login with allow-list, plus the guard-coverage test (A6, A16)
 - [ ] `/api/health`
-- [ ] Paystack account verification started; Cloudinary, Resend accounts created
+- [ ] Paystack account verification started; Cloudinary and Brevo accounts created
 - [ ] Asset request sent: logo (SVG/PNG, gold + light versions), floral corner art, pre-wedding photos, story copy
 - [ ] Content request sent: reception time, bank accounts, FAQ/accommodation info, venue pin, meal choice yes/no
 

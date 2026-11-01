@@ -36,9 +36,11 @@ export function Hero({ mode = 'PRE', liveStreamUrl }: HeroProps) {
         role="img"
         aria-label="The couple dressed for their celebration"
       >
-        <div className="hero-slide hero-slide--1" />
+        <div className="hero-slide hero-slide--1 " />
         <div className="hero-slide hero-slide--2" />
         <div className="hero-slide hero-slide--3" />
+        <div className="hero-slide hero-slide--4" />
+        <div className="hero-slide hero-slide--5" />
       </div>
       <div className="hero-shade" />
       <div className="corner corner--tl" />

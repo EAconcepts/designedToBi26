@@ -116,8 +116,8 @@ Environment variables are defined in `.env.example` and strictly validated at bo
 | `GUEST_COOKIE_SECRET`            | Server | Secret for signing guest session cookies and IP hashes          | `dev-guest-cookie-secret-min-32-chars-long`                 |
 | `ADMIN_ALLOWLIST`                | Server | Comma-delimited list of allowed admin emails                    | `adetolani@designedtobi26.com,emmanuel@designedtobi26.com`  |
 | `NOTIFY_EMAIL`                   | Server | Couple/coordinator recipient for gift and webhook notifications | `couple@designedtobi26.com`                                 |
-| `RESEND_API_KEY`                 | Server | Resend API key for transactional email & magic links            | `re_dev_placeholder`                                        |
-| `EMAIL_FROM`                     | Server | Verified sender address for outgoing emails                     | `invitations@designedtobi26.com`                            |
+| `BREVO_API_KEY`                  | Server | Brevo API key for transactional email & magic links             | `xkeysib-...`                                               |
+| `EMAIL_FROM`                     | Server | Sender email verified in Brevo                                  | `your-verified-email@gmail.com`                             |
 | `CLOUDINARY_CLOUD_NAME`          | Server | Cloudinary account cloud name                                   | `dev-cloud`                                                 |
 | `CLOUDINARY_API_KEY`             | Server | Cloudinary API key                                              | `dev-api-key`                                               |
 | `CLOUDINARY_API_SECRET`          | Server | Cloudinary API secret                                           | `dev-api-secret`                                            |
@@ -131,6 +131,22 @@ Environment variables are defined in `.env.example` and strictly validated at bo
 
 ---
 
+### Email provider setup (no custom domain required)
+
+The app sends RSVP, gift, and admin sign-in emails through Brevo. You can use an existing
+email address as the sender without buying a domain:
+
+1. Create a Brevo account and add your sender under **Settings → Senders, Domains, IPs → Senders**.
+2. Verify the sender by entering the code Brevo emails to that address.
+3. Create an API key under **SMTP & API → API keys**.
+4. Set `BREVO_API_KEY` to that key and `EMAIL_FROM` to the verified sender address in both your
+   local environment and Vercel's project environment variables, then redeploy.
+
+The sender must be verified before sending to guest addresses. Domain authentication is
+recommended by Brevo for stronger deliverability, but is not required for this setup.
+
+---
+
 ## 📋 Dependency & Integration Tracker
 
 Tracks external services, vendor requirements, and couple deliverables:
@@ -141,7 +157,7 @@ Tracks external services, vendor requirements, and couple deliverables:
 | **Vercel Platform**             | Engineering       | Yes (Sprint 0)          | Done        | Turbopack build and deployment pipeline operational                                                |
 | **Paystack Merchant KYC**       | Couple / Lead     | Yes (Sprint 4 Critical) | Pending     | Test keys active in dev; live merchant KYC approval is critical path for Sprint 4 launch readiness |
 | **Cloudinary Account**          | Engineering       | Yes (Sprint 3)          | Ready       | Folders and signed upload policies defined                                                         |
-| **Resend Domain Verification**  | Engineering       | Yes (Sprint 2)          | Pending     | Local fallback active; domain DNS records to be applied                                            |
+| **Brevo Sender Verification**   | Engineering       | Yes (Sprint 2)          | Pending     | Verify a sender email in Brevo; domain authentication is optional                                  |
 | **Real Monogram Logo**          | Couple / Designer | No (Sprint 4)           | Pending     | SVG placeholder in place via `Logo.tsx` contract                                                   |
 | **Official Invitation Copy**    | Couple            | Yes (Sprint 1)          | In Review   | Initial draft in `content/site.config.ts`; awaiting final printed card                             |
 | **Venue Exact Pin & Travel**    | Couple            | Yes (Sprint 1)          | Pending     | Methodist Church, Olorunsogo-GeriAlimi; awaiting precise GPS coordinates                           |

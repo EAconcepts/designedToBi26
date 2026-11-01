@@ -21,8 +21,8 @@ Architecture refs: §8, §9.2–9.5, §12, §13, §21.2–21.3. Amendments appli
 
 - [ ] **Paystack account approved** (KYC complete) and **test keys** obtained. Without test keys,
       subphases 2.6–2.8 cannot exit — log as blocked and start 2.1–2.5.
-- [ ] Resend **domain verified** (SPF/DKIM/DMARC) so emails are deliverable; otherwise emails are
-      written and integration-tested but "deliverability" evidence is deferred to Sprint 4.
+- [ ] Brevo sender email verified; a custom domain is not required. Domain authentication can be
+      added later to improve deliverability.
 - [ ] RSVP contact numbers verified on WhatsApp (needed for the fallback path copy).
 - [ ] Meal decision answered (§20.2.2): `SITE.rsvp.collectMeal` true/false and options. The code
       must work for both — set it explicitly either way before finishing 2.3.
@@ -249,7 +249,7 @@ no-code fallback.
 
 **Tasks**
 
-1. `lib/email/client.ts`: `Resend` instance from `env`, `sendEmail({ to, subject, react })`
+1. `lib/email/client.ts`: Brevo API client from `env`, `sendEmail({ to, subject, react })`
    wrapper that logs failures and never throws to the caller.
 2. Template (React Email): monogram/logo from `SITE.brand.logo`, names, "Thank you for your
    response", per-event list with `formatDateWAT`/`formatTimeWAT`, attendee names, meal/dietary
@@ -262,17 +262,16 @@ no-code fallback.
 
 **Acceptance criteria**
 
-- [ ] Local run with Resend **test mode** (`re_...` restricted to your own address) delivers a
-      readable email; screenshot in `STATUS.md`.
+- [ ] Brevo sends a readable email to an external test recipient; screenshot in `STATUS.md`.
 - [ ] Email renders acceptably in Gmail web + iOS Mail (check both, or note which were checked).
-- [ ] A Resend failure never turns a successful RSVP into a 500 (`emailSent: false` path tested).
+- [ ] A Brevo failure never turns a successful RSVP into a 500 (`emailSent: false` path tested).
 - [ ] No PII beyond the recipient's own details in the email; no other guests listed.
 
 **Tests**
 
 - Unit: template renders to HTML without throwing (React Email `render()`), contains the event
   title and the correct date string, contains no `undefined`.
-- Integration: with `RESEND_API_KEY` mocked at the network boundary, the submit path sets
+- Integration: with `BREVO_API_KEY` mocked at the network boundary, the submit path sets
   `emailSent: true`; when the mock rejects, `emailSent: false` and the RSVP row still exists.
 
 **Exit gate:** `pnpm test` green; one real test-mode email delivered and recorded.

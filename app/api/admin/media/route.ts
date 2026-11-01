@@ -28,7 +28,15 @@ export async function GET(req: NextRequest) {
             select: { id: true, slug: true, title: true },
           },
         },
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy:
+          query.status === 'APPROVED'
+            ? [
+                { album: { slug: 'asc' } },
+                { sortOrder: 'asc' },
+                { createdAt: 'asc' },
+                { id: 'asc' },
+              ]
+            : [{ createdAt: 'desc' }, { id: 'desc' }],
         skip,
         take: query.limit,
       }),

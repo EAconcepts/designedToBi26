@@ -106,7 +106,7 @@ Scaffold at the repo root next to `docs/` (amendment A10).
   ID. No Paystack public key (checkout is initialised server-side).
 
 **Variable set (architecture §14.2 + A14):** `DATABASE_URL`, `DIRECT_URL`, `NEXT_PUBLIC_SITE_URL`,
-`AUTH_SECRET`, `GUEST_COOKIE_SECRET`, `ADMIN_ALLOWLIST`, `NOTIFY_EMAIL`, `RESEND_API_KEY`,
+`AUTH_SECRET`, `GUEST_COOKIE_SECRET`, `ADMIN_ALLOWLIST`, `NOTIFY_EMAIL`, `BREVO_API_KEY`,
 `EMAIL_FROM`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`,
 `CLOUDINARY_UPLOAD_PRESET`, `PAYSTACK_SECRET_KEY`, plus optional hardening keys
 (`SENTRY_DSN`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `TURNSTILE_SECRET_KEY`,
@@ -319,7 +319,7 @@ export function cached<T>(
   its own rows (`afterEach` delete by test prefix). Never point tests at the dev database.
 - Integration/e2e require `DATABASE_URL` pointing at `wedding_test`; the setup script refuses to
   run if the URL does not contain `wedding_test` (guard against destructive tests on dev/prod).
-- Mocking: only external network boundaries (Cloudinary, Paystack, Resend) are mocked, in
+- Mocking: only external network boundaries (Cloudinary, Paystack, Brevo) are mocked, in
   `tests/mocks/`. Never mock Prisma in integration tests.
 
 ---

@@ -20,10 +20,10 @@ Architecture refs: §13–§16, §19, §10.3–10.4.
 ### External
 
 - [ ] **Paystack account approved with LIVE keys.** Blocking for 4.4.
-- [ ] Domain registered and DNS access available (blocking for 4.6).
+- [ ] Custom domain and DNS access (optional; Vercel hostname is sufficient).
 - [ ] Real assets delivered: logo, floral art, magenta value from the invitation, pre-wedding
       photos, story copy, invitation wording (blocking for 4.5 — start earlier if they arrive).
-- [ ] Resend domain verified and sending to Gmail/Outlook/iCloud/Yahoo (if not done in Sprint 2).
+- [ ] Brevo sender email verified and sending to external recipients (if not done in Sprint 2).
 - [ ] Sentry account created (free tier is fine).
 - [ ] A second admin user (coordinator) created for the couple's team.
 
@@ -256,8 +256,8 @@ criterion "looks and feels premium").
 **Tasks**
 
 1. Domain: apex + `www`, `www → apex` redirect, HTTPS forced, Vercel domain attached.
-2. Resend: SPF, DKIM, DMARC records; verify with a mail-tester style check to Gmail, Outlook,
-   iCloud, Yahoo; screenshot each inbox.
+2. Brevo: verify the sender email and send test messages to Gmail, Outlook, iCloud, and Yahoo.
+   If a custom domain is later used, configure SPF, DKIM, and DMARC for better deliverability.
 3. `NEXT_PUBLIC_SITE_URL` updated in Production to the final domain (OG, calendar links, invite
    links, WhatsApp messages all derive from it — re-generate nothing; confirm they read the env).
 4. `noindex` verification: `robots.txt` disallows all; `<meta name="robots" content="noindex,nofollow">`;

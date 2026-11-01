@@ -7,7 +7,7 @@ export const serverSchema = z.object({
   GUEST_COOKIE_SECRET: z.string().min(1, 'GUEST_COOKIE_SECRET is required'),
   ADMIN_ALLOWLIST: z.string().min(1, 'ADMIN_ALLOWLIST is required'),
   NOTIFY_EMAIL: z.string().email('NOTIFY_EMAIL must be a valid email'),
-  RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
+  BREVO_API_KEY: z.string().min(1, 'BREVO_API_KEY is required'),
   EMAIL_FROM: z.string().min(1, 'EMAIL_FROM is required'),
   CLOUDINARY_CLOUD_NAME: z.string().min(1, 'CLOUDINARY_CLOUD_NAME is required'),
   CLOUDINARY_API_KEY: z.string().min(1, 'CLOUDINARY_API_KEY is required'),
