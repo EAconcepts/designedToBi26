@@ -70,9 +70,10 @@ export const AdminUpdatePhotoInput = z.object({
 });
 export type AdminUpdatePhotoInput = z.infer<typeof AdminUpdatePhotoInput>;
 
-export const AdminReorderPhotoInput = z.object({
-  direction: z.enum(['up', 'down']),
-});
+export const AdminReorderPhotoInput = z.union([
+  z.object({ direction: z.enum(['up', 'down']) }),
+  z.object({ position: z.number().int().min(1) }),
+]);
 export type AdminReorderPhotoInput = z.infer<typeof AdminReorderPhotoInput>;
 
 export const AdminBulkMediaInput = z.object({

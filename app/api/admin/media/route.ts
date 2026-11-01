@@ -48,10 +48,35 @@ export async function GET(req: NextRequest) {
       prisma.photo.count({ where: { status: 'REJECTED' } }),
     ]);
 
+    const approvedPhotos =
+      query.status === 'APPROVED' && rows.length > 0
+        ? await prisma.photo.findMany({
+            where: {
+              albumId: { in: [...new Set(rows.map((photo) => photo.albumId))] },
+              status: 'APPROVED',
+            },
+            orderBy: [
+              { albumId: 'asc' },
+              { sortOrder: 'asc' },
+              { createdAt: 'asc' },
+              { id: 'asc' },
+            ],
+            select: { id: true, albumId: true },
+          })
+        : [];
+    const albumPositions = new Map<string, number>();
+    const albumPhotoCounts = new Map<string, number>();
+    for (const photo of approvedPhotos) {
+      albumPhotoCounts.set(photo.albumId, (albumPhotoCounts.get(photo.albumId) ?? 0) + 1);
+      albumPositions.set(photo.id, albumPhotoCounts.get(photo.albumId) ?? 0);
+    }
+
     const formattedRows = rows.map((photo) => ({
       ...photo,
       src: cloudinaryUrl(photo.publicId, { width: 1200, height: 900, crop: 'limit' }),
       thumbSrc: cloudinaryUrl(photo.publicId, { width: 400, height: 400, crop: 'fill' }),
+      albumPosition: albumPositions.get(photo.id) ?? null,
+      albumPhotoCount: albumPhotoCounts.get(photo.albumId) ?? 0,
     }));
 
     return ok({
