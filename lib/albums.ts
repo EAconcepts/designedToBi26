@@ -3,6 +3,8 @@ import { isAlbumVisible } from '@/lib/mode';
 import { cloudinaryUrl } from '@/lib/cloudinary';
 import { MediaStatus, type SiteMode } from '@prisma/client';
 
+export const ALBUM_PHOTOS_PAGE_SIZE = 24;
+
 export interface AlbumPhotoItem {
   id: string;
   publicId: string;
@@ -127,7 +129,7 @@ export async function getPhotos(
   albumSlug: string,
   mode: SiteMode,
   page: number = 1,
-  pageSize: number = 24,
+  pageSize: number = ALBUM_PHOTOS_PAGE_SIZE,
 ): Promise<{
   album: { id: string; slug: string; title: string };
   photos: AlbumPhotoItem[];
