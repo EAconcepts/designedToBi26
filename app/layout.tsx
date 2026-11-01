@@ -55,7 +55,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={`${cormorant.variable} ${cormorantItalic.variable} ${jost.variable} ${alexBrush.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-ivory text-ink-900 font-body">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-ivory text-ink-900 font-body"
+      >
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magenta-600 focus:text-white focus:rounded-md focus:shadow-lg focus:outline-2 focus:outline-gold-500"

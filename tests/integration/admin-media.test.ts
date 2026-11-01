@@ -2,6 +2,7 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET as getMediaRoute } from '@/app/api/admin/media/route';
 import { PATCH as patchPhotoRoute } from '@/app/api/admin/media/[id]/route';
+import { POST as reorderPhotoRoute } from '@/app/api/admin/media/[id]/reorder/route';
 import { PATCH as patchBulkRoute } from '@/app/api/admin/media/bulk/route';
 import { prisma } from '@/lib/db';
 import * as adminAuth from '@/lib/admin';
@@ -55,7 +56,18 @@ describe('Admin Media Moderation API Integration (Subphase 3.5)', () => {
     });
     expect(resPatch.status).toBe(401);
 
-    // 3. PATCH /api/admin/media/bulk
+    // 3. POST /api/admin/media/[id]/reorder
+    const reqReorder = new NextRequest('http://localhost:3000/api/admin/media/photo_123/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ direction: 'up' }),
+    });
+    const resReorder = await reorderPhotoRoute(reqReorder, {
+      params: Promise.resolve({ id: 'photo_123' }),
+    });
+    expect(resReorder.status).toBe(401);
+
+    // 4. PATCH /api/admin/media/bulk
     const reqBulk = new NextRequest('http://localhost:3000/api/admin/media/bulk', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -149,6 +161,111 @@ describe('Admin Media Moderation API Integration (Subphase 3.5)', () => {
     });
     expect(audit).not.toBeNull();
     expect(audit?.actor).toBe('admin@example.com');
+  });
+
+  it('reorders approved photos within their album and records the change', async () => {
+    vi.spyOn(adminAuth, 'requireAdmin').mockResolvedValue({ email: 'admin@example.com' });
+
+    const album = await prisma.album.upsert({
+      where: { slug: 'test-media-reorder' },
+      update: {},
+      create: {
+        slug: 'test-media-reorder',
+        title: 'Test Media Reorder',
+        visibleFrom: 'LIVE',
+      },
+    });
+    const createdAt = new Date('2026-01-01T00:00:00.000Z');
+    const [first, second, third] = await Promise.all([
+      prisma.photo.create({
+        data: {
+          albumId: album.id,
+          publicId: 'wedding/test-mod/reorder-first',
+          width: 800,
+          height: 600,
+          status: 'APPROVED',
+          sortOrder: 0,
+          createdAt,
+        },
+      }),
+      prisma.photo.create({
+        data: {
+          albumId: album.id,
+          publicId: 'wedding/test-mod/reorder-second',
+          width: 800,
+          height: 600,
+          status: 'APPROVED',
+          sortOrder: 0,
+          createdAt: new Date(createdAt.getTime() + 1),
+        },
+      }),
+      prisma.photo.create({
+        data: {
+          albumId: album.id,
+          publicId: 'wedding/test-mod/reorder-third',
+          width: 800,
+          height: 600,
+          status: 'APPROVED',
+          sortOrder: 0,
+          createdAt: new Date(createdAt.getTime() + 2),
+        },
+      }),
+    ]);
+
+    const req = new NextRequest(`http://localhost:3000/api/admin/media/${second.id}/reorder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ direction: 'up' }),
+    });
+    const res = await reorderPhotoRoute(req, {
+      params: Promise.resolve({ id: second.id }),
+    });
+
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toMatchObject({
+      ok: true,
+      data: { moved: true, direction: 'up' },
+    });
+
+    const orderedPhotos = await prisma.photo.findMany({
+      where: { albumId: album.id, status: 'APPROVED' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      select: { id: true, sortOrder: true },
+    });
+    expect(orderedPhotos.map((photo) => photo.id)).toEqual([second.id, first.id, third.id]);
+    expect(orderedPhotos.map((photo) => photo.sortOrder)).toEqual([0, 1, 2]);
+
+    const listRes = await getMediaRoute(
+      new NextRequest('http://localhost:3000/api/admin/media?status=APPROVED&limit=100'),
+    );
+    const listed = await listRes.json();
+    expect(
+      listed.data.rows
+        .filter((photo: { id: string }) => [first.id, second.id, third.id].includes(photo.id))
+        .map((photo: { id: string }) => photo.id),
+    ).toEqual([second.id, first.id, third.id]);
+
+    const audit = await prisma.auditLog.findFirst({
+      where: { entityId: second.id, action: 'PHOTO_REORDER' },
+    });
+    expect(audit?.actor).toBe('admin@example.com');
+    expect(audit?.meta).toMatchObject({ direction: 'up', newSortOrder: 0 });
+
+    const boundaryReq = new NextRequest(
+      `http://localhost:3000/api/admin/media/${second.id}/reorder`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction: 'up' }),
+      },
+    );
+    const boundaryRes = await reorderPhotoRoute(boundaryReq, {
+      params: Promise.resolve({ id: second.id }),
+    });
+    await expect(boundaryRes.json()).resolves.toMatchObject({
+      ok: true,
+      data: { moved: false, direction: 'up' },
+    });
   });
 
   it('approves multiple photos in bulk and writes exactly one AuditLog record', async () => {

@@ -16,8 +16,8 @@ env:
   GUEST_COOKIE_SECRET: 4v0j2v+/gJ1qO0itSFYAoNS2s1wQPEoJo5lgz6BywIk=
   ADMIN_ALLOWLIST: hahyordeji@gmail.com,admin@example.com
   NOTIFY_EMAIL: hahyordeji@gmail.com
-  RESEND_API_KEY: re_test_dummy_key_for_ci
-  EMAIL_FROM: onboarding@resend.dev
+  BREVO_API_KEY: xkeysib-test-key
+  EMAIL_FROM: admin@example.com
   CLOUDINARY_CLOUD_NAME: test_cloud
   CLOUDINARY_API_KEY: test_api_key
   CLOUDINARY_API_SECRET: test_api_secret

@@ -191,7 +191,7 @@ real world; each stage has its own gates so a failure never costs more than one 
 3. Photographer delivery → `pnpm sync:album wedding-day --dry-run` → review → real sync →
    captions + alt text in admin → flip album to visible (via `POST` mode) → verify on a phone.
 4. `pnpm zip:album wedding-day` → send the link to the couple (24 h expiry — resend if expired).
-5. Thank-you emails: if a mailing list exists, send the "photos are up" note through Resend
+5. Thank-you emails: if a mailing list exists, send the "photos are up" note through Brevo
    (respecting rate limits and the recipient opt-in assumption — for a wedding list a single
    BCC-style batch is acceptable; document the approach). Otherwise share via the wedding group.
 6. Final exports: RSVP, guests, gifts CSVs (final state), delivered to the couple.
@@ -200,7 +200,7 @@ real world; each stage has its own gates so a failure never costs more than one 
      did not RSVP-respond or who request deletion; keep payment records the couple must keep.
    - run as an audited script (`scripts/retention-clean.ts`) with `--dry-run` first, and a
      pre-clean export.
-8. Handover: transfer/confirm ownership of domain, Vercel, Neon, Cloudinary, Resend, Paystack,
+8. Handover: transfer/confirm ownership of Vercel, Neon, Cloudinary, Brevo, Paystack,
    GitHub to the couple or a named custodian; rotate secrets that the developer used; document
    what happens to the site after hosting expires (decision from §20.2.10 — keep 6/12/24 months).
 9. Archive the repo (a final `docs/HANDOVER.md` summarising accounts, costs, how to turn it off).

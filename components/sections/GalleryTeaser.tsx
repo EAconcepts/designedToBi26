@@ -14,9 +14,9 @@ import { Monogram } from '@/components/brand';
 // };
 
 const photos = {
-  galleryOne: '/img-7.jpg',
-  galleryTwo: '/img-6.jpg',
-  galleryThree: '/img-5.jpg',
+  galleryOne: '/img-12.jpg',
+  galleryTwo: '/img-13.jpg',
+  galleryThree: '/img-14.jpg',
 };
 
 export function GalleryTeaser() {

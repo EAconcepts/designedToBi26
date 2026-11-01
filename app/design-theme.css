@@ -129,21 +129,33 @@ svg {
 }
 
 .hero-slide--1 {
-  background-image: url('/img-3.jpg');
-  background-position: center 38%;
+  background-image: url('/img-1.jpg');
+  background-position: center 25%;
   animation: hero-slide-1 18s infinite ease-in-out;
 }
 
 .hero-slide--2 {
-  background-image: url('/img-2.jpg');
+  background-image: url('/img-9.jpg');
   background-position: center 30%;
   animation: hero-slide-2 18s infinite ease-in-out;
 }
 
 .hero-slide--3 {
-  background-image: url('/img-1.jpg');
-  background-position: center 25%;
+  background-image: url('/img-10.jpg');
+  background-position: center 38%;
   animation: hero-slide-3 18s infinite ease-in-out;
+}
+
+.hero-slide--4 {
+  background-image: url('/img-8.jpg');
+  background-position: center 25%;
+  animation: hero-slide-4 18s infinite ease-in-out;
+}
+.hero-slide--5 {
+  background-image: url('/img-2.jpg');
+
+  background-position: center 25%;
+  animation: hero-slide-5 18s infinite ease-in-out;
 }
 
 @keyframes hero-slide-1 {
@@ -151,15 +163,15 @@ svg {
     opacity: 1;
     transform: scale(1.02);
   }
-  25% {
+  15% {
     opacity: 1;
     transform: scale(1.04);
   }
-  33.33% {
+  20% {
     opacity: 0;
     transform: scale(1.05);
   }
-  91.66% {
+  95% {
     opacity: 0;
     transform: scale(1.01);
   }
@@ -171,19 +183,19 @@ svg {
 
 @keyframes hero-slide-2 {
   0%,
-  25% {
+  15% {
     opacity: 0;
     transform: scale(1.01);
   }
-  33.33% {
+  20% {
     opacity: 1;
     transform: scale(1.02);
   }
-  58.33% {
+  35% {
     opacity: 1;
     transform: scale(1.04);
   }
-  66.66% {
+  40% {
     opacity: 0;
     transform: scale(1.05);
   }
@@ -195,15 +207,57 @@ svg {
 
 @keyframes hero-slide-3 {
   0%,
-  58.33% {
+  35% {
     opacity: 0;
     transform: scale(1.01);
   }
-  66.66% {
+  40% {
     opacity: 1;
     transform: scale(1.02);
   }
-  91.66% {
+  55% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes hero-slide-4 {
+  0%,
+  55% {
+    opacity: 0;
+    transform: scale(1.01);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes hero-slide-5 {
+  0%,
+  75% {
+    opacity: 0;
+    transform: scale(1.01);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  95% {
     opacity: 1;
     transform: scale(1.04);
   }
@@ -311,7 +365,9 @@ svg {
     opacity: 1 !important;
   }
   .hero-slide--2,
-  .hero-slide--3 {
+  .hero-slide--3,
+  .hero-slide--4,
+  .hero-slide--5 {
     opacity: 0 !important;
   }
   .hero-dot {

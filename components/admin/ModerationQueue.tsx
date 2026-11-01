@@ -31,6 +31,7 @@ export function ModerationQueue() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isActing, setIsActing] = useState(false);
+  const [reorderingPhotoId, setReorderingPhotoId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeMessage, setActiveMessage] = useState<string | null>(null);
@@ -144,6 +145,39 @@ export function ModerationQueue() {
       console.error('Bulk action failed:', err);
     } finally {
       setIsActing(false);
+    }
+  };
+
+  const handleReorder = async (id: string, direction: 'up' | 'down') => {
+    setReorderingPhotoId(id);
+    try {
+      const res = await fetch(`/api/admin/media/${id}/reorder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction }),
+      });
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json.error?.message || 'Could not reorder this photograph.');
+      }
+
+      if (json.data.moved) {
+        setActiveMessage(`Photograph moved ${direction} in its album.`);
+        await loadPhotos(statusTab, page);
+      } else {
+        setActiveMessage(
+          direction === 'up'
+            ? 'This photograph is already first in its album.'
+            : 'This photograph is already last in its album.',
+        );
+      }
+      setTimeout(() => setActiveMessage(null), 3000);
+    } catch (err) {
+      console.error('Photo reorder failed:', err);
+      setActiveMessage(err instanceof Error ? err.message : 'Could not reorder this photograph.');
+    } finally {
+      setReorderingPhotoId(null);
     }
   };
 
@@ -460,6 +494,28 @@ export function ModerationQueue() {
 
                   {/* Actions (Touch targets ≥ 44px) */}
                   <div className="pt-2 border-t border-ink-100 flex items-center justify-end gap-2">
+                    {photo.status === 'APPROVED' && (
+                      <div className="mr-auto flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleReorder(photo.id, 'up')}
+                          disabled={reorderingPhotoId !== null || isActing}
+                          aria-label={`Move photograph in ${photo.album.title} up`}
+                          className="min-h-[44px] px-3 rounded-xl border border-ink-200 text-ink-800 hover:bg-ivory-100 text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Move Up
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleReorder(photo.id, 'down')}
+                          disabled={reorderingPhotoId !== null || isActing}
+                          aria-label={`Move photograph in ${photo.album.title} down`}
+                          className="min-h-[44px] px-3 rounded-xl border border-ink-200 text-ink-800 hover:bg-ivory-100 text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Move Down
+                        </button>
+                      </div>
+                    )}
                     {photo.status === 'PENDING' && (
                       <>
                         <button

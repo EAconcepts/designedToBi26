@@ -9,13 +9,19 @@ import {
   RsvpNotificationEmail,
   type RsvpNotificationEmailProps,
 } from '@/lib/email/templates/rsvp-notification';
-import { sendEmail, resend } from '@/lib/email/client';
+import { sendEmail } from '@/lib/email/client';
 import { sendRsvpConfirmationEmail, sendRsvpNotificationEmail } from '@/lib/email/send';
 
 describe('Email Templates & Client Unit Tests', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
+
+  function mockBrevoResponse(payload: Record<string, unknown>, status = 201) {
+    return vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(payload), { status }));
+  }
 
   describe('RsvpConfirmationEmail Template', () => {
     const defaultProps: RsvpConfirmationEmailProps = {
@@ -107,27 +113,28 @@ describe('Email Templates & Client Unit Tests', () => {
   });
 
   describe('Email Client Safe Error Handling', () => {
-    it('returns ok: true when Resend sends successfully', async () => {
-      vi.spyOn(resend.emails, 'send').mockResolvedValueOnce({
-        data: { id: 'email_test_123' },
-        error: null,
-      } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
+    it('returns ok: true when Brevo sends successfully', async () => {
+      const fetchMock = mockBrevoResponse({ messageId: 'email_test_123' });
 
       const result = await sendEmail({
-        to: 'guest@example.com',
+        to: ['guest@example.com', 'another@example.com'],
         subject: 'Test subject',
         text: 'Hello world',
       });
 
       expect(result.ok).toBe(true);
       expect(result.id).toBe('email_test_123');
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://api.brevo.com/v3/smtp/email',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('"email":"another@example.com"'),
+        }),
+      );
     });
 
-    it('returns ok: false and never throws when Resend returns API error', async () => {
-      vi.spyOn(resend.emails, 'send').mockResolvedValueOnce({
-        data: null,
-        error: { message: 'Rate limit exceeded', name: 'rate_limit_exceeded' },
-      } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
+    it('returns ok: false and never throws when Brevo returns API error', async () => {
+      mockBrevoResponse({ message: 'Rate limit exceeded' }, 429);
 
       const result = await sendEmail({
         to: 'guest@example.com',
@@ -140,7 +147,7 @@ describe('Email Templates & Client Unit Tests', () => {
     });
 
     it('returns ok: false and never throws when network throws an exception', async () => {
-      vi.spyOn(resend.emails, 'send').mockRejectedValueOnce(
+      vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(
         new Error('Network offline or connection refused'),
       );
 
@@ -157,10 +164,7 @@ describe('Email Templates & Client Unit Tests', () => {
 
   describe('High-Level Dispatch Functions', () => {
     it('sendRsvpConfirmationEmail handles success and failure gracefully', async () => {
-      vi.spyOn(resend.emails, 'send').mockResolvedValueOnce({
-        data: { id: 'email_ok' },
-        error: null,
-      } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
+      mockBrevoResponse({ messageId: 'email_ok' });
 
       const success = await sendRsvpConfirmationEmail({
         guestEmail: 'guest@example.com',
@@ -180,7 +184,7 @@ describe('Email Templates & Client Unit Tests', () => {
       expect(success).toBe(true);
 
       // Now test failure returns false
-      vi.spyOn(resend.emails, 'send').mockRejectedValueOnce(new Error('Resend down'));
+      vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('Brevo down'));
       const failure = await sendRsvpConfirmationEmail({
         guestEmail: 'guest@example.com',
         guestName: 'Guest Name',
@@ -193,10 +197,7 @@ describe('Email Templates & Client Unit Tests', () => {
     });
 
     it('sendRsvpNotificationEmail returns boolean without throwing', async () => {
-      vi.spyOn(resend.emails, 'send').mockResolvedValueOnce({
-        data: { id: 'email_notify' },
-        error: null,
-      } as unknown as Awaited<ReturnType<typeof resend.emails.send>>);
+      mockBrevoResponse({ messageId: 'email_notify' });
 
       const success = await sendRsvpNotificationEmail({
         guestName: 'Guest Name',

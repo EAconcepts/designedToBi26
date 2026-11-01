@@ -84,7 +84,7 @@ export function EnvelopeIntro() {
             alt="Couple Logo"
             width={100}
             height={100}
-            className="size:[60px] object-cover md:size-[100px]"
+            className="h-auto w-[60px] object-cover md:w-[100px]"
           />
           <p>We invite you to celebrate with us</p>
         </div>

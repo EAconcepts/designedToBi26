@@ -1,11 +1,10 @@
 import NextAuth from 'next-auth';
 import type { NextAuthConfig } from 'next-auth';
-import Resend from 'next-auth/providers/resend';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/db';
 import { env } from '@/lib/env';
 import { SITE } from '@/content/site.config';
-import { Resend as ResendClient } from 'resend';
+import { sendEmail } from '@/lib/email/client';
 
 // Model mapping: AdminUser -> User
 const prismaForAuth = new Proxy(prisma, {
@@ -30,8 +29,6 @@ export function isAllowedAdminEmail(email: string | null | undefined): boolean {
   return getAdminAllowlist().has(email.trim().toLowerCase());
 }
 
-const resendClient = new ResendClient(env.server.RESEND_API_KEY);
-
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prismaForAuth as unknown as typeof prisma),
   session: {
@@ -44,8 +41,10 @@ export const authConfig: NextAuthConfig = {
     signIn: '/login',
   },
   providers: [
-    Resend({
-      apiKey: env.server.RESEND_API_KEY,
+    {
+      id: 'brevo',
+      type: 'email',
+      name: 'Brevo',
       from: env.server.EMAIL_FROM,
       maxAge: 30 * 60, // 30 minutes magic link per spec
       async sendVerificationRequest({ identifier: to, url }) {
@@ -61,8 +60,7 @@ export const authConfig: NextAuthConfig = {
         try {
           const coupleNames = `${SITE.couple.a} & ${SITE.couple.b}`;
           const brandName = SITE.hashtag;
-          await resendClient.emails.send({
-            from: env.server.EMAIL_FROM,
+          const result = await sendEmail({
             to,
             subject: `Sign in to ${brandName} Admin (${coupleNames})`,
             html: `<!DOCTYPE html>
@@ -82,14 +80,17 @@ export const authConfig: NextAuthConfig = {
 </html>`,
             text: `Sign in to ${brandName} Admin (${coupleNames})\n\nOpen this link to sign in:\n${url}\n\nThis link expires in 30 minutes.`,
           });
+          if (!result.ok) {
+            throw new Error(result.error || 'Brevo failed to send the admin sign-in email');
+          }
         } catch (err) {
           if (env.isProd) {
             throw err;
           }
-          console.warn('[AUTH] Resend email send skipped or failed in non-production:', err);
+          console.warn('[AUTH] Brevo email send skipped or failed in non-production:', err);
         }
       },
-    }),
+    },
   ],
   callbacks: {
     async signIn({ user }) {

@@ -10,7 +10,7 @@ describe('validateEnv function', () => {
     GUEST_COOKIE_SECRET: 'test-guest-secret-1234567890123456',
     ADMIN_ALLOWLIST: 'admin@example.com',
     NOTIFY_EMAIL: 'notify@example.com',
-    RESEND_API_KEY: 're_test_key',
+    BREVO_API_KEY: 'xkeysib-test-key',
     EMAIL_FROM: 'noreply@example.com',
     CLOUDINARY_CLOUD_NAME: 'test_cloud',
     CLOUDINARY_API_KEY: '1234567890',

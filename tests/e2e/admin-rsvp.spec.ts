@@ -45,7 +45,7 @@ test.describe('Admin RSVP & Guest Management E2E', () => {
     // 2. Follow the email link exactly as Auth.js would build it
     const rawToken = await createMagicLinkToken();
     await page.goto(
-      `/api/auth/callback/resend?callbackUrl=%2Fadmin&token=${rawToken}&email=${encodeURIComponent(
+      `/api/auth/callback/brevo?callbackUrl=%2Fadmin&token=${rawToken}&email=${encodeURIComponent(
         ADMIN_EMAIL,
       )}`,
     );
