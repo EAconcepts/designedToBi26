@@ -7,8 +7,7 @@ import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: `Wedding Gift Registry | ${SITE.couple.a} & ${SITE.couple.b}`,
-  description:
-    'Celebrate Adetolani & Emmanuel with a gift for their honeymoon, new home, or future together.',
+  description: 'Celebrate Adetolani & Emmanuel with a gift toward their next chapter.',
 };
 
 export default async function GiftPage() {
@@ -57,7 +56,8 @@ export default async function GiftPage() {
           A gift, <em>with love</em>
         </h1>
         <p className="inner-hero__body">
-          For those who have asked, we’ve created a few ways to contribute to our next chapter.
+          If you would like to give, you can contribute to our next chapter by secure online payment
+          or bank transfer.
         </p>
         <span className="inner-hero__line" />
       </header>
@@ -66,7 +66,7 @@ export default async function GiftPage() {
       <Suspense
         fallback={
           <div className="paper-section" style={{ padding: '60px 20px', textAlign: 'center' }}>
-            <p className="section-kicker">Loading gifting options...</p>
+            <p className="section-kicker">Loading gifting details...</p>
           </div>
         }
       >

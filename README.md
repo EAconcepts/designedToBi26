@@ -145,6 +145,13 @@ email address as the sender without buying a domain:
 The sender must be verified before sending to guest addresses. Domain authentication is
 recommended by Brevo for stronger deliverability, but is not required for this setup.
 
+### Vercel deployments
+
+The Vercel build command deploys pending Prisma migrations, retries transient PostgreSQL
+advisory-lock timeouts, generates the Prisma client, and builds the app. It deliberately does
+not seed the database: `pnpm seed` updates baseline records and should only be run intentionally
+when initializing or maintaining a database.
+
 ---
 
 ## 📋 Dependency & Integration Tracker

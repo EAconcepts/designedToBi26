@@ -367,11 +367,11 @@ export function GiftTeaser() {
           fontStyle: 'italic',
         }}
       >
-        For those who wish to bless our union with a token of love, we have prepared gift funds to
-        help us begin our journey together.
+        For those who wish to bless our union with a token of love, we welcome gifts to help us
+        begin our journey together.
       </p>
       <Link href="/gift" className="button button--magenta">
-        View gift options <ArrowIcon />
+        Give a gift <ArrowIcon />
       </Link>
     </section>
   );

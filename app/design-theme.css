@@ -2305,8 +2305,8 @@ footer span {
 .gift-page {
   padding: 100px 7vw 130px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10vw;
+  grid-template-columns: minmax(0, 720px);
+  justify-content: center;
 }
 
 .gift-funds h2 {
