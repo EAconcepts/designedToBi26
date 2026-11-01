@@ -89,7 +89,8 @@ test.describe('Gifting Experience E2E', () => {
     await expect(onlineTab).toHaveAttribute('aria-selected', 'true');
     await expect(
       page.getByRole('heading', { name: /where would you like your kindness to go/i }),
-    ).toBeVisible();
+    ).toHaveCount(0);
+    await expect(page.getByLabel(/enter an amount/i)).toBeVisible();
 
     // Click Bank Transfer tab
     await bankTab.click();
@@ -104,7 +105,8 @@ test.describe('Gifting Experience E2E', () => {
     await expect(onlineTab).toHaveAttribute('aria-selected', 'true');
     await expect(
       page.getByRole('heading', { name: /where would you like your kindness to go/i }),
-    ).toBeVisible();
+    ).toHaveCount(0);
+    await expect(page.getByLabel(/enter an amount/i)).toBeVisible();
   });
 
   test('bank transfer copy button works and declaration form submits', async ({
@@ -131,6 +133,7 @@ test.describe('Gifting Experience E2E', () => {
     await page
       .getByRole('textbox', { name: /message to couple/i })
       .fill('Sent via mobile banking app!');
+    await expect(page.getByLabel(/dedicated wish \/ fund/i)).toHaveCount(0);
 
     // Submit declaration
     await page.getByRole('button', { name: /submit declaration/i }).click();

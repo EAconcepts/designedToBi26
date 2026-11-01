@@ -52,8 +52,7 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
 
   // Online Gift Form State
   const defaultFund = funds[0]?.slug || 'honeymoon';
-  const [selectedFundSlug, setSelectedFundSlug] = useState(defaultFund);
-  const selectedFund = funds.find((f) => f.slug === selectedFundSlug) || funds[0];
+  const selectedFundSlug = defaultFund;
 
   const [selectedPresetMinor, setSelectedPresetMinor] = useState<number | null>(
     SITE.gift.presetAmountsMinor[1] ?? 1000000,
@@ -77,7 +76,7 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
   const [declareName, setDeclareName] = useState('');
   const [declareEmail, setDeclareEmail] = useState('');
   const [declareAmountText, setDeclareAmountText] = useState('');
-  const [declareFundSlug, setDeclareFundSlug] = useState(defaultFund);
+  const declareFundSlug = defaultFund;
   const [declareMessage, setDeclareMessage] = useState('');
   const [declareAnonymous, setDeclareAnonymous] = useState(false);
   const [isDeclaring, setIsDeclaring] = useState(false);
@@ -244,7 +243,7 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
 
   return (
     <section className="gift-page paper-section">
-      {/* Left Column: Fund Wish Selection */}
+      {/*
       <div className="gift-funds">
         <p className="section-kicker">Choose a wish</p>
         <h2>Where would you like your kindness to go?</h2>
@@ -265,8 +264,9 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
           </button>
         ))}
       </div>
+      */}
 
-      {/* Right Column: Checkout Card */}
+      {/* Gift checkout */}
       <div className="gift-checkout">
         <div className="gift-tabs" role="tablist" aria-label="Gift payment method">
           <button
@@ -298,9 +298,7 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
         {currentTab === 'online' ? (
           <div role="tabpanel" id="panel-online" aria-labelledby="tab-online">
             <form onSubmit={handleOnlineSubmit}>
-              <p className="selected-fund !border-b-0">
-                Your gift to <strong>{selectedFund?.title || 'Selected Fund'}</strong>
-              </p>
+              <p className="selected-fund !border-b-0">Your gift will support our next chapter.</p>
 
               {/* <div className="amount-grid" role="group" aria-label="Gift amount presets">
                 {SITE.gift.presetAmountsMinor.map((minor) => {
@@ -563,6 +561,7 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
                     </div>
                   </label>
 
+                  {/*
                   <label className="gift-label" htmlFor="declare-fund-select">
                     Dedicated wish / fund
                     <select
@@ -589,6 +588,7 @@ export function GiftTabs({ funds, bankAccounts }: GiftTabsProps) {
                       ))}
                     </select>
                   </label>
+                  */}
 
                   <label className="gift-label" htmlFor="declare-message-input">
                     Message to couple (optional)
